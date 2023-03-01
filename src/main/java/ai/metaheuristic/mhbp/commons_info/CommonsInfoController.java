@@ -35,18 +35,18 @@ public class CommonsInfoController {
     public String getExperiments(Model model, @PageableDefault(size = 5) Pageable pageable,
                                  @ModelAttribute("infoMessages") final ArrayList<String> infoMessages,
                                  @ModelAttribute("errorMessage") final ArrayList<String> errorMessage) {
-        CommonInfoData.Info info = commonsInfoService.getExperiments(pageable);
-        ControllerUtils.addMessagesToModel(model, experiments);
-        model.addAttribute("result", experiments);
+        CommonInfoData.Info info = commonsInfoService.getInfo(pageable);
+        ControllerUtils.addMessagesToModel(model, info);
+        model.addAttribute("result", info);
         return "mhbp/commons/info";
     }
 
     // for AJAX
-    @PostMapping("/experiments-part")
+    @PostMapping("/info-part")
     public String getExperimentsAjax(Model model, @PageableDefault(size = 5) Pageable pageable) {
-        ExperimentApiData.ExperimentsResult experiments = experimentTopLevelService.getExperiments(pageable);
-        model.addAttribute("result", experiments);
-        return "dispatcher/ai/experiment/experiments :: table";
+        CommonInfoData.Info info = null;
+        model.addAttribute("result", info);
+        return "mhbp/commons/info :: table";
     }
 
 }
