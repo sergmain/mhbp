@@ -1,6 +1,5 @@
 package ai.metaheuristic.mhbp.commons_info;
 
-import ai.metaheuristic.api.data.experiment.ExperimentApiData;
 import ai.metaheuristic.mhbp.data.CommonInfoData;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,8 @@ import java.util.ArrayList;
 public class CommonsInfoController {
 
     private static final String REDIRECT_DISPATCHER_EXPERIMENTS = "redirect:/mhbp/commons/info";
-    private static final CommonsInfoService commonsInfoService;
+
+    private final CommonsInfoService commonsInfoService;
 
     @GetMapping("/info")
     public String getExperiments(Model model, @PageableDefault(size = 5) Pageable pageable,

@@ -43,11 +43,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>ai.metaheuristic</groupId>
-            <artifactId>mh-commons</artifactId>
-            <version>4.10.21</version>
-        </dependency>
 
         <dependency>
             <!-- Apache 2.0 -->

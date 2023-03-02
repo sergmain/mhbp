@@ -7,7 +7,7 @@ package ai.metaheuristic.mhbp.data;
  */
 public class CommonInfoData {
 
-    public static class Info {
+    public static class Info extends BaseDataClass {
         public String dumbString;
     }
 }

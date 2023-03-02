@@ -19,11 +19,13 @@ import java.util.Objects;
 @Data
 public abstract class BaseDataClass {
 
+    @Nullable
     @JsonInclude(value= JsonInclude.Include.NON_NULL, content= JsonInclude.Include.NON_EMPTY)
-    public @Nullable List<String> errorMessages;
+    public List<String> errorMessages;
 
+    @Nullable
     @JsonInclude(value= JsonInclude.Include.NON_NULL, content= JsonInclude.Include.NON_EMPTY)
-    public @Nullable List<String> infoMessages;
+    public List<String> infoMessages;
 
     public void addErrorMessage(String errorMessage) {
         if (this.errorMessages==null) {

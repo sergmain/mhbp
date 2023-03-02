@@ -3,7 +3,6 @@ package ai.metaheuristic.mhbp.commons_info;
 import ai.metaheuristic.mhbp.data.CommonInfoData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,7 @@ public class CommonsInfoService {
 
 
     public CommonInfoData.Info getInfo(Pageable pageable) {
-
-        return false;
+        CommonInfoData.Info info = new CommonInfoData.Info();
+        return info;
     }
 }

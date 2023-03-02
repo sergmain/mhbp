@@ -1,7 +1,7 @@
 package ai.metaheuristic.mhbp.utils;
 
-import ai.metaheuristic.api.data.BaseDataClass;
 import ai.metaheuristic.mhbp.Consts;
+import ai.metaheuristic.mhbp.data.BaseDataClass;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
