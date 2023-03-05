@@ -1,10 +1,11 @@
 package ai.metaheuristic.mhbp.security;
 
+import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.account.AccountTxService;
 import ai.metaheuristic.mhbp.beans.Account;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,24 +19,21 @@ import org.springframework.stereotype.Service;
  * Time: 23:17
  */
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetails implements UserDetailsService {
 
     private static final String USERNAME_QQQ = "qqq";
     public static final long ADMIN_ID = Integer.MAX_VALUE - 10L;
 
     private final AccountTxService accountTxService;
+    private final Globals globals;
 
     @Value("${com.htrucker.manager.enabled}")
     boolean isManagerEnabled;
 
-    @Autowired
-    public CustomUserDetails(AccountTxService accountTxService) {
-        this.accountTxService = accountTxService;
-    }
-
     @Data
     public static class ComplexUsername {
-        String username;
+        public String username;
 
         private ComplexUsername(String username) {
             this.username = username;
@@ -75,7 +73,7 @@ public class CustomUserDetails implements UserDetailsService {
             account.setAccountNonLocked(true);
             account.setCredentialsNonExpired(true);
             account.setEnabled(true);
-            account.setPassword(globals.dispatcher.masterPassword);
+            account.setPassword(globals.masterPassword);
             account.setPublicName(USERNAME_QQQ);
 
             account.setRoles("ROLE_ADMIN, ROLE_MANAGER");
