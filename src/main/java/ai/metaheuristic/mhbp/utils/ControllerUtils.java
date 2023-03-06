@@ -2,6 +2,8 @@ package ai.metaheuristic.mhbp.utils;
 
 import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.data.BaseDataClass;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -15,6 +17,13 @@ import java.util.List;
  * Time: 1:56 PM
  */
 public class ControllerUtils {
+
+    public static Pageable fixPageSize(int limit, Pageable pageable) {
+        if (pageable.getPageSize()!= limit) {
+            pageable = PageRequest.of(pageable.getPageNumber(), limit);
+        }
+        return pageable;
+    }
 
     public static void initRedirectAttributes(RedirectAttributes redirectAttributes, BaseDataClass r) {
         if (r.isErrorMessages()) {

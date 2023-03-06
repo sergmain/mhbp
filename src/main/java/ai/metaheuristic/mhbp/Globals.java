@@ -25,7 +25,14 @@ public class Globals {
         private int event =  10;
     }
 
+    @Getter
+    @Setter
+    public static class RowsLimit {
+        public int defaultLimit = 20;
+    }
+
     public Threads threads;
+    public RowsLimit rowsLimit;
 
     public String masterPassword;
 }

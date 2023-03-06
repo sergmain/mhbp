@@ -27,7 +27,7 @@ import java.util.ArrayList;
 //@PreAuthorize("hasAnyRole('ADMIN', 'DATA')")
 public class CommonsInfoController {
 
-    private static final String REDIRECT_DISPATCHER_EXPERIMENTS = "redirect:/mhbp/commons/info";
+    private static final String REDIRECT_MHBP_COMMONS_INFO = "redirect:/mhbp/commons/info";
 
     private final CommonsInfoService commonsInfoService;
 
