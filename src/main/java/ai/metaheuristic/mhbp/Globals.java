@@ -34,5 +34,6 @@ public class Globals {
     public Threads threads;
     public RowsLimit rowsLimit;
 
-    public String masterPassword;
+    public String mainUsername;
+    public String mainPassword;
 }

@@ -9,6 +9,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serial;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -59,7 +60,6 @@ public class AccountData {
         }
     }
 
-
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -82,5 +82,14 @@ public class AccountData {
         }
     }
 
-
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserData {
+        public String username;
+        public String publicName;
+        public Collection<GrantedAuthority> authorities;
+        // this field contains value from Account.companyId
+        public Long companyId;
+    }
 }

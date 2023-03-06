@@ -1,4 +1,4 @@
-package ai.metaheuristic.mhbp.rest.main;
+package ai.metaheuristic.mhbp.rest.stub;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.company.CompanyAccountService;
@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.*;
 /**
  * @author Sergio Lissner
  * Date: 3/5/2023
- * Time: 6:03 PM
+ * Time: 7:20 PM
  */
 @RestController
 @RequestMapping("/rest/v1/mhbp/company")
 @Slf4j
-@Profile("!stub-data")
+@Profile("stub-data")
 @CrossOrigin
 @RequiredArgsConstructor
 public class CompanyRestController {
