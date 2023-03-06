@@ -17,4 +17,6 @@ public class Enums {
 
     public enum RequestType {text, video, audio }
     public enum ResponseType {text, bool, digit }
+
+    public enum OperationStatus {OK, ERROR}
 }

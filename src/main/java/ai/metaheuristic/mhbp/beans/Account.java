@@ -1,7 +1,7 @@
 package ai.metaheuristic.mhbp.beans;
 
-import ai.metaheuristic.commons.account.AccountRoles;
 import ai.metaheuristic.mhbp.data.AccountData;
+import ai.metaheuristic.mhbp.data.AccountRoles;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

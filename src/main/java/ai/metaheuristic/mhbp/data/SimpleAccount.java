@@ -1,7 +1,5 @@
 package ai.metaheuristic.mhbp.data;
 
-import ai.metaheuristic.api.data.account.AccountApiData;
-import ai.metaheuristic.commons.account.AccountRoles;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,7 +30,7 @@ public class SimpleAccount {
     @JsonIgnore
     public final AccountRoles accountRoles = new AccountRoles(()-> roles, (o)->roles = o);
 
-    public List<AccountApiData.SerializableGrantedAuthority> getAuthorities() {
+    public List<AccountData.SerializableGrantedAuthority> getAuthorities() {
         return accountRoles.getAuthorities();
     }
 }

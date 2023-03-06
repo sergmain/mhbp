@@ -1,10 +1,10 @@
 package ai.metaheuristic.mhbp.account;
 
-import ai.metaheuristic.api.data.OperationStatusRest;
-import ai.metaheuristic.commons.utils.PageUtils;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.data.AccountData;
+import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +25,7 @@ public class AccountService {
     private final Globals globals;
 
     public AccountData.AccountsResult getAccounts(Pageable pageable, RequestContext context) {
-        pageable = PageUtils.fixPageSize(globals.rowsLimit.defaultLimit, pageable);
+        pageable = ControllerUtils.fixPageSize(globals.rowsLimit.defaultLimit, pageable);
         return accountTxService.getAccounts(pageable, context.getCompanyId());
     }
 
