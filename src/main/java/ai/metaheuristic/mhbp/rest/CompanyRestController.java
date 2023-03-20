@@ -1,4 +1,21 @@
-package ai.metaheuristic.mhbp.rest.main;
+/*
+ *    Copyright 2023, Sergio Lissner, Innovation platforms, LLC
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ *
+ */
+
+package ai.metaheuristic.mhbp.rest;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.company.CompanyAccountService;
@@ -21,17 +38,17 @@ import org.springframework.web.bind.annotation.*;
  * Time: 6:03 PM
  */
 @RestController
-@RequestMapping("/rest/v1/mhbp/company")
+@RequestMapping("/rest/v1/dispatcher/company")
 @Slf4j
-@Profile("!stub-data")
-@CrossOrigin
+//@Profile("!stub-data")
+//@CrossOrigin
 @RequiredArgsConstructor
 public class CompanyRestController {
 
     private final CompanyService companyTopLevelService;
     private final CompanyAccountService companyAccountTopLevelService;
 
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN', 'MASTER_OPERATOR', 'MASTER_SUPPORT')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN', 'MAIN_OPERATOR', 'MAIN_SUPPORT')")
     @GetMapping("/companies")
     public CompanyData.SimpleCompaniesResult companies(@PageableDefault(size = 50) Pageable pageable) {
         CompanyData.SimpleCompaniesResult companies = companyTopLevelService.getCompanies(pageable);
@@ -39,21 +56,21 @@ public class CompanyRestController {
     }
 
     @PostMapping("/company-add-commit")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public OperationStatusRest addFormCommit(String companyName) {
         OperationStatusRest operationStatusRest = companyTopLevelService.addCompany(companyName);
         return operationStatusRest;
     }
 
     @GetMapping(value = "/company-edit/{companyUniqueId}")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public CompanyData.SimpleCompanyResult editCompany(@PathVariable Long companyUniqueId){
         CompanyData.SimpleCompanyResult companyResult = companyTopLevelService.getSimpleCompany(companyUniqueId);
         return companyResult;
     }
 
     @PostMapping("/company-edit-commit")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public OperationStatusRest editFormCommit(Long companyUniqueId, String name, String groups) {
         OperationStatusRest operationStatusRest = companyTopLevelService.editFormCommit(companyUniqueId, name, groups);
         return operationStatusRest;
@@ -62,49 +79,49 @@ public class CompanyRestController {
     // === accounts for companies =====================
 
     @GetMapping("/company-accounts/{companyUniqueId}")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public AccountData.AccountsResult accounts(@PageableDefault(size = 5) Pageable pageable, @PathVariable Long companyUniqueId) {
         AccountData.AccountsResult accounts = companyAccountTopLevelService.getAccounts(pageable, companyUniqueId);
         return accounts;
     }
 
     @PostMapping("/company-account-add-commit/{companyUniqueId}")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public OperationStatusRest addFormCommit(@RequestBody AccountData.NewAccount account, @PathVariable Long companyUniqueId) {
         OperationStatusRest operationStatusRest = companyAccountTopLevelService.addAccount(account, companyUniqueId);
         return operationStatusRest;
     }
 
     @GetMapping(value = "/company-account-edit/{companyUniqueId}/{id}")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public AccountData.AccountResult edit(@PathVariable Long id, @PathVariable Long companyUniqueId){
         AccountData.AccountResult accountResult = companyAccountTopLevelService.getAccount(id, companyUniqueId);
         return accountResult;
     }
 
     @PostMapping("/company-account-edit-commit/{companyUniqueId}")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public OperationStatusRest editFormCommit(@Nullable Long id, @Nullable String publicName, boolean enabled, @Nullable @PathVariable Long companyUniqueId) {
         OperationStatusRest operationStatusRest = companyAccountTopLevelService.editFormCommit(id, publicName, enabled, companyUniqueId);
         return operationStatusRest;
     }
 
     @GetMapping(value = "/company-account-password-edit/{companyUniqueId}/{id}")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public AccountData.AccountResult passwordEdit(@PathVariable Long id, @PathVariable Long companyUniqueId){
         AccountData.AccountResult accountResult = companyAccountTopLevelService.getAccount(id, companyUniqueId);
         return accountResult;
     }
 
     @PostMapping("/company-account-password-edit-commit/{companyUniqueId}")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public OperationStatusRest passwordEditFormCommit(Long id, String password, String password2, @PathVariable Long companyUniqueId) {
         OperationStatusRest operationStatusRest = companyAccountTopLevelService.passwordEditFormCommit(id, password, password2, companyUniqueId);
         return operationStatusRest;
     }
 
     @GetMapping(value = "/company-account-edit-roles/{companyUniqueId}/{id}")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public AccountData.AccountWithRoleResult editRoles(@PathVariable Long id, @PathVariable Long companyUniqueId) {
         AccountData.AccountWithRoleResult accountWithRole = companyAccountTopLevelService.getAccountWithRole(id, companyUniqueId);
         return accountWithRole;
@@ -118,7 +135,7 @@ public class CompanyRestController {
      * @param companyUniqueId Account.companyId
      */
     @PostMapping("/company-account-edit-roles-commit/{companyUniqueId}")
-    @PreAuthorize("hasAnyRole('MASTER_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public OperationStatusRest rolesEditFormCommit(Long accountId, String role, @RequestParam(required = false, defaultValue = "false") boolean checkbox,
                                                    @PathVariable Long companyUniqueId) {
         AccountData.AccountResult accountResult = companyAccountTopLevelService.getAccount(accountId, companyUniqueId);

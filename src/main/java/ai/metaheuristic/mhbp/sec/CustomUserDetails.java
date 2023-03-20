@@ -1,3 +1,20 @@
+/*
+ *    Copyright 2023, Sergio Lissner, Innovation platforms, LLC
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ *
+ */
+
 package ai.metaheuristic.mhbp.sec;
 
 import ai.metaheuristic.mhbp.Consts;
@@ -7,7 +24,6 @@ import ai.metaheuristic.mhbp.beans.Account;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Profile;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +36,6 @@ import org.springframework.stereotype.Service;
  * Time: 7:54 PM
  */
 @Service
-@Profile("dispatcher")
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetailsService {
 
@@ -37,16 +52,7 @@ public class CustomUserDetails implements UserDetailsService {
 
         @Nullable
         public static ComplexUsername getInstance(String fullUsername) {
-            int idx = fullUsername.lastIndexOf('=');
-            final String username;
-            if (idx == -1) {
-                username = fullUsername;
-            }
-            else {
-                username = fullUsername.substring(0, idx);
-            }
-            ComplexUsername complexUsername = new ComplexUsername(username);
-
+            ComplexUsername complexUsername = new ComplexUsername(fullUsername);
             return complexUsername.isValid() ? complexUsername : null;
         }
 
@@ -75,7 +81,7 @@ public class CustomUserDetails implements UserDetailsService {
             // need to think of better solution for virtual accounts
             account.setId(Integer.MAX_VALUE -5L);
 
-            // master admin will belong to companyUniqueId==1
+            // main admin will belong to companyUniqueId==1
             account.setCompanyId(1L);
             account.setUsername(globals.mainUsername);
             account.setAccountNonExpired(true);

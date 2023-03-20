@@ -1,0 +1,21 @@
+version: 1
+code: simple-provider-localhost:1.0
+authType: basic
+model:
+  basicAuth:
+    usernameParam: password
+    passwordParam: password
+  baseMeta:
+    uri: http://localhost/rest/v1/provider/simple/stub
+    attrs:
+      - object: question
+        param: q
+  metas:
+    - meta:
+        object: question
+        desc: Question to ask
+        uri: /question
+      response:
+        attrs:
+          - object: answer
+            param: a
