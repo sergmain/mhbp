@@ -56,6 +56,8 @@ public class StubProviderController {
 
     public static final Random r = new Random();
 
+    // http://localhost:8080/rest/v1/provider/simple/stub/question?q=qqqqq
+
     @RequestMapping(method={GET, POST}, value = "/question")
     //@PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public String question(@RequestParam(name = "q") String question){
