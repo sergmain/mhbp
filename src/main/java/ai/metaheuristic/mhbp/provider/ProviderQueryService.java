@@ -20,7 +20,6 @@ package ai.metaheuristic.mhbp.provider;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.api.model.ApiModel;
 import ai.metaheuristic.mhbp.data.ApiData;
-import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.sec.UserContextService;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.utils.RestUtils;
@@ -30,8 +29,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -51,14 +48,13 @@ public class ProviderQueryService {
     public final ProviderApiModelService providerService;
     public final UserContextService userContextService;
 
-    public ResponseEntity<String> processQuery(@Nullable String q, @Nullable Enums.AgeGroup ageGroup, Authentication authentication,
+    public ResponseEntity<String> processQuery(ProviderData.QueriedData queriedData,
                                                Function<ProviderData.QueriedData, ApiData.QueriedInfoWithError> getQueriedInfoWithErrorFunc) {
         try {
-            if (S.b(q)) {
+            if (S.b(queriedData.queryText())) {
                 return RestUtils.returnError(HttpStatus.BAD_REQUEST, "Required parameter wasn't specified");
             }
-            RequestContext context = userContextService.getContext(authentication);
-            final ApiData.FullQueryResult result = process(new ProviderData.QueriedData(q, ageGroup, context), getQueriedInfoWithErrorFunc);
+            final ApiData.FullQueryResult result = process(queriedData, getQueriedInfoWithErrorFunc);
             if (result.queryResult.error!=null ) {
                 HttpStatus status = HttpStatus.BAD_REQUEST;
                 if (result.queryResult.error.errorType == Enums.QueryResultErrorType.cant_understand) {

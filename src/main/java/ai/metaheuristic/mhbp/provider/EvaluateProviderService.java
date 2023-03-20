@@ -17,6 +17,8 @@
 
 package ai.metaheuristic.mhbp.provider;
 
+import ai.metaheuristic.mhbp.data.ApiData;
+import ai.metaheuristic.mhbp.data.NluData;
 import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
 import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.questions.QuestionService;
@@ -43,6 +45,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class EvaluateProviderService {
 
     public final QuestionService questionService;
+    public final ProviderQueryService providerQueryService;
 
     private final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 
@@ -87,11 +90,18 @@ public class EvaluateProviderService {
             log.debug("call EvaluateProviderService.evaluateProvider({})", event.providerCode());
             List<QuestionData.QuestionToAsk> questions = questionService.getQuestionToAsk();
             for (QuestionData.QuestionToAsk question : questions) {
-
+                ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.q(), null, null);
+                providerQueryService.processQuery(queriedData, EvaluateProviderService::asQueriedInfoWithError);
             }
 
         } catch (Throwable th) {
             log.error("417.020 Error, need to investigate ", th);
         }
+    }
+
+    public static ApiData.QueriedInfoWithError asQueriedInfoWithError(ProviderData.QueriedData queriedData) {
+        final NluData.QueriedInfo queriedInfo = new NluData.QueriedInfo("", List.of(new NluData.Property("q", queriedData.queryText())));
+
+        return new ApiData.QueriedInfoWithError(queriedInfo, null);
     }
 }

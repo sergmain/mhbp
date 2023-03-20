@@ -43,5 +43,5 @@ public class ProviderData {
     }
 
     public record QueriedData(
-            String queryText, @Nullable Enums.AgeGroup ageGroup, RequestContext context){}
+            String queryText, @Nullable Enums.AgeGroup ageGroup, @Nullable RequestContext context){}
 }
