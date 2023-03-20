@@ -24,6 +24,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.util.stream.Collectors;
 
+@SuppressWarnings("ConstantValue")
 public class ApiModelUtilsV1 extends
         AbstractParamsUtils<ApiModelV1, ApiModel, Void, Void, Void, Void> {
 
@@ -81,6 +82,7 @@ public class ApiModelUtilsV1 extends
 
     private static ApiModel.Response toResponse(ApiModelV1.ResponseV1 v1) {
         ApiModel.Response r = new ApiModel.Response();
+        r.asText = v1.asText;
         r.attrs = v1.attrs.stream().map(ApiModelUtilsV1::toMeta).collect(Collectors.toList());
         return r;
     }

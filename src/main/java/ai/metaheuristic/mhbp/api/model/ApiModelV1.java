@@ -78,6 +78,7 @@ public class ApiModelV1 implements BaseParams {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ResponseV1 {
+        public boolean asText;
         public List<MetaV1> attrs = new ArrayList<>();
     }
 

@@ -61,6 +61,7 @@ public class Globals {
     public String mainPassword;
 
     public boolean sslRequired = true;
+    public boolean testing = false;
 
     public void setCorsAllowedOrigins(List<String> corsAllowedOrigins) {
         if (corsAllowedOrigins.isEmpty()) {

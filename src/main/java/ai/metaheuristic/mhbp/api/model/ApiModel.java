@@ -81,6 +81,7 @@ public class ApiModel implements BaseParams {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response {
+        public boolean asText;
         public List<Meta> attrs;
     }
 

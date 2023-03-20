@@ -16,6 +16,4 @@ model:
         desc: Question to ask
         uri: /question
       response:
-        attrs:
-          - object: answer
-            param: a
+        asText: true
