@@ -17,12 +17,15 @@
 
 package ai.metaheuristic.mhbp.questions;
 
+import ai.metaheuristic.mhbp.beans.Session;
+import ai.metaheuristic.mhbp.provider.ProviderData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
 
 /**
  * @author Sergio Lissner
@@ -32,7 +35,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class QuestionService {
+public class QuestionAndAnswerService {
 
     public static final List<QuestionData.QuestionToAsk> qqs = List.of(
             new QuestionData.QuestionToAsk("q1"),
@@ -46,4 +49,10 @@ public class QuestionService {
         return qqs;
     }
 
+    public void process(Session session, ProviderData.QuestionAndAnswer qaa) {
+        if (qaa.status()!=OK) {
+            return;
+        }
+
+    }
 }

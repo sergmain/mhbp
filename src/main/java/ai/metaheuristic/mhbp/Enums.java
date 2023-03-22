@@ -37,4 +37,6 @@ public class Enums {
     public enum QueryResultErrorType { cant_understand, common, server_error, query_too_long }
 
     public enum AgeGroup { group_before_13, group_between_13_and_18, group_after_18 }
+
+    public enum AnswerStatus {normal, fail, error}
 }

@@ -15,27 +15,31 @@
  *
  */
 
-package ai.metaheuristic.mhbp.repositories;
+package ai.metaheuristic.mhbp.session;
 
-import ai.metaheuristic.mhbp.beans.Ids;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import ai.metaheuristic.mhbp.beans.Session;
+import ai.metaheuristic.mhbp.repositories.SessionRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Sergio Lissner
- * Date: 3/5/2023
- * Time: 6:16 PM
+ * Date: 3/22/2023
+ * Time: 2:51 AM
  */
-@Repository
-@Transactional
-public interface IdsRepository extends CrudRepository<Ids, Long> {
+@Service
+@RequiredArgsConstructor
+public class SessionTxService {
 
-    @Override
-    @Modifying
-    @Query(value="delete from Ids t where t.id=:id")
-    void deleteById(Long id);
+    public final SessionRepository sessionRepository;
+
+    @Transactional
+    public Session create() {
+        Session s = new Session();
+        s.createdOn = System.currentTimeMillis();
+        sessionRepository.save(s);
+        return s;
+    }
 
 }

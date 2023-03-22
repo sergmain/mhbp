@@ -19,21 +19,27 @@ package ai.metaheuristic.mhbp.provider;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.api.model.ApiModel;
+import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.data.ApiData;
+import ai.metaheuristic.mhbp.data.NluData;
+import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
+import ai.metaheuristic.mhbp.questions.QuestionData;
+import ai.metaheuristic.mhbp.questions.QuestionAndAnswerService;
 import ai.metaheuristic.mhbp.sec.UserContextService;
+import ai.metaheuristic.mhbp.session.SessionTxService;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
-import ai.metaheuristic.mhbp.utils.RestUtils;
 import ai.metaheuristic.mhbp.utils.S;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+
+import static ai.metaheuristic.mhbp.Enums.OperationStatus.ERROR;
+import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
 
 /**
  * @author Sergio Lissner
@@ -48,30 +54,47 @@ public class ProviderQueryService {
     public final ProviderApiModelService providerService;
     public final UserContextService userContextService;
 
-    public ResponseEntity<String> processQuery(ProviderData.QueriedData queriedData,
+    public final QuestionAndAnswerService questionAndAnswerService;
+    public final ProviderQueryService providerQueryService;
+    public final SessionTxService sessionTxService;
+
+    public void evaluateProvider(EvaluateProviderEvent event) {
+        try {
+            Session s = sessionTxService.create();
+
+            log.debug("call EvaluateProviderService.evaluateProvider({})", event.providerCode());
+            List<QuestionData.QuestionToAsk> questions = questionAndAnswerService.getQuestionToAsk();
+
+            for (QuestionData.QuestionToAsk question : questions) {
+                ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.q(), null, null);
+                ProviderData.QuestionAndAnswer qaa = processQuery(queriedData, ProviderQueryService::asQueriedInfoWithError);
+                questionAndAnswerService.process(s, qaa);
+            }
+        } catch (Throwable th) {
+            log.error("417.020 Error, need to investigate ", th);
+        }
+    }
+
+    public static ApiData.QueriedInfoWithError asQueriedInfoWithError(ProviderData.QueriedData queriedData) {
+        final NluData.QueriedInfo queriedInfo = new NluData.QueriedInfo("question", List.of(new NluData.Property("question", queriedData.queryText())));
+        return new ApiData.QueriedInfoWithError(queriedInfo, null);
+    }
+
+    public ProviderData.QuestionAndAnswer processQuery(ProviderData.QueriedData queriedData,
                                                Function<ProviderData.QueriedData, ApiData.QueriedInfoWithError> getQueriedInfoWithErrorFunc) {
         try {
             if (S.b(queriedData.queryText())) {
-                return RestUtils.returnError(HttpStatus.BAD_REQUEST, "Required parameter wasn't specified");
+                return new ProviderData.QuestionAndAnswer(ERROR, "Required parameter wasn't specified");
             }
             final ApiData.FullQueryResult result = process(queriedData, getQueriedInfoWithErrorFunc);
             if (result.queryResult.error!=null ) {
-                HttpStatus status = HttpStatus.BAD_REQUEST;
-                if (result.queryResult.error.errorType == Enums.QueryResultErrorType.cant_understand) {
-                    status = HttpStatus.NOT_IMPLEMENTED;
-                }
-                if (result.queryResult.error.error != null) {
-                    return RestUtils.returnError(status, result.queryResult.error.error);
-                }
-                else {
-                    return new ResponseEntity<>(status);
-                }
+                return new ProviderData.QuestionAndAnswer(ERROR, result.queryResult.error.error);
             }
-            return new ResponseEntity<>(result.json, HttpStatus.OK);
+            return new ProviderData.QuestionAndAnswer(queriedData.queryText(), result.json, OK, null);
         }
         catch (Throwable e) {
             log.error("Error", e);
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ProviderData.QuestionAndAnswer(ERROR, e.getMessage());
         }
     }
 

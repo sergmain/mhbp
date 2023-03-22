@@ -44,4 +44,14 @@ public class ProviderData {
 
     public record QueriedData(
             String queryText, @Nullable Enums.AgeGroup ageGroup, @Nullable RequestContext context){}
+
+    public record QuestionAndAnswer(@Nullable String q, @Nullable String a, Enums.OperationStatus status, @Nullable String error) {
+        public QuestionAndAnswer(Enums.OperationStatus status) {
+            this(null, null, status, null);
+        }
+
+        public QuestionAndAnswer(Enums.OperationStatus status, String error) {
+            this(null, null, status, error);
+        }
+    }
 }
