@@ -6,7 +6,7 @@ model:
     usernameParam: password
     passwordParam: password
   baseMeta:
-    uri: http://localhost/rest/v1/provider/simple/stub
+    uri: http://localhost:8080/rest/v1/provider/simple/stub
     attrs:
       - object: question
         param: q

@@ -109,7 +109,7 @@ public class Api implements Serializable {
     private final Object syncParamsObj = new Object();
 
     @JsonIgnore
-    public ApiParams getApiParamsYaml() {
+    public ApiParams getApiParams() {
         if (apiParams ==null) {
             synchronized (syncParamsObj) {
                 if (apiParams ==null) {

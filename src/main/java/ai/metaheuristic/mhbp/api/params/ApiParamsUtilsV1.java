@@ -43,7 +43,7 @@ public class ApiParamsUtilsV1 extends
 
         ApiParams t = new ApiParams();
         t.api.code = v1.api.code;
-
+        t.api.authType = v1.api.authType;
         if (v1.api.basicAuth!=null) {
             t.api.basicAuth = new ApiParams.BasicAuth(v1.api.basicAuth.username, v1.api.basicAuth.password);
         }

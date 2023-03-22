@@ -100,7 +100,7 @@ public class EvaluateProviderService {
     }
 
     public static ApiData.QueriedInfoWithError asQueriedInfoWithError(ProviderData.QueriedData queriedData) {
-        final NluData.QueriedInfo queriedInfo = new NluData.QueriedInfo("", List.of(new NluData.Property("q", queriedData.queryText())));
+        final NluData.QueriedInfo queriedInfo = new NluData.QueriedInfo("question", List.of(new NluData.Property("question", queriedData.queryText())));
 
         return new ApiData.QueriedInfoWithError(queriedInfo, null);
     }
