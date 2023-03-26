@@ -24,7 +24,7 @@ package ai.metaheuristic.mhbp;
  */
 public class Enums {
 
-    public enum RequestCategory { math, social}
+    public enum RequestCategory {math, social}
 
     public enum ResultStatus { usual, fail, problem }
 
@@ -36,7 +36,26 @@ public class Enums {
 
     public enum QueryResultErrorType { cant_understand, common, server_error, query_too_long }
 
-    public enum AgeGroup { group_before_13, group_between_13_and_18, group_after_18 }
+    public enum SessionStatus { created(0), finished(1), finished_with_error(2);
+        public final int code;
 
-    public enum AnswerStatus {normal, fail, error}
+        SessionStatus(int code) {
+            this.code = code;
+        }
+    }
+
+    public enum AnswerStatus { normal(0), fail(1), error(2);
+        public final int code;
+        AnswerStatus(int code) {
+            this.code = code;
+        }
+        public static AnswerStatus to(int status) {
+            return switch (status) {
+                case 0 -> normal;
+                case 1 -> fail;
+                case 2 -> error;
+                default -> throw new IllegalStateException("Unexpected value: " + status);
+            };
+        }
+    }
 }

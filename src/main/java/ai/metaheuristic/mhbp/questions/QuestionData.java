@@ -24,5 +24,5 @@ package ai.metaheuristic.mhbp.questions;
  */
 public class QuestionData {
 
-    public record QuestionToAsk(String q) {}
+    public record QuestionWithAnswerToAsk(String qCode, String q, String a) {}
 }

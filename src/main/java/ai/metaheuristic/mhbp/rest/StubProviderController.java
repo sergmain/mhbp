@@ -44,12 +44,12 @@ public class StubProviderController {
 
     public static Map<String, List<SimpleStubAnswer>> answers = Map.of(
             "q1", List.of(
-                    new SimpleStubAnswer(90, "q1", "Bad question #1"),
-                    new SimpleStubAnswer(100, "q1", "Good question #1")),
+                    new SimpleStubAnswer(90, "q1", "13"),
+                    new SimpleStubAnswer(100, "q1", "42")),
 
-            "q2", List.of(new SimpleStubAnswer(100, "q2", "Good question #2")),
-            "q3", List.of(new SimpleStubAnswer(100, "q3", "Good question #3")),
-            "q4", List.of(new SimpleStubAnswer(100, "q4", "Bad question #4"))
+            "q2", List.of(new SimpleStubAnswer(100, "q2", "Good")),
+            "q3", List.of(new SimpleStubAnswer(100, "q3", "Good")),
+            "q4", List.of(new SimpleStubAnswer(100, "q4", "Bad"))
     );
 
     List<SimpleStubAnswer> defAnswer = List.of(new SimpleStubAnswer(100, "", "Unknown context of question #5"));
@@ -62,11 +62,12 @@ public class StubProviderController {
     //@PreAuthorize("hasAnyRole('MAIN_ADMIN')")
     public String question(@RequestParam(name = "q") String question){
         int rInt = r.nextInt(100);
-        return answers.getOrDefault(question, defAnswer).stream()
-                .filter(o-> o.topProb >= rInt)
+        final String s = answers.getOrDefault(question, defAnswer).stream()
+                .filter(o -> o.topProb >= rInt)
                 .findFirst()
-                .map(o->o.txt)
+                .map(o -> o.txt)
                 .orElseThrow(IllegalStateException::new);
+        return s;
     }
 
 }

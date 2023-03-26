@@ -17,10 +17,10 @@
 
 package ai.metaheuristic.mhbp.beans;
 
-import ai.metaheuristic.mhbp.Enums;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.io.Serial;
@@ -53,11 +53,13 @@ public class Answer implements Serializable {
     @Column(name = "Q_CODE")
     public String questionCode;
 
-    public Enums.AnswerStatus status;
+    public int status;
 
-    public boolean safe;
-
-    public String providerCode;
+    @Nullable
+    public Boolean safe;
 
     public String modelInfo;
+
+    public long answeredOn;
+
 }

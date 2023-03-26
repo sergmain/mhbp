@@ -42,8 +42,7 @@ public class ProviderData {
         public static final List<Provider> providers = new ArrayList<>();
     }
 
-    public record QueriedData(
-            String queryText, @Nullable Enums.AgeGroup ageGroup, @Nullable RequestContext context){}
+    public record QueriedData(String queryText, @Nullable RequestContext context){}
 
     public record QuestionAndAnswer(@Nullable String q, @Nullable String a, Enums.OperationStatus status, @Nullable String error) {
         public QuestionAndAnswer(Enums.OperationStatus status) {

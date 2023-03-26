@@ -77,6 +77,8 @@ public class ApiModel implements BaseParams {
         public List<Meta> attrs;
     }
 
+    public record ResponseMeta(boolean asText, @Nullable Meta meta) {}
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

@@ -37,11 +37,16 @@ import java.util.Set;
  * Time: 10:07 PM
  */
 public class ProviderQueryUtils {
-    static String processAnswerFromApi(String json, ApiModel.Meta meta) throws JsonProcessingException {
-        Object obj = JsonUtils.getMapper().readValue(json, Object.class);
-        String field = meta.param;
 
-        return meta.object + " is " + searchForValue(obj, field);
+    static String processAnswerFromApi(String json, ApiModel.ResponseMeta responseMeta) throws JsonProcessingException {
+        if (responseMeta.asText()) {
+            return json;
+        }
+        if (responseMeta.meta()==null || responseMeta.meta().param==null) {
+            throw new IllegalStateException();
+        }
+        Object obj = JsonUtils.getMapper().readValue(json, Object.class);
+        return responseMeta.meta().object + " is " + searchForValue(obj, responseMeta.meta().param);
     }
 
     @Nullable
@@ -70,20 +75,23 @@ public class ProviderQueryUtils {
     }
 
     @Nullable
-    public static ApiModel.Meta getFieldForLookingFor(ApiModel model, NluData.QueriedInfo queriedInfo) {
+    public static ApiModel.ResponseMeta getFieldForLookingFor(ApiModel model, NluData.QueriedInfo queriedInfo) {
         for (ApiModel.MetaWithResponse meta : model.model.metas) {
             if (queriedInfo.object.equals(meta.meta.object)) {
+                if (meta.response.asText) {
+                    return new ApiModel.ResponseMeta(true, null);
+                }
                 if (meta.response.attrs==null || meta.response.attrs.isEmpty()) {
                     continue;
                 }
                 for (ApiModel.Meta attr : meta.response.attrs) {
                     for (NluData.Property property : queriedInfo.properties) {
                         if (attr.object.equals(property.name)) {
-                            return attr;
+                            return new ApiModel.ResponseMeta(false, attr);
                         }
                     }
                 }
-                return meta.response.attrs.get(0);
+                return new ApiModel.ResponseMeta(false, meta.response.attrs.get(0));
             }
         }
         return null;

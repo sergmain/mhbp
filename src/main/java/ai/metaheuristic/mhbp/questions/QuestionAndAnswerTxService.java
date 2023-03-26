@@ -17,10 +17,47 @@
 
 package ai.metaheuristic.mhbp.questions;
 
+import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.beans.Answer;
+import ai.metaheuristic.mhbp.beans.Session;
+import ai.metaheuristic.mhbp.provider.ProviderData;
+import ai.metaheuristic.mhbp.repositories.AnswerRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
+
 /**
  * @author Sergio Lissner
  * Date: 3/22/2023
  * Time: 2:39 AM
  */
+@Service
+@Slf4j
+@RequiredArgsConstructor
 public class QuestionAndAnswerTxService {
+
+    public final AnswerRepository answerRepository;
+
+    @Transactional
+    public void process(Session session, QuestionData.QuestionWithAnswerToAsk question, ProviderData.QuestionAndAnswer qaa) {
+        Answer a = new Answer();
+        a.questionCode = question.qCode();
+        a.sessionId = session.id;
+        a.modelInfo = "n/a";
+        a.answeredOn = System.currentTimeMillis();
+        if (qaa.status()==OK) {
+            a.status = question.a().equals(qaa.a()) ? Enums.AnswerStatus.normal.code : Enums.AnswerStatus.fail.code;
+        }
+        else {
+            a.status = Enums.AnswerStatus.error.code;
+        }
+        answerRepository.save(a);
+
+    }
+
 }

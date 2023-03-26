@@ -37,22 +37,21 @@ import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
 @RequiredArgsConstructor
 public class QuestionAndAnswerService {
 
-    public static final List<QuestionData.QuestionToAsk> qqs = List.of(
-            new QuestionData.QuestionToAsk("q1"),
-            new QuestionData.QuestionToAsk("q2"),
-            new QuestionData.QuestionToAsk("q3"),
-            new QuestionData.QuestionToAsk("q4"),
-            new QuestionData.QuestionToAsk("q5")
+    public final QuestionAndAnswerTxService questionAndAnswerTxService;
+
+    public static final List<QuestionData.QuestionWithAnswerToAsk> qqs = List.of(
+            new QuestionData.QuestionWithAnswerToAsk("1","q1", "42"),
+            new QuestionData.QuestionWithAnswerToAsk("2","q2", "Good"),
+            new QuestionData.QuestionWithAnswerToAsk("3","q3", "Good"),
+            new QuestionData.QuestionWithAnswerToAsk("4","q4", "Bad"),
+            new QuestionData.QuestionWithAnswerToAsk("5","q5", "Good")
     );
 
-    public List<QuestionData.QuestionToAsk> getQuestionToAsk() {
+    public List<QuestionData.QuestionWithAnswerToAsk> getQuestionToAsk() {
         return qqs;
     }
 
-    public void process(Session session, ProviderData.QuestionAndAnswer qaa) {
-        if (qaa.status()!=OK) {
-            return;
-        }
-
+    public void process(Session session, QuestionData.QuestionWithAnswerToAsk question, ProviderData.QuestionAndAnswer qaa) {
+        questionAndAnswerTxService.process(session, question, qaa);
     }
 }

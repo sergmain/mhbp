@@ -50,6 +50,10 @@ public class Session implements Serializable {
 
     public long createdOn;
 
+    public String providerCode;
+
     @Nullable
     public Long finishedOn;
+
+    public int status;
 }

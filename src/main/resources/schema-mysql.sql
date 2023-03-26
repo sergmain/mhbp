@@ -112,9 +112,8 @@ CREATE table mhbp_answer
     SESSION_ID      NUMERIC(10, 0)  NOT NULL,
     ANSWERED_ON     bigint          NOT NULL,
     Q_CODE          VARCHAR(50)     NOT NULL,
-    STATUS          VARCHAR(10)     NOT NULL,
-    SAFE            BOOLEAN         not null default false,
-    PROVIDER_CODE   VARCHAR(20)     NOT NULL,
+    STATUS          tinyint(1)      NOT NULL,
+    SAFE            BOOLEAN,
     MODEL_INFO      VARCHAR(20)
 );
 
@@ -126,7 +125,23 @@ CREATE table mhbp_session
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
     VERSION         NUMERIC(10, 0)  NOT NULL,
     CREATED_ON      bigint          NOT NULL,
-    FINISHED_ON     bigint
+    PROVIDER_CODE   VARCHAR(20)     NOT NULL,
+    FINISHED_ON     bigint,
+    STATUS          tinyint(1)      NOT NULL
 );
+
+CREATE table mhbp_evaluate
+(
+    ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
+    VERSION         NUMERIC(10, 0)  NOT NULL,
+    SESSION_ID      NUMERIC(10, 0)  NOT NULL,
+    CREATED_ON      bigint          NOT NULL,
+    PROVIDER_CODE   VARCHAR(20)     NOT NULL,
+    PARAMS          MEDIUMTEXT      NOT NULL
+);
+
+CREATE INDEX mhbp_api_company_id_idx
+    ON mhbp_answer (SESSION_ID);
+
 
 
