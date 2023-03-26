@@ -48,7 +48,7 @@ public class Session implements Serializable {
     @Version
     public Integer version;
 
-    public long createdOn;
+    public long startedOn;
 
     public String providerCode;
 

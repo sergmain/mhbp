@@ -124,7 +124,7 @@ CREATE table mhbp_session
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
     VERSION         NUMERIC(10, 0)  NOT NULL,
-    CREATED_ON      bigint          NOT NULL,
+    STARTED_ON      bigint          NOT NULL,
     PROVIDER_CODE   VARCHAR(20)     NOT NULL,
     FINISHED_ON     bigint,
     STATUS          tinyint(1)      NOT NULL

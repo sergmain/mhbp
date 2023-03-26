@@ -38,7 +38,7 @@ public class SessionTxService {
     @Transactional
     public Session create(String providerCode) {
         Session s = new Session();
-        s.createdOn = System.currentTimeMillis();
+        s.startedOn = System.currentTimeMillis();
         s.providerCode = providerCode;
         s.status = Enums.SessionStatus.created.code;
         sessionRepository.save(s);

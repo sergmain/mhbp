@@ -18,9 +18,15 @@
 package ai.metaheuristic.mhbp.repositories;
 
 import ai.metaheuristic.mhbp.beans.Session;
+import ai.metaheuristic.mhbp.data.EvalStatusGrouped;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author Sergio Lissner
@@ -30,5 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @Transactional
 public interface SessionRepository extends CrudRepository<Session, Long> {
+
+    @Transactional(readOnly = true)
+    @Query(value="select s from Session s order by s.id desc")
+    List<Session> getSessions(Pageable pageable);
 
 }

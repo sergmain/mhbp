@@ -19,6 +19,7 @@ package ai.metaheuristic.mhbp.questions;
 
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.provider.ProviderData;
+import ai.metaheuristic.mhbp.repositories.AnswerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
 public class QuestionAndAnswerService {
 
     public final QuestionAndAnswerTxService questionAndAnswerTxService;
+    public final AnswerRepository answerRepository;
 
     public static final List<QuestionData.QuestionWithAnswerToAsk> qqs = List.of(
             new QuestionData.QuestionWithAnswerToAsk("1","q1", "42"),

@@ -42,6 +42,14 @@ public class Enums {
         SessionStatus(int code) {
             this.code = code;
         }
+        public static SessionStatus to(int code) {
+            return switch (code) {
+                case 0 -> created;
+                case 1 -> finished;
+                case 2 -> finished_with_error;
+                default -> throw new IllegalStateException("Unexpected value: " + code);
+            };
+        }
     }
 
     public enum AnswerStatus { normal(0), fail(1), error(2);
