@@ -69,10 +69,15 @@ public class EvaluationService {
 //String providerCode, String modelInfo) {
             long sessionId = (long)status[0];
             Session s = sessions.stream().filter(o->o.id==sessionId).findFirst().orElseThrow();
-            float total = (long)status[1];
-            float normalPercent = (long)status[2]/total;
-            float failPercent = (long)status[3]/total;
-            float errorPercent = (long)status[4]/total;
+            float normalPercent = 0;
+            float failPercent = 0;
+            float errorPercent = 0;
+            float total = (long) status[1];
+            if (total!=0) {
+                normalPercent = (long) status[2] / total;
+                failPercent = (long) status[3] / total;
+                errorPercent = (long) status[4] / total;
+            }
 
             EvalStatus es = new EvalStatus(
                     s.id, s.startedOn, s.finishedOn, Enums.SessionStatus.to(s.status).toString(),

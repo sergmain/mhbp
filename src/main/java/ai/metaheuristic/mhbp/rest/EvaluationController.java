@@ -17,21 +17,14 @@
 
 package ai.metaheuristic.mhbp.rest;
 
-import ai.metaheuristic.mhbp.data.BatchData;
 import ai.metaheuristic.mhbp.data.EvaluationData;
 import ai.metaheuristic.mhbp.evaluation.EvaluationService;
-import ai.metaheuristic.mhbp.repositories.AnswerRepository;
-import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * @author Sergio Lissner
