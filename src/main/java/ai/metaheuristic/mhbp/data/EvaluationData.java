@@ -21,8 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 
-import java.util.List;
-
 /**
  * @author Sergio Lissner
  * Date: 3/26/2023
@@ -33,7 +31,7 @@ public class EvaluationData {
     public record EvalStatus(
             long sessionId, long startedOn, @Nullable Long finishedOn, String sessionStatus,
             @Nullable String safe,
-            float normal, float fail, float error,
+            float normalPercent, float failPercent, float errorPercent,
             String providerCode, String modelInfo) {
     }
 
