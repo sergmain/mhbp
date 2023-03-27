@@ -32,16 +32,17 @@ import org.springframework.web.bind.annotation.RestController;
  * Time: 2:57 AM
  */
 @RestController
-@RequestMapping("/rest/v1/dispatcher/eval")
+@RequestMapping("/rest/v1/dispatcher/evaluation")
 @Slf4j
 @RequiredArgsConstructor
 public class EvaluationController {
 
     public final EvaluationService evaluationService;
 
-    @GetMapping("/statuses")
-    public EvaluationData.EvalStatuses statuses(Pageable pageable) {
-        return evaluationService.getStatuses(pageable);
+    @GetMapping("/evaluations")
+    public EvaluationData.EvalStatuses evaluations(Pageable pageable) {
+        final EvaluationData.EvalStatuses statuses = evaluationService.getStatuses(pageable);
+        return statuses;
     }
 
 }

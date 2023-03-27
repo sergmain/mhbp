@@ -19,23 +19,21 @@ package ai.metaheuristic.mhbp.evaluation;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.beans.Session;
-import ai.metaheuristic.mhbp.data.EvalStatusGrouped;
-import ai.metaheuristic.mhbp.data.EvaluationData;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
 import ai.metaheuristic.mhbp.repositories.SessionRepository;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.lang.Nullable;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ai.metaheuristic.mhbp.data.EvaluationData.*;
+import static ai.metaheuristic.mhbp.data.EvaluationData.EvalStatus;
 import static ai.metaheuristic.mhbp.data.EvaluationData.EvalStatuses;
 
 /**
@@ -56,17 +54,13 @@ public class EvaluationService {
 
         List<Session> sessions = sessionRepository.getSessions(pageable);
         if (sessions.isEmpty()) {
-            return new EvalStatuses(List.of());
+            return new EvalStatuses(new SliceImpl<>(List.of(), pageable, false));
         }
 
         final List<Long> sessionIds = sessions.stream().map(o -> o.id).collect(Collectors.toList());
         final List<Object[]> statuses = answerRepository.getStatusesJpql(sessionIds);
         List<EvalStatus> list = new ArrayList<>();
         for (Object[] status : statuses) {
-//String sessionId, long startedOn, @Nullable Long finishedOn, String sessionStatus,
-//String safe,
-//float normal, float fail, float error,
-//String providerCode, String modelInfo) {
             long sessionId = (long)status[0];
             Session s = sessions.stream().filter(o->o.id==sessionId).findFirst().orElseThrow();
             float normalPercent = 0;
@@ -86,6 +80,7 @@ public class EvaluationService {
             );
             list.add(es);
         }
-        return new EvalStatuses(list);
+        var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.sessionId(), o1.sessionId())).collect(Collectors.toList());
+        return new EvalStatuses(new PageImpl<>(sorted, pageable, list.size()));
     }
 }

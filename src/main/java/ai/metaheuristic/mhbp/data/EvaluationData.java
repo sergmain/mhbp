@@ -18,6 +18,7 @@
 package ai.metaheuristic.mhbp.data;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 
 import java.util.List;
@@ -38,6 +39,6 @@ public class EvaluationData {
 
     @RequiredArgsConstructor
     public static class EvalStatuses extends BaseDataClass {
-        public final List<EvalStatus> statuses;
+        public final Slice<EvalStatus> evaluations;
     }
 }
