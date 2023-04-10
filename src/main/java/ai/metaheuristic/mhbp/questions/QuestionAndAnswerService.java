@@ -26,8 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
-
 /**
  * @author Sergio Lissner
  * Date: 3/19/2023
@@ -49,7 +47,7 @@ public class QuestionAndAnswerService {
             new QuestionData.QuestionWithAnswerToAsk("5","q5", "Good")
     );
 
-    public List<QuestionData.QuestionWithAnswerToAsk> getQuestionToAsk() {
+    public List<QuestionData.QuestionWithAnswerToAsk> getQuestionToAsk(String providerCode) {
         return qqs;
     }
 
