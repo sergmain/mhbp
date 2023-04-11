@@ -76,9 +76,9 @@ public class ApiRestController {
 
     @PostMapping("/api-delete-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
-    public OperationStatusRest deleteCommit(Long evaluationId, Authentication authentication) {
+    public OperationStatusRest deleteCommit(Long id, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return apiService.deleteApiById(evaluationId, context);
+        return apiService.deleteApiById(id, context);
     }
 
 }
