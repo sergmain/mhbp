@@ -18,13 +18,16 @@
 package ai.metaheuristic.mhbp.rest;
 
 import ai.metaheuristic.mhbp.data.EvaluationData;
+import ai.metaheuristic.mhbp.data.OperationStatusRest;
+import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.evaluation.EvaluationService;
+import ai.metaheuristic.mhbp.sec.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Sergio Lissner
@@ -37,12 +40,36 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class EvaluationController {
 
-    public final EvaluationService evaluationService;
+    private final EvaluationService evaluationService;
+    private final UserContextService userContextService;
 
     @GetMapping("/evaluations")
     public EvaluationData.EvalStatuses evaluations(Pageable pageable) {
         final EvaluationData.EvalStatuses statuses = evaluationService.getStatuses(pageable);
         return statuses;
     }
+
+/*
+    @PostMapping("/evaluation-add-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public SourceCodeApiData.SourceCodeResult addFormCommit(@RequestParam(name = "source") String sourceCodeYamlAsStr, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return sourceCodeTopLevelService.createSourceCode(sourceCodeYamlAsStr, context.getCompanyId());
+    }
+
+    @PostMapping("/evaluation-edit-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public SourceCodeApiData.SourceCodeResult editFormCommit(Long sourceCodeId, @RequestParam(name = "source") String sourceCodeYamlAsStr) {
+        throw new IllegalStateException("Not supported any more");
+    }
+*/
+
+    @PostMapping("/evaluation-delete-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest deleteCommit(Long evaluationId, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return evaluationService.deleteEvaluationById(evaluationId, context);
+    }
+
 
 }

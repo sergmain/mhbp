@@ -19,6 +19,8 @@ package ai.metaheuristic.mhbp.evaluation;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.beans.Session;
+import ai.metaheuristic.mhbp.data.OperationStatusRest;
+import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
 import ai.metaheuristic.mhbp.repositories.SessionRepository;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
@@ -28,6 +30,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,4 +86,20 @@ public class EvaluationService {
         var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.sessionId(), o1.sessionId())).collect(Collectors.toList());
         return new EvalStatuses(new PageImpl<>(sorted, pageable, list.size()));
     }
+
+    @Transactional
+    public OperationStatusRest deleteEvaluationById(Long evaluationId, RequestContext context) {
+        if (evaluationId==null) {
+            return OperationStatusRest.OPERATION_STATUS_OK;
+        }
+        Session sourceCode = sessionRepository.findById(evaluationId).orElse(null);
+        if (sourceCode == null) {
+            return new OperationStatusRest(Enums.OperationStatus.OK,
+                    "#565.250 session wasn't found, evaluationId: " + evaluationId, null);
+        }
+        sessionRepository.deleteById(evaluationId);
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
+
+
 }
