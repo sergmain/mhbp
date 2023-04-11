@@ -27,8 +27,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
 
 /**
@@ -48,7 +46,7 @@ public class QuestionAndAnswerTxService {
         Answer a = new Answer();
         a.questionCode = question.qCode();
         a.sessionId = session.id;
-        a.modelInfo = "n/a";
+        a.apiInfo = "n/a";
         a.answeredOn = System.currentTimeMillis();
         if (qaa.status()==OK) {
             a.status = question.a().equals(qaa.a()) ? Enums.AnswerStatus.normal.code : Enums.AnswerStatus.fail.code;

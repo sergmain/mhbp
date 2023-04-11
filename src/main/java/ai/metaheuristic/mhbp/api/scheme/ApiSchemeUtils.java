@@ -15,7 +15,21 @@
  *
  */
 
-@ParametersAreNonnullByDefault
-package ai.metaheuristic.mhbp.api.model;
+package ai.metaheuristic.mhbp.api.scheme;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import ai.metaheuristic.mhbp.utils.versioning.BaseUtils;
+
+import java.util.Map;
+
+public class ApiSchemeUtils {
+
+    private static final ApiSchemeUtilsV1 YAML_UTILS_V_1 = new ApiSchemeUtilsV1();
+    private static final ApiSchemeUtilsV1 DEFAULT_UTILS = YAML_UTILS_V_1;
+
+    public static final BaseUtils<ApiScheme> BASE_UTILS = new BaseUtils<>(
+            Map.of(
+                    1, YAML_UTILS_V_1
+            ),
+            DEFAULT_UTILS
+    );
+}

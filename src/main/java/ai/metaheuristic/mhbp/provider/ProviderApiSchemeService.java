@@ -18,7 +18,7 @@
 package ai.metaheuristic.mhbp.provider;
 
 import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.api.model.ApiModel;
+import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import ai.metaheuristic.mhbp.api.params.ApiParams;
 import ai.metaheuristic.mhbp.beans.Api;
 import ai.metaheuristic.mhbp.data.ApiData;
@@ -60,49 +60,49 @@ import java.util.function.Function;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProviderApiModelService {
+public class ProviderApiSchemeService {
 
     private final ApiRepository apiRepository;
 
-    public final Map<String, List<ApiData.ModelAndParams>> models = new HashMap<>();
+    public final Map<String, List<ApiData.SchemeAndParams>> schemes = new HashMap<>();
 
     @PostConstruct
     public void init() {
         for (Api api : apiRepository.findAll()) {
-            ApiModel model = api.getApiModel();
+            ApiScheme scheme = api.getApiScheme();
             ApiParams params = api.getApiParams();
-            for (ApiModel.MetaWithResponse meta : model.model.metas) {
-                models.computeIfAbsent(meta.meta.object, o->new ArrayList<>()).add(new ApiData.ModelAndParams(model, params));
+            for (ApiScheme.MetaWithResponse meta : scheme.scheme.metas) {
+                schemes.computeIfAbsent(meta.meta.object, o->new ArrayList<>()).add(new ApiData.SchemeAndParams(scheme, params));
             }
         }
     }
 
-    public List<ApiData.ModelAndParams> getProviderModel(NluData.QueriedInfo info) {
-        return models.getOrDefault(info.object, List.of());
+    public List<ApiData.SchemeAndParams> getProviderSchemeAndParams(NluData.QueriedInfo info) {
+        return schemes.getOrDefault(info.object, List.of());
     }
 
-    public List<ApiData.ModelAndParamResult> queryProviders(NluData.QueriedInfo info) {
-        List<ApiData.ModelAndParams> modelAndParams = getProviderModel(info);
-        List<ApiData.ModelAndParamResult> result = new ArrayList<>();
-        for (ApiData.ModelAndParams modelAndParam : modelAndParams) {
-            String data = queryProviderApi(modelAndParam, info);
-            result.add(new ApiData.ModelAndParamResult(modelAndParam, data));
+    public List<ApiData.SchemeAndParamResult> queryProviders(NluData.QueriedInfo info) {
+        List<ApiData.SchemeAndParams> schemeAndParamses = getProviderSchemeAndParams(info);
+        List<ApiData.SchemeAndParamResult> result = new ArrayList<>();
+        for (ApiData.SchemeAndParams schemeAndParams : schemeAndParamses) {
+            String data = queryProviderApi(schemeAndParams, info);
+            result.add(new ApiData.SchemeAndParamResult(schemeAndParams, data));
         }
         return result;
     }
 
-    public static String queryProviderApi(ApiData.ModelAndParams modelAndParams, NluData.QueriedInfo info) {
-        CommunicationData.Query query = buildApiQueryUri(modelAndParams, info);
+    public static String queryProviderApi(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedInfo info) {
+        CommunicationData.Query query = buildApiQueryUri(schemeAndParams, info);
 
-        String data = getData( modelAndParams, query, (uri) -> Request.Get(uri).connectTimeout(5000).socketTimeout(20000));
+        String data = getData( schemeAndParams, query, (uri) -> Request.Get(uri).connectTimeout(5000).socketTimeout(20000));
         return data;
     }
 
-    private static CommunicationData.Query buildApiQueryUri(ApiData.ModelAndParams modelAndParams, NluData.QueriedInfo info) {
+    private static CommunicationData.Query buildApiQueryUri(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedInfo info) {
 
         StringBuilder url = null;
-        if (modelAndParams.model.model.baseMeta.uri!=null) {
-            url = new StringBuilder(modelAndParams.model.model.baseMeta.uri);
+        if (schemeAndParams.scheme.scheme.baseMeta.uri!=null) {
+            url = new StringBuilder(schemeAndParams.scheme.scheme.baseMeta.uri);
         }
         if (url==null) {
             throw new RuntimeException("can't build an URL");
@@ -110,10 +110,10 @@ public class ProviderApiModelService {
 
         List<NameValuePair> nvps = new ArrayList<>();
         for (NluData.Property prop : info.properties) {
-            if (modelAndParams.model.model.baseMeta.attrs==null) {
+            if (schemeAndParams.scheme.scheme.baseMeta.attrs==null) {
                 break;
             }
-            ApiModel.Meta attr = modelAndParams.model.model.baseMeta.attrs.stream().filter(o->o.object.equals(prop.name)).findFirst().orElse(null);
+            ApiScheme.Meta attr = schemeAndParams.scheme.scheme.baseMeta.attrs.stream().filter(o->o.object.equals(prop.name)).findFirst().orElse(null);
             if (attr==null) {
                 continue;
             }
@@ -123,27 +123,27 @@ public class ProviderApiModelService {
             nvps.add(new BasicNameValuePair(attr.param, prop.value));
         }
 
-        for (ApiModel.MetaWithResponse meta : modelAndParams.model.model.metas) {
+        for (ApiScheme.MetaWithResponse meta : schemeAndParams.scheme.scheme.metas) {
             if (info.object.equals(meta.meta.object)) {
                 url.append(meta.meta.uri);
             }
         }
 
-        if (modelAndParams.model.authType==Enums.AuthType.token) {
-            if (modelAndParams.model.model.tokenAuth==null) {
-                throw new RuntimeException("(modelAndParams.model.model.tokenAuth==null)");
+        if (schemeAndParams.scheme.authType==Enums.AuthType.token) {
+            if (schemeAndParams.scheme.scheme.tokenAuth==null) {
+                throw new RuntimeException("(schemeAndParams.model.scheme.tokenAuth==null)");
             }
-            if (modelAndParams.params.api.tokenAuth==null) {
-                throw new RuntimeException("(modelAndParams.params.api.tokenAuth==null)");
+            if (schemeAndParams.params.api.tokenAuth==null) {
+                throw new RuntimeException("(schemeAndParams.params.api.tokenAuth==null)");
             }
-            nvps.add(new BasicNameValuePair(modelAndParams.model.model.tokenAuth.tokenParam, modelAndParams.params.api.tokenAuth.token));
+            nvps.add(new BasicNameValuePair(schemeAndParams.scheme.scheme.tokenAuth.tokenParam, schemeAndParams.params.api.tokenAuth.token));
         }
 
         return new CommunicationData.Query(url.toString(), nvps);
     }
 
     @SneakyThrows
-    public static String getData(ApiData.ModelAndParams modelAndParams, CommunicationData.Query query, Function<URI, Request> requestFunc) {
+    public static String getData(ApiData.SchemeAndParams schemeAndParams, CommunicationData.Query query, Function<URI, Request> requestFunc) {
         if (query.url==null) {
             throw new RuntimeException("url is null");
         }
@@ -160,11 +160,11 @@ public class ProviderApiModelService {
 
         RestUtils.addHeaders(request);
         final Executor executor;
-        if (modelAndParams.model.authType== Enums.AuthType.basic) {
-            if (modelAndParams.params.api.basicAuth==null) {
-                throw new IllegalStateException("(modelAndParams.params.api.basicAuth==null)");
+        if (schemeAndParams.scheme.authType==Enums.AuthType.basic) {
+            if (schemeAndParams.params.api.basicAuth==null) {
+                throw new IllegalStateException("(schemeAndParams.params.api.basicAuth==null)");
             }
-            executor = getExecutor(modelAndParams.model.model.baseMeta.uri, modelAndParams.params.api.basicAuth.username, modelAndParams.params.api.basicAuth.password);
+            executor = getExecutor(schemeAndParams.scheme.scheme.baseMeta.uri, schemeAndParams.params.api.basicAuth.username, schemeAndParams.params.api.basicAuth.password);
         }
         else {
             executor = Executor.newInstance();

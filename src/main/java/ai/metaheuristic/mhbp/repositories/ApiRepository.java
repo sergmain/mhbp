@@ -18,7 +18,6 @@
 package ai.metaheuristic.mhbp.repositories;
 
 import ai.metaheuristic.mhbp.beans.Api;
-import ai.metaheuristic.mhbp.data.ApiData;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -35,8 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ApiRepository extends CrudRepository<Api, Long> {
 
     @Transactional(readOnly = true)
-    @Query(value= "select new ai.metaheuristic.mhbp.data.ApiData$SimpleApi(a.id, a.companyId, a.name, a.code, a.disabled, a.createdOn) " +
-                  " from Api a where a.companyId=:companyUniqueId")
-    Page<ApiData.SimpleApi> findAllByCompanyUniqueId(Pageable pageable, Long companyUniqueId);
+    @Query(value= "select a from Api a where a.companyId=:companyUniqueId")
+    Page<Api> findAllByCompanyUniqueId(Pageable pageable, Long companyUniqueId);
 
 }

@@ -18,17 +18,16 @@
 package ai.metaheuristic.mhbp.data;
 
 import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.api.model.ApiModel;
 import ai.metaheuristic.mhbp.api.params.ApiParams;
+import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -62,18 +61,7 @@ public class ApiData {
         public Enums.AuthType[] authTypes = Enums.AuthType.values();
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SimpleApi {
-        public Long id;
-        public Long companyId;
-        public String name;
-        public String code;
-        public boolean disabled;
-        public long createdOn;
-    }
-
+/*
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -102,6 +90,7 @@ public class ApiData {
         }
     }
 
+*/
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -155,17 +144,38 @@ public class ApiData {
 
     @Data
     @AllArgsConstructor
-    public static class ModelAndParams {
-        public ApiModel model;
+    public static class SchemeAndParams {
+        public ApiScheme scheme;
         public ApiParams params;
     }
 
 
     @Data
     @AllArgsConstructor
-    public static class ModelAndParamResult {
-        public ModelAndParams modelAndParams;
+    public static class SchemeAndParamResult {
+        public SchemeAndParams schemeAndParams;
         public String result;
     }
 
+    public static class Api {
+        public long id;
+        public String name;
+        public String code;
+        public String params;
+        public String scheme;
+
+        public Api(ai.metaheuristic.mhbp.beans.Api api) {
+            super();
+            this.id = api.id;
+            this.name = api.name;
+            this.code = api.code;
+            this.params = api.getParams();
+            this.scheme = api.getScheme();
+        }
+    }
+
+    @RequiredArgsConstructor
+    public static class Apis extends BaseDataClass {
+        public final Slice<Api> apis;
+    }
 }

@@ -17,8 +17,8 @@
 
 package ai.metaheuristic.mhbp.beans;
 
-import ai.metaheuristic.mhbp.api.model.ApiModel;
-import ai.metaheuristic.mhbp.api.model.ApiModelUtils;
+import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
+import ai.metaheuristic.mhbp.api.scheme.ApiSchemeUtils;
 import ai.metaheuristic.mhbp.api.params.ApiParams;
 import ai.metaheuristic.mhbp.api.params.ApiParamsUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -85,18 +85,18 @@ public class Api implements Serializable {
         return params;
     }
 
-    @Column(name = "MODEL")
-    private String model;
+    @Column(name = "SCHEME")
+    private String scheme;
 
-    public void setModel(String model) {
+    public void setScheme(String scheme) {
         synchronized (this) {
-            this.model = model;
-            this.apiModel = null;
+            this.scheme = scheme;
+            this.apiScheme = null;
         }
     }
 
-    public String getModel() {
-        return model;
+    public String getScheme() {
+        return scheme;
     }
 
     @Transient
@@ -130,29 +130,29 @@ public class Api implements Serializable {
     @Transient
     @JsonIgnore
     @Nullable
-    private ApiModel apiModel = null;
+    private ApiScheme apiScheme = null;
 
     @Transient
     @JsonIgnore
-    private final Object syncModelObj = new Object();
+    private final Object syncSchemeObj = new Object();
 
     @JsonIgnore
-    public ApiModel getApiModel() {
-        if (apiModel ==null) {
-            synchronized (syncModelObj) {
-                if (apiModel ==null) {
+    public ApiScheme getApiScheme() {
+        if (apiScheme==null) {
+            synchronized (syncSchemeObj) {
+                if (apiScheme==null) {
                     //noinspection UnnecessaryLocalVariable
-                    ApiModel temp = ApiModelUtils.BASE_UTILS.to(model);
-                    apiModel = temp;
+                    ApiScheme temp = ApiSchemeUtils.BASE_UTILS.to(scheme);
+                    apiScheme = temp;
                 }
             }
         }
-        return apiModel;
+        return apiScheme;
     }
 
     @JsonIgnore
-    public void updateModel(ApiModel apiModel) {
-        setModel(ApiModelUtils.BASE_UTILS.toString(apiModel));
+    public void updateScheme(ApiScheme apiScheme) {
+        setScheme(ApiSchemeUtils.BASE_UTILS.toString(apiScheme));
     }
 
 }

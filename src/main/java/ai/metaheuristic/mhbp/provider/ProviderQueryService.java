@@ -18,7 +18,7 @@
 package ai.metaheuristic.mhbp.provider;
 
 import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.api.model.ApiModel;
+import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.data.NluData;
 import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
@@ -52,7 +52,7 @@ import static ai.metaheuristic.mhbp.data.ApiData.*;
 @Service
 public class ProviderQueryService {
 
-    public final ProviderApiModelService providerService;
+    public final ProviderApiSchemeService providerService;
     public final UserContextService userContextService;
 
     public final QuestionAndAnswerService questionAndAnswerService;
@@ -128,11 +128,11 @@ public class ProviderQueryService {
                 queryResult = new QueryResult(null, false, queriedInfoWithError.error);
             }
             else if (queriedInfoWithError.queriedInfo!=null) {
-                List<ModelAndParamResult> results = providerService.queryProviders(queriedInfoWithError.queriedInfo);
+                List<SchemeAndParamResult> results = providerService.queryProviders(queriedInfoWithError.queriedInfo);
 
                 List<String> processedAnswers = new ArrayList<>();
-                for (ModelAndParamResult r : results) {
-                    ApiModel.ResponseMeta responseMeta = ProviderQueryUtils.getFieldForLookingFor(r.modelAndParams.model, queriedInfoWithError.queriedInfo);
+                for (SchemeAndParamResult r : results) {
+                    ApiScheme.ResponseMeta responseMeta = ProviderQueryUtils.getFieldForLookingFor(r.schemeAndParams.scheme, queriedInfoWithError.queriedInfo);
                     if (responseMeta==null) {
                         continue;
                     }

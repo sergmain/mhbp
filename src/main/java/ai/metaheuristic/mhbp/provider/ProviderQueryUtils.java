@@ -18,7 +18,7 @@
 package ai.metaheuristic.mhbp.provider;
 
 import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.api.model.ApiModel;
+import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import ai.metaheuristic.mhbp.data.ApiData;
 import ai.metaheuristic.mhbp.data.NluData;
 import ai.metaheuristic.mhbp.nlu.NluTextProcessingUtils;
@@ -38,7 +38,7 @@ import java.util.Set;
  */
 public class ProviderQueryUtils {
 
-    static String processAnswerFromApi(String json, ApiModel.ResponseMeta responseMeta) throws JsonProcessingException {
+    static String processAnswerFromApi(String json, ApiScheme.ResponseMeta responseMeta) throws JsonProcessingException {
         if (responseMeta.asText()) {
             return json;
         }
@@ -75,23 +75,23 @@ public class ProviderQueryUtils {
     }
 
     @Nullable
-    public static ApiModel.ResponseMeta getFieldForLookingFor(ApiModel model, NluData.QueriedInfo queriedInfo) {
-        for (ApiModel.MetaWithResponse meta : model.model.metas) {
+    public static ApiScheme.ResponseMeta getFieldForLookingFor(ApiScheme scheme, NluData.QueriedInfo queriedInfo) {
+        for (ApiScheme.MetaWithResponse meta : scheme.scheme.metas) {
             if (queriedInfo.object.equals(meta.meta.object)) {
                 if (meta.response.asText) {
-                    return new ApiModel.ResponseMeta(true, null);
+                    return new ApiScheme.ResponseMeta(true, null);
                 }
                 if (meta.response.attrs==null || meta.response.attrs.isEmpty()) {
                     continue;
                 }
-                for (ApiModel.Meta attr : meta.response.attrs) {
+                for (ApiScheme.Meta attr : meta.response.attrs) {
                     for (NluData.Property property : queriedInfo.properties) {
                         if (attr.object.equals(property.name)) {
-                            return new ApiModel.ResponseMeta(false, attr);
+                            return new ApiScheme.ResponseMeta(false, attr);
                         }
                     }
                 }
-                return new ApiModel.ResponseMeta(false, meta.response.attrs.get(0));
+                return new ApiScheme.ResponseMeta(false, meta.response.attrs.get(0));
             }
         }
         return null;

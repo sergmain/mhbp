@@ -32,7 +32,7 @@ public class EvaluationData {
             long sessionId, long startedOn, @Nullable Long finishedOn, String sessionStatus,
             @Nullable String safe,
             float normalPercent, float failPercent, float errorPercent,
-            String providerCode, String modelInfo) {
+            String providerCode, String apiInfo) {
     }
 
     @RequiredArgsConstructor

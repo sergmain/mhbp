@@ -15,7 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.api.model;
+package ai.metaheuristic.mhbp.api.scheme;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.data.BaseParams;
@@ -28,17 +28,18 @@ import org.springframework.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("FieldMayBeStatic")
 @Data
-public class ApiModelV1 implements BaseParams {
+public class ApiScheme implements BaseParams {
 
     public final int version=1;
 
     @Override
     public boolean checkIntegrity() {
-        if (model==null) {
-            throw new CheckIntegrityFailedException("(model==null)");
+        if (scheme==null) {
+            throw new CheckIntegrityFailedException("(scheme==null)");
         }
-        if (model.basicAuth==null && model.tokenAuth==null) {
+        if (scheme.basicAuth==null && scheme.tokenAuth==null) {
             throw new CheckIntegrityFailedException("(api.basicAuth==null && api.tokenAuth==null)");
         }
         return true;
@@ -47,7 +48,7 @@ public class ApiModelV1 implements BaseParams {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class BasicAuthV1 {
+    public static class BasicAuth {
         public String usernameParam;
         public String passwordParam;
     }
@@ -55,14 +56,17 @@ public class ApiModelV1 implements BaseParams {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TokenAuthV1 {
+    public static class TokenAuth {
+        // this field contains the name of the field which will be inited with actual token
+        // actual value of token isn't part of scheme
+        // see ai.metaheuristic.info.yaml.api.params.ApiParamsYaml.TokenAuth
         public String tokenParam;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class MetaV1 {
+    public static class Meta {
         public String object;
         @Nullable
         public String desc;
@@ -71,41 +75,44 @@ public class ApiModelV1 implements BaseParams {
         @Nullable
         public String param;
         @Nullable
-        public List<MetaV1> attrs;
+        public List<Meta> attrs;
     }
+
+    public record ResponseMeta(boolean asText, @Nullable Meta meta) {}
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ResponseV1 {
+    public static class Response {
         public boolean asText;
-        public List<MetaV1> attrs = new ArrayList<>();
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class MetaWithResponseV1 {
-        public final MetaV1 meta = new MetaV1();
-        public final ResponseV1 response = new ResponseV1();
+        public List<Meta> attrs;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ModelV1 {
+    public static class MetaWithResponse {
+        public Meta meta;
+        public Response response;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Scheme {
         public String apiDocuUrl;
         @Nullable
-        public BasicAuthV1 basicAuth;
+        public BasicAuth basicAuth;
 
         @Nullable
-        public TokenAuthV1 tokenAuth;
+        public TokenAuth tokenAuth;
 
-        public final MetaV1 baseMeta = new MetaV1();
+        public Meta baseMeta;
 
-        public final List<MetaWithResponseV1> metas = new ArrayList<>();
+        public final List<MetaWithResponse> metas = new ArrayList<>();
     }
 
     public String code;
     public Enums.AuthType authType;
-    public ModelV1 model;
+    public Scheme scheme;
 }

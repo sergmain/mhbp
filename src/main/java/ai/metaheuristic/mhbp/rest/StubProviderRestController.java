@@ -38,7 +38,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Slf4j
 //@CrossOrigin
 @RequiredArgsConstructor
-public class StubProviderController {
+public class StubProviderRestController {
 
     public record SimpleStubAnswer(int topProb, String code, String txt) {}
 

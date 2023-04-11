@@ -25,7 +25,6 @@ import ai.metaheuristic.mhbp.sec.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +37,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/rest/v1/dispatcher/evaluation")
 @Slf4j
 @RequiredArgsConstructor
-public class EvaluationController {
+public class EvaluationRestController {
 
     private final EvaluationService evaluationService;
     private final UserContextService userContextService;

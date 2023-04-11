@@ -58,7 +58,7 @@ public class Answer implements Serializable {
     @Nullable
     public Boolean safe;
 
-    public String modelInfo;
+    public String apiInfo;
 
     public long answeredOn;
 

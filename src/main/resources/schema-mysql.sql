@@ -90,15 +90,14 @@ CREATE table mhbp_api
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
     VERSION         NUMERIC(10, 0)  NOT NULL,
-    -- company_id can be null
-    COMPANY_ID      NUMERIC(10, 0) NOT NULL,
-    ACCOUNT_ID      NUMERIC(10, 0) NOT NULL,
-    CREATED_ON      bigint         NOT NULL,
-    NAME            VARCHAR(250)   NOT NULL,
-    CODE            VARCHAR(50)    NOT NULL,
-    DISABLED        BOOLEAN not null default false,
-    PARAMS          TEXT           not null,
-    MODEL           TEXT           not null
+    COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
+    ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
+    CREATED_ON      bigint          NOT NULL,
+    NAME            VARCHAR(250)    NOT NULL,
+    CODE            VARCHAR(50)     NOT NULL,
+    DISABLED        BOOLEAN         not null default false,
+    PARAMS          TEXT            not null,
+    SCHEME          TEXT            not null
 );
 
 CREATE INDEX mhbp_api_company_id_idx
@@ -114,7 +113,7 @@ CREATE table mhbp_answer
     Q_CODE          VARCHAR(50)     NOT NULL,
     STATUS          tinyint(1)      NOT NULL,
     SAFE            BOOLEAN,
-    MODEL_INFO      VARCHAR(20)
+    API_INFO      VARCHAR(20)
 );
 
 CREATE INDEX mhbp_api_company_id_idx

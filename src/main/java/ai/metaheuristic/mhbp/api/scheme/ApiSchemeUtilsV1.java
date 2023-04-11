@@ -15,7 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.api.model;
+package ai.metaheuristic.mhbp.api.scheme;
 
 import ai.metaheuristic.mhbp.utils.YamlUtils;
 import ai.metaheuristic.mhbp.utils.versioning.AbstractParamsUtils;
@@ -25,8 +25,8 @@ import org.yaml.snakeyaml.Yaml;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("ConstantValue")
-public class ApiModelUtilsV1 extends
-        AbstractParamsUtils<ApiModelV1, ApiModel, Void, Void, Void, Void> {
+public class ApiSchemeUtilsV1 extends
+        AbstractParamsUtils<ApiSchemeV1, ApiScheme, Void, Void, Void, Void> {
 
     @Override
     public int getVersion() {
@@ -36,59 +36,59 @@ public class ApiModelUtilsV1 extends
     @NonNull
     @Override
     public Yaml getYaml() {
-        return YamlUtils.init(ApiModelV1.class);
+        return YamlUtils.init(ApiSchemeV1.class);
     }
 
     @NonNull
     @Override
-    public ApiModel upgradeTo(@NonNull ApiModelV1 v1) {
+    public ApiScheme upgradeTo(@NonNull ApiSchemeV1 v1) {
         v1.checkIntegrity();
 
-        ApiModel t = new ApiModel();
+        ApiScheme t = new ApiScheme();
         t.code = v1.code;
         t.authType = v1.authType;
-        if (v1.model!=null) {
-            t.model = new ApiModel.Model();
-            t.model.apiDocuUrl = v1.model.apiDocuUrl;
-            t.model.baseMeta = toMeta(v1.model.baseMeta);
+        if (v1.scheme!=null) {
+            t.scheme = new ApiScheme.Scheme();
+            t.scheme.apiDocuUrl = v1.scheme.apiDocuUrl;
+            t.scheme.baseMeta = toMeta(v1.scheme.baseMeta);
 
-            if (v1.model.basicAuth != null) {
-                t.model.basicAuth = new ApiModel.BasicAuth(v1.model.basicAuth.usernameParam, v1.model.basicAuth.passwordParam);
+            if (v1.scheme.basicAuth != null) {
+                t.scheme.basicAuth = new ApiScheme.BasicAuth(v1.scheme.basicAuth.usernameParam, v1.scheme.basicAuth.passwordParam);
             }
 
-            if (v1.model.tokenAuth != null) {
-                t.model.tokenAuth = new ApiModel.TokenAuth(v1.model.tokenAuth.tokenParam);
+            if (v1.scheme.tokenAuth != null) {
+                t.scheme.tokenAuth = new ApiScheme.TokenAuth(v1.scheme.tokenAuth.tokenParam);
             }
-            v1.model.metas.stream().map(ApiModelUtilsV1::toMetaWithResponse).collect(Collectors.toCollection(()->t.model.metas));
+            v1.scheme.metas.stream().map(ApiSchemeUtilsV1::toMetaWithResponse).collect(Collectors.toCollection(()->t.scheme.metas));
         }
         t.checkIntegrity();
         return t;
     }
 
-    private static ApiModel.Meta toMeta(ApiModelV1.MetaV1 v1) {
+    private static ApiScheme.Meta toMeta(ApiSchemeV1.MetaV1 v1) {
         if (v1==null) {
             throw new IllegalStateException("(v1==null)");
         }
-        ApiModel.Meta m = new ApiModel.Meta();
+        ApiScheme.Meta m = new ApiScheme.Meta();
         m.object = v1.object;
         m.desc = v1.desc;
         m.uri = v1.uri;
         m.param = v1.param;
         if (v1.attrs!=null) {
-            m.attrs = v1.attrs.stream().map(ApiModelUtilsV1::toMeta).collect(Collectors.toList());
+            m.attrs = v1.attrs.stream().map(ApiSchemeUtilsV1::toMeta).collect(Collectors.toList());
         }
         return m;
     }
 
-    private static ApiModel.Response toResponse(ApiModelV1.ResponseV1 v1) {
-        ApiModel.Response r = new ApiModel.Response();
+    private static ApiScheme.Response toResponse(ApiSchemeV1.ResponseV1 v1) {
+        ApiScheme.Response r = new ApiScheme.Response();
         r.asText = v1.asText;
-        r.attrs = v1.attrs.stream().map(ApiModelUtilsV1::toMeta).collect(Collectors.toList());
+        r.attrs = v1.attrs.stream().map(ApiSchemeUtilsV1::toMeta).collect(Collectors.toList());
         return r;
     }
 
-    private static ApiModel.MetaWithResponse toMetaWithResponse(ApiModelV1.MetaWithResponseV1 v1) {
-        ApiModel.MetaWithResponse r = new ApiModel.MetaWithResponse();
+    private static ApiScheme.MetaWithResponse toMetaWithResponse(ApiSchemeV1.MetaWithResponseV1 v1) {
+        ApiScheme.MetaWithResponse r = new ApiScheme.MetaWithResponse();
         r.meta = toMeta(v1.meta);
         r.response = toResponse(v1.response);
         return r;
@@ -111,7 +111,7 @@ public class ApiModelUtilsV1 extends
     }
 
     @Override
-    public String toString(@NonNull ApiModelV1 yaml) {
+    public String toString(@NonNull ApiSchemeV1 yaml) {
         yaml.checkIntegrity();
 
         return getYaml().dump(yaml);
@@ -119,8 +119,8 @@ public class ApiModelUtilsV1 extends
 
     @NonNull
     @Override
-    public ApiModelV1 to(@NonNull String s) {
-        final ApiModelV1 p = getYaml().load(s);
+    public ApiSchemeV1 to(@NonNull String s) {
+        final ApiSchemeV1 p = getYaml().load(s);
         return p;
     }
 
