@@ -21,13 +21,11 @@ import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.api.params.ApiParams;
 import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -157,14 +155,14 @@ public class ApiData {
         public String result;
     }
 
-    public static class Api {
+    public static class SimpleApi {
         public long id;
         public String name;
         public String code;
         public String params;
         public String scheme;
 
-        public Api(ai.metaheuristic.mhbp.beans.Api api) {
+        public SimpleApi(ai.metaheuristic.mhbp.beans.Api api) {
             super();
             this.id = api.id;
             this.name = api.name;
@@ -176,6 +174,26 @@ public class ApiData {
 
     @RequiredArgsConstructor
     public static class Apis extends BaseDataClass {
-        public final Slice<Api> apis;
+        public final Slice<SimpleApi> apis;
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @NoArgsConstructor
+    public static class Api extends BaseDataClass {
+        public SimpleApi api;
+
+        public Api(String errorMessage) {
+            this.errorMessages = Collections.singletonList(errorMessage);
+        }
+
+        public Api(SimpleApi api, String errorMessage) {
+            this.api = api;
+            this.errorMessages = Collections.singletonList(errorMessage);
+        }
+
+        public Api(SimpleApi api) {
+            this.api = api;
+        }
     }
 }

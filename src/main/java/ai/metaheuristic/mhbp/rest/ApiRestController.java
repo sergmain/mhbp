@@ -21,11 +21,9 @@ import ai.metaheuristic.mhbp.api.ApiService;
 import ai.metaheuristic.mhbp.data.ApiData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
-import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
 import ai.metaheuristic.mhbp.sec.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
@@ -64,6 +62,25 @@ public class ApiRestController {
         return apis;
     }
 
+    @GetMapping("/api/{apiId}")
+    public ApiData.Api apis(@PathVariable @Nullable Long apiId, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        final ApiData.Api api = apiService.getApi(apiId, context);
+        return api;
+    }
+
+    @PostMapping("/api-add-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest addFormCommit(
+            @RequestParam(name = "name") String name,
+            @RequestParam(name = "code") String code,
+            @RequestParam(name = "params") String params,
+            @RequestParam(name = "scheme") String scheme,
+            Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+
+        return apiService.createApi(name, code, params, scheme, context.getCompanyId());
+    }
 /*
     @PostMapping("/evaluation-add-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")

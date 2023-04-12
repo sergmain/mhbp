@@ -55,7 +55,7 @@ public class ApiService {
         pageable = ControllerUtils.fixPageSize(20, pageable);
 
         Page<Api> apis = apiRepository.findAllByCompanyUniqueId(pageable, context.getCompanyId());
-        List<ApiData.Api> list = apis.stream().map(ApiData.Api::new).toList();
+        List<ApiData.SimpleApi> list = apis.stream().map(ApiData.SimpleApi::new).toList();
         var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.id, o1.id)).collect(Collectors.toList());
         return new ApiData.Apis(new PageImpl<>(sorted, pageable, list.size()));
     }
@@ -92,5 +92,29 @@ public class ApiService {
 
         apiRepository.deleteById(apiId);
         return OperationStatusRest.OPERATION_STATUS_OK;
+    }
+
+    @Transactional
+    public OperationStatusRest createApi(String name, String code, String params, String scheme, long companyId) {
+        Api api = new Api();
+        api.name = name;
+        api.code = code;
+        api.setParams(params);
+        api.setScheme(scheme);
+
+        apiRepository.save(api);
+
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
+
+    public ApiData.Api getApi(Long apiId, RequestContext context) {
+        if (apiId==null) {
+            return new ApiData.Api("Not found");
+        }
+        Api api = apiRepository.findById(apiId).orElse(null);
+        if (api == null) {
+            return new ApiData.Api("Not found");
+        }
+        return new ApiData.Api(new ApiData.SimpleApi(api));
     }
 }
