@@ -44,7 +44,7 @@ public class RequestContext {
     public Long getAccountId() {
         return account.id;
     }
-    public Long getCompanyId() {
+    public long getCompanyId() {
         return company.uniqueId;
     }
 }

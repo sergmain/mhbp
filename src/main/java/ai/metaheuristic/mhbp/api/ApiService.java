@@ -19,20 +19,22 @@ package ai.metaheuristic.mhbp.api;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.beans.Api;
-import ai.metaheuristic.mhbp.beans.Session;
-import ai.metaheuristic.mhbp.data.*;
+import ai.metaheuristic.mhbp.data.ApiData;
+import ai.metaheuristic.mhbp.data.OperationStatusRest;
+import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
 import ai.metaheuristic.mhbp.repositories.ApiRepository;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.SliceImpl;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +48,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ApiService {
 
-    public final ApiRepository apiRepository;
+    private final ApiRepository apiRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ApiData.Apis getApis(Pageable pageable, RequestContext context) {
         pageable = ControllerUtils.fixPageSize(20, pageable);
@@ -57,19 +60,37 @@ public class ApiService {
         return new ApiData.Apis(new PageImpl<>(sorted, pageable, list.size()));
     }
 
-    @Transactional
-    public OperationStatusRest deleteApiById(Long id, RequestContext context) {
-        if (id==null) {
+    public OperationStatusRest evaluate(@Nullable Long apiId, RequestContext context) {
+        if (apiId==null) {
             return OperationStatusRest.OPERATION_STATUS_OK;
         }
-        Api api = apiRepository.findById(id).orElse(null);
+        Api api = apiRepository.findById(apiId).orElse(null);
         if (api == null) {
-            return new OperationStatusRest(Enums.OperationStatus.OK,
-                    "#565.250 API wasn't found, id: " + id, null);
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "#565.150 API wasn't found, apiId: " + apiId, null);
         }
-        apiRepository.deleteById(id);
+        if (api.companyId!=context.getCompanyId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.200 apiId: " + apiId);
+        }
+        eventPublisher.publishEvent(new EvaluateProviderEvent(apiId));
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 
+    @Transactional
+    public OperationStatusRest deleteApiById(Long apiId, RequestContext context) {
+        if (apiId==null) {
+            return OperationStatusRest.OPERATION_STATUS_OK;
+        }
+        Api api = apiRepository.findById(apiId).orElse(null);
+        if (api == null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "#565.250 API wasn't found, apiId: " + apiId, null);
+        }
+        if (api.companyId!=context.getCompanyId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.500 apiId: " + apiId);
+        }
 
+        apiRepository.deleteById(apiId);
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
 }

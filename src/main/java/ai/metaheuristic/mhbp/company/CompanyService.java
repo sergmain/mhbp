@@ -86,22 +86,19 @@ public class CompanyService {
             return new OperationStatusRest(Enums.OperationStatus.ERROR,"#237.030 company params is in wrong format, error: " + th.getMessage());
         }
         company.setParams(paramsYaml);
-
-        if (company.uniqueId==null) {
-            company.uniqueId = getUniqueId();
-        }
+        company.uniqueId = getUniqueId();
         companyRepository.save(company);
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 
-    public Long getUniqueId() {
+    public long getUniqueId() {
         Long maxUniqueId = companyRepository.getMaxUniqueIdValue();
         if (maxUniqueId==null) {
             // 2L because 1 is reserved for 'main company'
             maxUniqueId = 2L;
         }
         int compare;
-        Long newUniqueId;
+        long newUniqueId;
         do {
             newUniqueId = idsRepository.save(new Ids()).id;
             idsRepository.deleteById(newUniqueId);

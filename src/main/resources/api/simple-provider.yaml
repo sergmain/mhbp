@@ -3,7 +3,7 @@ code: simple-provider-localhost:1.0
 authType: basic
 scheme:
   basicAuth:
-    usernameParam: password
+    usernameParam: username
     passwordParam: password
   baseMeta:
     uri: http://localhost:8080/rest/v1/provider/simple/stub

@@ -54,10 +54,10 @@ public class Api implements Serializable {
     public Integer version;
 
     @Column(name = "COMPANY_ID")
-    public Long companyId;
+    public long companyId;
 
     @Column(name = "ACCOUNT_ID")
-    public Long accountId;
+    public long accountId;
 
     @Column(name = "NAME")
     public String name;

@@ -19,11 +19,13 @@ package ai.metaheuristic.mhbp.provider;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
+import ai.metaheuristic.mhbp.beans.Api;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.data.NluData;
 import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
 import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.questions.QuestionAndAnswerService;
+import ai.metaheuristic.mhbp.repositories.ApiRepository;
 import ai.metaheuristic.mhbp.sec.UserContextService;
 import ai.metaheuristic.mhbp.session.SessionTxService;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
@@ -54,6 +56,7 @@ public class ProviderQueryService {
 
     public final ProviderApiSchemeService providerService;
     public final UserContextService userContextService;
+    private final ApiRepository apiRepository;
 
     public final QuestionAndAnswerService questionAndAnswerService;
     public final SessionTxService sessionTxService;
@@ -61,10 +64,14 @@ public class ProviderQueryService {
     public void evaluateProvider(EvaluateProviderEvent event) {
         Session s = null;
         try {
-            s = sessionTxService.create(event.providerCode());
+            Api api = apiRepository.findById(event.apiId()).orElse(null);
+            if (api==null) {
+                return;
+            }
+            s = sessionTxService.create(api.code);
 
-            log.debug("call EvaluateProviderService.evaluateProvider({})", event.providerCode());
-            List<QuestionData.QuestionWithAnswerToAsk> questions = questionAndAnswerService.getQuestionToAsk(event.providerCode());
+            log.debug("call EvaluateProviderService.evaluateProvider({})", event.apiId());
+            List<QuestionData.QuestionWithAnswerToAsk> questions = questionAndAnswerService.getQuestionToAsk(api.code);
 
             for (QuestionData.QuestionWithAnswerToAsk question : questions) {
                 ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.q(), null);

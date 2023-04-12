@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,13 +44,17 @@ public class ApiRestController {
 
     private final ApiService apiService;
     private final UserContextService userContextService;
-    private final ApplicationEventPublisher eventPublisher;
 
-    @GetMapping("/scan/{providerCode}")
-    public OperationStatusRest scan(@PathVariable String providerCode, Authentication authentication) {
-        eventPublisher.publishEvent(new EvaluateProviderEvent(providerCode));
+    @GetMapping("/evaluate/{apiId}")
+    public OperationStatusRest evaluate(@PathVariable @Nullable Long apiId, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return apiService.evaluate(apiId, context);
+    }
 
-        return OperationStatusRest.OPERATION_STATUS_OK;
+    @PostMapping("/run-evaluation")
+    public OperationStatusRest runEvaluation(Long id, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return apiService.evaluate(id, context);
     }
 
     @GetMapping("/apis")

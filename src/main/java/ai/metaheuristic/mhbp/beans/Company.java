@@ -49,7 +49,7 @@ public class Company implements Serializable {
     public Integer version;
 
     @Column(name = "UNIQUE_ID")
-    public Long uniqueId;
+    public long uniqueId;
 
     @Nullable
     @Column(name = "PARAMS")

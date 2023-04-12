@@ -17,9 +17,11 @@
 
 package ai.metaheuristic.mhbp.events;
 
+import org.springframework.lang.Nullable;
+
 /**
  * @author Sergio Lissner
  * Date: 3/19/2023
  * Time: 10:42 PM
  */
-public record EvaluateProviderEvent(String providerCode) {}
+public record EvaluateProviderEvent(long apiId) {}
