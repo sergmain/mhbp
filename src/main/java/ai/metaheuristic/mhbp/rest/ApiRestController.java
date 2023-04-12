@@ -79,7 +79,7 @@ public class ApiRestController {
             Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
 
-        return apiService.createApi(name, code, params, scheme, context.getCompanyId());
+        return apiService.createApi(name, code, params, scheme, context);
     }
 /*
     @PostMapping("/evaluation-add-commit")
