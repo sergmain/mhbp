@@ -23,6 +23,7 @@ import ai.metaheuristic.mhbp.data.ApiData;
 import ai.metaheuristic.mhbp.data.CommunicationData;
 import ai.metaheuristic.mhbp.data.NluData;
 import ai.metaheuristic.mhbp.repositories.ApiRepository;
+import ai.metaheuristic.mhbp.repositories.AuthRepository;
 import ai.metaheuristic.mhbp.utils.RestUtils;
 import ai.metaheuristic.mhbp.utils.S;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +61,7 @@ import static ai.metaheuristic.mhbp.Enums.PromptPlace.uri;
 @RequiredArgsConstructor
 public class ProviderApiSchemeService {
 
-    private final ApiRepository apiRepository;
+    private final AuthRepository authRepository;
 
     public List<ApiData.SchemeAndParams> getProviderSchemeAndParams(NluData.QueriedPrompt info) {
         return schemes.getOrDefault(info.object, List.of());

@@ -30,6 +30,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,7 +78,7 @@ public class AuthService {
     }
 
     @Transactional
-    public OperationStatusRest createAuth(String name, String code, String params, String scheme, RequestContext context) {
+    public OperationStatusRest createAuth(String code, String params, RequestContext context) {
         Auth auth = new Auth();
         auth.code = code;
         auth.setParams(params);
@@ -89,13 +90,16 @@ public class AuthService {
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 
-    public AuthData.Auth getAuth(Long authId, RequestContext context) {
+    public AuthData.Auth getAuth(@Nullable Long authId, RequestContext context) {
         if (authId==null) {
             return new AuthData.Auth("Not found");
         }
         Auth auth = authRepository.findById(authId).orElse(null);
         if (auth == null) {
             return new AuthData.Auth("Not found");
+        }
+        if (auth.companyId!=context.getCompanyId()) {
+            return new AuthData.Auth("Illegal access");
         }
         return new AuthData.Auth(new AuthData.SimpleAuth(auth));
     }

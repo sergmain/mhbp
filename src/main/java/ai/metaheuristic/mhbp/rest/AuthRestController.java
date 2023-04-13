@@ -18,7 +18,6 @@
 package ai.metaheuristic.mhbp.rest;
 
 import ai.metaheuristic.mhbp.auth.AuthService;
-import ai.metaheuristic.mhbp.data.ApiData;
 import ai.metaheuristic.mhbp.data.AuthData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
@@ -44,52 +43,36 @@ public class AuthRestController {
     private final AuthService authService;
     private final UserContextService userContextService;
 
-    @GetMapping("/apis")
-    public ApiData.Apis apis(Pageable pageable, Authentication authentication) {
+    @GetMapping("/auths")
+    public AuthData.Auths auths(Pageable pageable, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        final AuthData.Auths apis = authService.getAuths(pageable, context);
-        return apis;
+        final AuthData.Auths auths = authService.getAuths(pageable, context);
+        return auths;
     }
 
-    @GetMapping("/api/{apiId}")
-    public ApiData.Api apis(@PathVariable @Nullable Long apiId, Authentication authentication) {
+    @GetMapping("/auth/{authId}")
+    public AuthData.Auth apis(@PathVariable @Nullable Long authId, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        final ApiData.Api api = authService.getApi(apiId, context);
+        final AuthData.Auth api = authService.getAuth(authId, context);
         return api;
     }
 
-    @PostMapping("/api-add-commit")
+    @PostMapping("/auth-add-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
     public OperationStatusRest addFormCommit(
-            @RequestParam(name = "name") String name,
             @RequestParam(name = "code") String code,
             @RequestParam(name = "params") String params,
-            @RequestParam(name = "scheme") String scheme,
             Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
 
-        return authService.createApi(name, code, params, scheme, context);
-    }
-/*
-    @PostMapping("/evaluation-add-commit")
-//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
-    public SourceCodeApiData.SourceCodeResult addFormCommit(@RequestParam(name = "source") String sourceCodeYamlAsStr, Authentication authentication) {
-        RequestContext context = userContextService.getContext(authentication);
-        return sourceCodeTopLevelService.createSourceCode(sourceCodeYamlAsStr, context.getCompanyId());
+        return authService.createAuth(code, params, context);
     }
 
-    @PostMapping("/evaluation-edit-commit")
-//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
-    public SourceCodeApiData.SourceCodeResult editFormCommit(Long sourceCodeId, @RequestParam(name = "source") String sourceCodeYamlAsStr) {
-        throw new IllegalStateException("Not supported any more");
-    }
-*/
-
-    @PostMapping("/api-delete-commit")
+    @PostMapping("/auth-delete-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
     public OperationStatusRest deleteCommit(Long id, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return authService.deleteApiById(id, context);
+        return authService.deleteAuthById(id, context);
     }
 
 }
