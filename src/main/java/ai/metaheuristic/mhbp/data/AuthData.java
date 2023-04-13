@@ -30,10 +30,10 @@ import java.util.List;
 
 /**
  * @author Sergio Lissner
- * Date: 3/19/2023
- * Time: 9:12 PM
+ * Date: 4/13/2023
+ * Time: 12:09 AM
  */
-public class ApiData {
+public class AuthData {
 
     @Data
     @NoArgsConstructor
@@ -46,9 +46,7 @@ public class ApiData {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NewApi {
-        public String name;
         public String code;
-        public String description;
         public Enums.AuthType authType;
         public String username;
         public String password;
@@ -77,15 +75,15 @@ public class ApiData {
 
         @Nullable
         @JsonInclude(value= JsonInclude.Include.NON_NULL)
-        public Error error;
+        public ApiData.Error error;
 
         public QueryResult(List<String> answers, boolean success) {
             this.answers = answers;
             this.success = success;
         }
 
-        public static QueryResult asError(String error, Enums.QueryResultErrorType errorType) {
-            return new QueryResult(null, false, new Error(error, errorType));
+        public static ApiData.QueryResult asError(String error, Enums.QueryResultErrorType errorType) {
+            return new ApiData.QueryResult(null, false, new ApiData.Error(error, errorType));
         }
     }
 
@@ -93,7 +91,7 @@ public class ApiData {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class FullQueryResult {
-        public QueryResult queryResult;
+        public ApiData.QueryResult queryResult;
         public String json;
     }
 
@@ -104,8 +102,8 @@ public class ApiData {
         public @Nullable NluData.QueriedPrompt queriedInfo;
         public @Nullable ApiData.Error error;
 
-        public static QueriedInfoWithError asError(String error, Enums.QueryResultErrorType errorType) {
-            return new QueriedInfoWithError(null, new Error(error, errorType));
+        public static ApiData.QueriedInfoWithError asError(String error, Enums.QueryResultErrorType errorType) {
+            return new ApiData.QueriedInfoWithError(null, new ApiData.Error(error, errorType));
         }
     }
 
@@ -120,49 +118,46 @@ public class ApiData {
     @Data
     @AllArgsConstructor
     public static class SchemeAndParamResult {
-        public SchemeAndParams schemeAndParams;
+        public ApiData.SchemeAndParams schemeAndParams;
         public String result;
     }
 
-    public static class SimpleApi {
+    public static class SimpleAuth {
         public long id;
-        public String name;
         public String code;
         public String params;
-        public String scheme;
 
-        public SimpleApi(ai.metaheuristic.mhbp.beans.Api api) {
+        public SimpleAuth(ai.metaheuristic.mhbp.beans.Auth auth) {
             super();
-            this.id = api.id;
-            this.name = api.name;
-            this.code = api.code;
-            this.params = api.getParams();
-            this.scheme = api.getScheme();
+            this.id = auth.id;
+            this.code = auth.code;
+            this.params = auth.getParams();
         }
     }
 
     @RequiredArgsConstructor
-    public static class Apis extends BaseDataClass {
-        public final Slice<SimpleApi> apis;
+    public static class Auths extends BaseDataClass {
+        public final Slice<SimpleAuth> apis;
     }
 
     @Data
     @EqualsAndHashCode(callSuper = false)
     @NoArgsConstructor
-    public static class Api extends BaseDataClass {
-        public SimpleApi api;
+    public static class Auth extends BaseDataClass {
+        public SimpleAuth auth;
 
-        public Api(String errorMessage) {
+        public Auth(String errorMessage) {
             this.errorMessages = Collections.singletonList(errorMessage);
         }
 
-        public Api(SimpleApi api, String errorMessage) {
-            this.api = api;
+        public Auth(SimpleAuth auth, String errorMessage) {
+            this.auth = auth;
             this.errorMessages = Collections.singletonList(errorMessage);
         }
 
-        public Api(SimpleApi api) {
-            this.api = api;
+        public Auth(SimpleAuth auth) {
+            this.auth = auth;
         }
     }
+
 }

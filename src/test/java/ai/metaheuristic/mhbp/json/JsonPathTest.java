@@ -36,6 +36,7 @@ public class JsonPathTest {
 
     // https://github.com/json-path/JsonPath
     // https://www.baeldung.com/guide-to-jayway-jsonpath
+    // https://goessner.net/articles/JsonPath/
     @Test
     public void test_jsonPath() throws IOException {
         String json = IOUtils.resourceToString("/openai/openai-response-01.json", StandardCharsets.UTF_8);

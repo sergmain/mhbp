@@ -17,37 +17,79 @@
 
 package ai.metaheuristic.mhbp.rest;
 
-import ai.metaheuristic.mhbp.beans.Account;
-import ai.metaheuristic.mhbp.data.AccountData;
-import org.springframework.context.annotation.Profile;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
-import java.util.Collection;
+import ai.metaheuristic.mhbp.auth.AuthService;
+import ai.metaheuristic.mhbp.data.ApiData;
+import ai.metaheuristic.mhbp.data.AuthData;
+import ai.metaheuristic.mhbp.data.OperationStatusRest;
+import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.sec.UserContextService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Sergio Lissner
- * Date: 3/5/2023
- * Time: 7:10 PM
+ * Date: 4/13/2023
+ * Time: 12:15 AM
  */
 @RestController
-@RequestMapping("/rest/v1")
-//@Profile("!stub-data")
-//@CrossOrigin
+@RequestMapping("/rest/v1/dispatcher/auth")
+@Slf4j
+@RequiredArgsConstructor
 public class AuthRestController {
 
-    // this end-point is used by angular's part only
-    @RequestMapping("/user")
-    public AccountData.UserData user(Principal user) {
-        UsernamePasswordAuthenticationToken passwordAuthenticationToken = (UsernamePasswordAuthenticationToken) user;
-        Account acc = (Account) passwordAuthenticationToken.getPrincipal();
-        Collection<GrantedAuthority> authorities = passwordAuthenticationToken.getAuthorities();
-        return new AccountData.UserData(acc.username, acc.getPublicName(), authorities, acc.companyId);
+    private final AuthService authService;
+    private final UserContextService userContextService;
+
+    @GetMapping("/apis")
+    public ApiData.Apis apis(Pageable pageable, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        final AuthData.Auths apis = authService.getAuths(pageable, context);
+        return apis;
     }
 
+    @GetMapping("/api/{apiId}")
+    public ApiData.Api apis(@PathVariable @Nullable Long apiId, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        final ApiData.Api api = authService.getApi(apiId, context);
+        return api;
+    }
+
+    @PostMapping("/api-add-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest addFormCommit(
+            @RequestParam(name = "name") String name,
+            @RequestParam(name = "code") String code,
+            @RequestParam(name = "params") String params,
+            @RequestParam(name = "scheme") String scheme,
+            Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+
+        return authService.createApi(name, code, params, scheme, context);
+    }
+/*
+    @PostMapping("/evaluation-add-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public SourceCodeApiData.SourceCodeResult addFormCommit(@RequestParam(name = "source") String sourceCodeYamlAsStr, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return sourceCodeTopLevelService.createSourceCode(sourceCodeYamlAsStr, context.getCompanyId());
+    }
+
+    @PostMapping("/evaluation-edit-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public SourceCodeApiData.SourceCodeResult editFormCommit(Long sourceCodeId, @RequestParam(name = "source") String sourceCodeYamlAsStr) {
+        throw new IllegalStateException("Not supported any more");
+    }
+*/
+
+    @PostMapping("/api-delete-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest deleteCommit(Long id, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return authService.deleteApiById(id, context);
+    }
 
 }
