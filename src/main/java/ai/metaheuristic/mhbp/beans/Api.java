@@ -19,8 +19,8 @@ package ai.metaheuristic.mhbp.beans;
 
 import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import ai.metaheuristic.mhbp.api.scheme.ApiSchemeUtils;
-import ai.metaheuristic.mhbp.api.params.ApiParams;
-import ai.metaheuristic.mhbp.api.params.ApiParamsUtils;
+import ai.metaheuristic.mhbp.api.auth.ApiAuth;
+import ai.metaheuristic.mhbp.api.auth.ApiAuthUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -102,19 +102,19 @@ public class Api implements Serializable {
     @Transient
     @JsonIgnore
     @Nullable
-    private ApiParams apiParams = null;
+    private ApiAuth apiParams = null;
 
     @Transient
     @JsonIgnore
     private final Object syncParamsObj = new Object();
 
     @JsonIgnore
-    public ApiParams getApiParams() {
+    public ApiAuth getApiParams() {
         if (apiParams ==null) {
             synchronized (syncParamsObj) {
                 if (apiParams ==null) {
                     //noinspection UnnecessaryLocalVariable
-                    ApiParams temp = ApiParamsUtils.BASE_UTILS.to(params);
+                    ApiAuth temp = ApiAuthUtils.UTILS.to(params);
                     apiParams = temp;
                 }
             }
@@ -123,8 +123,8 @@ public class Api implements Serializable {
     }
 
     @JsonIgnore
-    public void updateParams(ApiParams apy) {
-        setParams(ApiParamsUtils.BASE_UTILS.toString(apy));
+    public void updateParams(ApiAuth apy) {
+        setParams(ApiAuthUtils.UTILS.toString(apy));
     }
 
     @Transient
@@ -142,7 +142,7 @@ public class Api implements Serializable {
             synchronized (syncSchemeObj) {
                 if (apiScheme==null) {
                     //noinspection UnnecessaryLocalVariable
-                    ApiScheme temp = ApiSchemeUtils.BASE_UTILS.to(scheme);
+                    ApiScheme temp = ApiSchemeUtils.UTILS.to(scheme);
                     apiScheme = temp;
                 }
             }
@@ -152,7 +152,7 @@ public class Api implements Serializable {
 
     @JsonIgnore
     public void updateScheme(ApiScheme apiScheme) {
-        setScheme(ApiSchemeUtils.BASE_UTILS.toString(apiScheme));
+        setScheme(ApiSchemeUtils.UTILS.toString(apiScheme));
     }
 
 }

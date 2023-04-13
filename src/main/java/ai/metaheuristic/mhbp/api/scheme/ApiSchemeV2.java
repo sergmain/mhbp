@@ -15,25 +15,30 @@
  *
  */
 
-package ai.metaheuristic.mhbp.api.params;
+package ai.metaheuristic.mhbp.api.scheme;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.data.BaseParams;
 import ai.metaheuristic.mhbp.exceptions.CheckIntegrityFailedException;
+import ai.metaheuristic.mhbp.utils.S;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 
-@Data
-public class ApiParamsV1 implements BaseParams  {
+import java.util.ArrayList;
+import java.util.List;
 
-    public final int version=1;
+@SuppressWarnings("FieldMayBeStatic")
+@Data
+public class ApiSchemeV2 implements BaseParams {
+
+    public final int version=2;
 
     @Override
     public boolean checkIntegrity() {
-        if (api.basicAuth==null && api.tokenAuth==null) {
-            throw new CheckIntegrityFailedException("(api.basicAuth==null && api.tokenAuth==null)");
+        if (scheme.auth==null || S.b(scheme.auth.code)) {
+            throw new CheckIntegrityFailedException("(scheme.auth==null || S.b(scheme.auth.code))");
         }
         return true;
     }
@@ -41,31 +46,46 @@ public class ApiParamsV1 implements BaseParams  {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class BasicAuthV1 {
-        public String username;
-        public String password;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class TokenAuthV1 {
-        public String token;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ApiV1 {
+    public static class AuthV2 {
         public String code;
-        public Enums.AuthType authType;
-
-        @Nullable
-        public BasicAuthV1 basicAuth;
-
-        @Nullable
-        public TokenAuthV1 tokenAuth;
     }
 
-    public final ApiV1 api = new ApiV1();
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PromptV2 {
+        public Enums.PromptPlace place;
+        public String replace;
+        public String text;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RequestV2 {
+        public Enums.HttpMethodType type;
+        public String uri;
+        public PromptV2 prompt;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ResponseV2 {
+        public Enums.PromptResponseType type;
+        @Nullable
+        public String path;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SchemeV2 {
+        public AuthV2 auth;
+        public RequestV2 request;
+        public ResponseV2 response;
+    }
+
+    public String code;
+    public final SchemeV2 scheme = new SchemeV2();
 }

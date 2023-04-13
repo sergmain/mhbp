@@ -1,7 +1,7 @@
 version: 1
-api:
-  authType: basic
-  code: question
+auth:
+  code: simple
+  type: basic
   basicAuth:
     username: q
     password: '123'

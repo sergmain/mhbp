@@ -1,19 +1,13 @@
-version: 1
+version: 2
 code: simple-provider-localhost:1.0
-authType: basic
 scheme:
-  basicAuth:
-    usernameParam: username
-    passwordParam: password
-  baseMeta:
-    uri: http://localhost:8080/rest/v1/provider/simple/stub
-    attrs:
-      - object: question
-        param: q
-  metas:
-    - meta:
-        object: question
-        desc: Question to ask
-        uri: /question
-      response:
-        asText: true
+  auth:
+    code: simple
+  request:
+    type: get
+    uri: http://localhost:8080/rest/v1/provider/simple/stub/question
+    prompt:
+      place: uri
+      param: q
+  response:
+    type: text

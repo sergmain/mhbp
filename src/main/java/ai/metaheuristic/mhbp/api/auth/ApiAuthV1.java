@@ -15,7 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.api.scheme;
+package ai.metaheuristic.mhbp.api.auth;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.data.BaseParams;
@@ -25,21 +25,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SuppressWarnings("FieldMayBeStatic")
 @Data
-public class ApiSchemeV1 implements BaseParams {
+public class ApiAuthV1 implements BaseParams  {
 
     public final int version=1;
 
     @Override
     public boolean checkIntegrity() {
-        if (scheme==null) {
-            throw new CheckIntegrityFailedException("(scheme==null)");
-        }
-        if (scheme.basicAuth==null && scheme.tokenAuth==null) {
+        if (api.basic==null && api.token==null) {
             throw new CheckIntegrityFailedException("(api.basicAuth==null && api.tokenAuth==null)");
         }
         return true;
@@ -49,64 +43,31 @@ public class ApiSchemeV1 implements BaseParams {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BasicAuthV1 {
-        public String usernameParam;
-        public String passwordParam;
+        public String username;
+        public String password;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class TokenAuthV1 {
-        public String tokenParam;
-    }
+        public Enums.TokenPlace place;
+        public String token;
+        public String param;    }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class MetaV1 {
-        public String object;
+    public static class ApiV1 {
+        public String code;
+        public Enums.AuthType type;
+
         @Nullable
-        public String desc;
+        public BasicAuthV1 basic;
+
         @Nullable
-        public String uri;
-        @Nullable
-        public String param;
-        @Nullable
-        public List<MetaV1> attrs;
+        public TokenAuthV1 token;
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ResponseV1 {
-        public boolean asText;
-        public List<MetaV1> attrs = new ArrayList<>();
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class MetaWithResponseV1 {
-        public final MetaV1 meta = new MetaV1();
-        public final ResponseV1 response = new ResponseV1();
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SchemeV1 {
-        public String apiDocuUrl;
-        @Nullable
-        public BasicAuthV1 basicAuth;
-
-        @Nullable
-        public TokenAuthV1 tokenAuth;
-
-        public final MetaV1 baseMeta = new MetaV1();
-
-        public final List<MetaWithResponseV1> metas = new ArrayList<>();
-    }
-
-    public String code;
-    public Enums.AuthType authType;
-    public SchemeV1 scheme;
+    public final ApiV1 api = new ApiV1();
 }

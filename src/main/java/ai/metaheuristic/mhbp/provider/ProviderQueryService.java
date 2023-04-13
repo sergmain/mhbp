@@ -75,7 +75,7 @@ public class ProviderQueryService {
 
             for (QuestionData.QuestionWithAnswerToAsk question : questions) {
                 ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.q(), null);
-                ProviderData.QuestionAndAnswer qaa = processQuery(queriedData, ProviderQueryService::asQueriedInfoWithError);
+                ProviderData.QuestionAndAnswer qaa = processQuery(api, queriedData, ProviderQueryService::asQueriedInfoWithError);
                 questionAndAnswerService.process(s, question, qaa);
             }
             sessionTxService.finish(s, Enums.SessionStatus.finished);
@@ -88,17 +88,17 @@ public class ProviderQueryService {
     }
 
     public static QueriedInfoWithError asQueriedInfoWithError(ProviderData.QueriedData queriedData) {
-        final NluData.QueriedInfo queriedInfo = new NluData.QueriedInfo("question", List.of(new NluData.Property("question", queriedData.queryText())));
+        final NluData.QueriedPrompt queriedInfo = new NluData.QueriedPrompt(queriedData.queryText());
         return new QueriedInfoWithError(queriedInfo, null);
     }
 
-    public ProviderData.QuestionAndAnswer processQuery(ProviderData.QueriedData queriedData,
+    public ProviderData.QuestionAndAnswer processQuery(Api api, ProviderData.QueriedData queriedData,
                                                Function<ProviderData.QueriedData, QueriedInfoWithError> getQueriedInfoWithErrorFunc) {
         try {
             if (S.b(queriedData.queryText())) {
                 return new ProviderData.QuestionAndAnswer(ERROR, "Required parameter wasn't specified");
             }
-            final FullQueryResult result = process(queriedData, getQueriedInfoWithErrorFunc);
+            final FullQueryResult result = process(api, queriedData, getQueriedInfoWithErrorFunc);
             if (result.queryResult.error!=null ) {
                 return new ProviderData.QuestionAndAnswer(ERROR, result.queryResult.error.error);
             }
@@ -113,16 +113,16 @@ public class ProviderQueryService {
         }
     }
 
-    public FullQueryResult process(ProviderData.QueriedData queriedData,
+    public FullQueryResult process(Api api, ProviderData.QueriedData queriedData,
                                            Function<ProviderData.QueriedData, QueriedInfoWithError> getQueriedInfoWithErrorFunc) throws JsonProcessingException {
-        QueryResult queryResult = processInternal(queriedData, getQueriedInfoWithErrorFunc);
+        QueryResult queryResult = processInternal(api, queriedData, getQueriedInfoWithErrorFunc);
 
         String json = JsonUtils.getMapper().writeValueAsString(queryResult);
         final FullQueryResult fullQueryResult = new FullQueryResult(queryResult, json);
         return fullQueryResult;
     }
 
-    private QueryResult processInternal(ProviderData.QueriedData queriedData,
+    private QueryResult processInternal(Api api, ProviderData.QueriedData queriedData,
                                                 Function<ProviderData.QueriedData, QueriedInfoWithError> getQueriedInfoWithErrorFunc) {
         QueryResult queryResult;
         if (queriedData.queryText().length()>255) {
@@ -135,15 +135,15 @@ public class ProviderQueryService {
                 queryResult = new QueryResult(null, false, queriedInfoWithError.error);
             }
             else if (queriedInfoWithError.queriedInfo!=null) {
-                List<SchemeAndParamResult> results = providerService.queryProviders(queriedInfoWithError.queriedInfo);
+                List<SchemeAndParamResult> results = providerService.queryProviders(api, queriedInfoWithError.queriedInfo);
 
                 List<String> processedAnswers = new ArrayList<>();
                 for (SchemeAndParamResult r : results) {
-                    ApiScheme.ResponseMeta responseMeta = ProviderQueryUtils.getFieldForLookingFor(r.schemeAndParams.scheme, queriedInfoWithError.queriedInfo);
-                    if (responseMeta==null) {
+                    ApiScheme.Response response = api.getApiScheme().scheme.response;
+                    if (response==null) {
                         continue;
                     }
-                    String processedAnswer = ProviderQueryUtils.processAnswerFromApi(r.result, responseMeta);
+                    String processedAnswer = ProviderQueryUtils.processAnswerFromApi(r.result, response);
                     processedAnswers.add(processedAnswer);
                 }
 

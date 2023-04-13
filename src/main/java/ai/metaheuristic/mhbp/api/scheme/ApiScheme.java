@@ -20,6 +20,7 @@ package ai.metaheuristic.mhbp.api.scheme;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.data.BaseParams;
 import ai.metaheuristic.mhbp.exceptions.CheckIntegrityFailedException;
+import ai.metaheuristic.mhbp.utils.S;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,19 +29,18 @@ import org.springframework.lang.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ai.metaheuristic.mhbp.Enums.HttpMethodType.get;
+
 @SuppressWarnings("FieldMayBeStatic")
 @Data
 public class ApiScheme implements BaseParams {
 
-    public final int version=1;
+    public final int version=2;
 
     @Override
     public boolean checkIntegrity() {
-        if (scheme==null) {
-            throw new CheckIntegrityFailedException("(scheme==null)");
-        }
-        if (scheme.basicAuth==null && scheme.tokenAuth==null) {
-            throw new CheckIntegrityFailedException("(api.basicAuth==null && api.tokenAuth==null)");
+        if (scheme.auth==null || S.b(scheme.auth.code)) {
+            throw new CheckIntegrityFailedException("(scheme.auth==null || S.b(scheme.auth.code))");
         }
         return true;
     }
@@ -48,71 +48,47 @@ public class ApiScheme implements BaseParams {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class BasicAuth {
-        public String usernameParam;
-        public String passwordParam;
+    public static class Auth {
+        public String code;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TokenAuth {
-        // this field contains the name of the field which will be inited with actual token
-        // actual value of token isn't part of scheme
-        // see ai.metaheuristic.info.yaml.api.params.ApiParamsYaml.TokenAuth
-        public String tokenParam;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Meta {
-        public String object;
-        @Nullable
-        public String desc;
-        @Nullable
-        public String uri;
-        @Nullable
+    public static class Prompt {
+        public Enums.PromptPlace place;
         public String param;
-        @Nullable
-        public List<Meta> attrs;
+        public String replace;
+        public String text;
     }
 
-    public record ResponseMeta(boolean asText, @Nullable Meta meta) {}
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Request {
+        public Enums.HttpMethodType type;
+        public String uri;
+        public Prompt prompt;
+    }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response {
-        public boolean asText;
-        public List<Meta> attrs;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class MetaWithResponse {
-        public Meta meta;
-        public Response response;
+        public Enums.PromptResponseType type;
+        @Nullable
+        public String path;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Scheme {
-        public String apiDocuUrl;
-        @Nullable
-        public BasicAuth basicAuth;
-
-        @Nullable
-        public TokenAuth tokenAuth;
-
-        public Meta baseMeta;
-
-        public final List<MetaWithResponse> metas = new ArrayList<>();
+        public Auth auth;
+        public Request request;
+        public Response response;
     }
 
     public String code;
-    public Enums.AuthType authType;
-    public Scheme scheme;
+    public final Scheme scheme = new Scheme();
 }

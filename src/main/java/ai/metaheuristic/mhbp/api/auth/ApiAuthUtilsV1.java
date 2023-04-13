@@ -15,15 +15,16 @@
  *
  */
 
-package ai.metaheuristic.mhbp.api.params;
+package ai.metaheuristic.mhbp.api.auth;
 
 import ai.metaheuristic.mhbp.utils.YamlUtils;
 import ai.metaheuristic.mhbp.utils.versioning.AbstractParamsUtils;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
-public class ApiParamsUtilsV1 extends
-        AbstractParamsUtils<ApiParamsV1, ApiParams, Void, Void, Void, Void> {
+public class ApiAuthUtilsV1 extends
+        AbstractParamsUtils<ApiAuthV1, ApiAuth, Void, Void, Void, Void> {
 
     @Override
     public int getVersion() {
@@ -33,27 +34,40 @@ public class ApiParamsUtilsV1 extends
     @NonNull
     @Override
     public Yaml getYaml() {
-        return YamlUtils.init(ApiParamsV1.class);
+        return YamlUtils.init(ApiAuthV1.class);
     }
 
     @NonNull
     @Override
-    public ApiParams upgradeTo(@NonNull ApiParamsV1 v1) {
+    public ApiAuth upgradeTo(@NonNull ApiAuthV1 v1) {
         v1.checkIntegrity();
 
-        ApiParams t = new ApiParams();
-        t.api.code = v1.api.code;
-        t.api.authType = v1.api.authType;
-        if (v1.api.basicAuth!=null) {
-            t.api.basicAuth = new ApiParams.BasicAuth(v1.api.basicAuth.username, v1.api.basicAuth.password);
-        }
-
-        if (v1.api.tokenAuth!=null) {
-            t.api.tokenAuth = new ApiParams.TokenAuth(v1.api.tokenAuth.token);
-        }
+        ApiAuth t = new ApiAuth();
+        t.auth.code = v1.api.code;
+        t.auth.type = v1.api.type;
+        t.auth.basic = toBasicAuth(v1.api.basic);
+        t.auth.token = toTokenAuth(v1.api.token);
 
         t.checkIntegrity();
         return t;
+    }
+
+    @Nullable
+    public static ApiAuth.BasicAuth toBasicAuth(@Nullable ApiAuthV1.BasicAuthV1 v1) {
+        if (v1==null) {
+            return null;
+        }
+        ApiAuth.BasicAuth ta = new ApiAuth.BasicAuth(v1.username, v1.password);
+        return ta;
+    }
+
+    @Nullable
+    public static ApiAuth.TokenAuth toTokenAuth(@Nullable ApiAuthV1.TokenAuthV1 v1) {
+        if (v1==null) {
+            return null;
+        }
+        ApiAuth.TokenAuth ta = new ApiAuth.TokenAuth(v1.place, v1.token, v1.param);
+        return ta;
     }
 
     @NonNull
@@ -73,7 +87,7 @@ public class ApiParamsUtilsV1 extends
     }
 
     @Override
-    public String toString(@NonNull ApiParamsV1 yaml) {
+    public String toString(@NonNull ApiAuthV1 yaml) {
         yaml.checkIntegrity();
 
         return getYaml().dump(yaml);
@@ -81,8 +95,8 @@ public class ApiParamsUtilsV1 extends
 
     @NonNull
     @Override
-    public ApiParamsV1 to(@NonNull String s) {
-        final ApiParamsV1 p = getYaml().load(s);
+    public ApiAuthV1 to(@NonNull String s) {
+        final ApiAuthV1 p = getYaml().load(s);
         return p;
     }
 

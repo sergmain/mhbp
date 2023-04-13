@@ -18,7 +18,7 @@
 package ai.metaheuristic.mhbp.data;
 
 import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.api.params.ApiParams;
+import ai.metaheuristic.mhbp.api.auth.ApiAuth;
 import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -131,7 +131,7 @@ public class ApiData {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class QueriedInfoWithError {
-        public @Nullable NluData.QueriedInfo queriedInfo;
+        public @Nullable NluData.QueriedPrompt queriedInfo;
         public @Nullable ApiData.Error error;
 
         public static QueriedInfoWithError asError(String error, Enums.QueryResultErrorType errorType) {
@@ -144,9 +144,8 @@ public class ApiData {
     @AllArgsConstructor
     public static class SchemeAndParams {
         public ApiScheme scheme;
-        public ApiParams params;
+        public ApiAuth auth;
     }
-
 
     @Data
     @AllArgsConstructor

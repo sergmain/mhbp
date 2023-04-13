@@ -1,0 +1,7 @@
+version: 1
+auth:
+  code: openai
+  type: token
+  tokenAuth:
+    place: header
+    token: xxxx

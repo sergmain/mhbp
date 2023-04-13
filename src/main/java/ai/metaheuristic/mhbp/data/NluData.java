@@ -20,9 +20,6 @@ package ai.metaheuristic.mhbp.data;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.springframework.lang.Nullable;
-
-import java.util.List;
 
 /**
  * @author Sergio Lissner
@@ -40,25 +37,14 @@ public class NluData {
 
     @Data
     @AllArgsConstructor
-    public static class QueriedInfo {
-        public String object;
-        public List<Property> properties;
-
-        @Nullable
-        public Property findByName(String name) {
-            for (Property property : properties) {
-                if (property.name.equals(name)) {
-                    return property;
-                }
-            }
-            return null;
-        }
+    public static class QueriedPrompt {
+        public String text;
     }
 
     @Data
     @EqualsAndHashCode
     public static class ProcessedQuery {
-        public QueriedInfo info;
+        public QueriedPrompt prompt;
         public String text;
     }
 }

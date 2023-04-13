@@ -15,18 +15,18 @@
  *
  */
 
-package ai.metaheuristic.mhbp.api.params;
+package ai.metaheuristic.mhbp.api.auth;
 
 import ai.metaheuristic.mhbp.utils.versioning.BaseUtils;
 
 import java.util.Map;
 
-public class ApiParamsUtils {
+public class ApiAuthUtils {
 
-    private static final ApiParamsUtilsV1 YAML_UTILS_V_1 = new ApiParamsUtilsV1();
-    private static final ApiParamsUtilsV1 DEFAULT_UTILS = YAML_UTILS_V_1;
+    private static final ApiAuthUtilsV1 YAML_UTILS_V_1 = new ApiAuthUtilsV1();
+    private static final ApiAuthUtilsV1 DEFAULT_UTILS = YAML_UTILS_V_1;
 
-    public static final BaseUtils<ApiParams> BASE_UTILS = new BaseUtils<>(
+    public static final BaseUtils<ApiAuth> UTILS = new BaseUtils<>(
             Map.of(
                     1, YAML_UTILS_V_1
             ),

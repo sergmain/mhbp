@@ -18,14 +18,13 @@
 package ai.metaheuristic.mhbp.provider;
 
 import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
-import ai.metaheuristic.mhbp.api.params.ApiParams;
 import ai.metaheuristic.mhbp.beans.Api;
 import ai.metaheuristic.mhbp.data.ApiData;
 import ai.metaheuristic.mhbp.data.CommunicationData;
 import ai.metaheuristic.mhbp.data.NluData;
 import ai.metaheuristic.mhbp.repositories.ApiRepository;
 import ai.metaheuristic.mhbp.utils.RestUtils;
+import ai.metaheuristic.mhbp.utils.S;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -41,16 +40,15 @@ import org.apache.http.client.utils.URIUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
+
+import static ai.metaheuristic.mhbp.Enums.PromptPlace.uri;
 
 /**
  * @author Sergio Lissner
@@ -64,24 +62,11 @@ public class ProviderApiSchemeService {
 
     private final ApiRepository apiRepository;
 
-    public final Map<String, List<ApiData.SchemeAndParams>> schemes = new HashMap<>();
-
-    @PostConstruct
-    public void init() {
-        for (Api api : apiRepository.findAll()) {
-            ApiScheme scheme = api.getApiScheme();
-            ApiParams params = api.getApiParams();
-            for (ApiScheme.MetaWithResponse meta : scheme.scheme.metas) {
-                schemes.computeIfAbsent(meta.meta.object, o->new ArrayList<>()).add(new ApiData.SchemeAndParams(scheme, params));
-            }
-        }
-    }
-
-    public List<ApiData.SchemeAndParams> getProviderSchemeAndParams(NluData.QueriedInfo info) {
+    public List<ApiData.SchemeAndParams> getProviderSchemeAndParams(NluData.QueriedPrompt info) {
         return schemes.getOrDefault(info.object, List.of());
     }
 
-    public List<ApiData.SchemeAndParamResult> queryProviders(NluData.QueriedInfo info) {
+    public List<ApiData.SchemeAndParamResult> queryProviders(Api api, NluData.QueriedPrompt info) {
         List<ApiData.SchemeAndParams> schemeAndParamses = getProviderSchemeAndParams(info);
         List<ApiData.SchemeAndParamResult> result = new ArrayList<>();
         for (ApiData.SchemeAndParams schemeAndParams : schemeAndParamses) {
@@ -91,55 +76,33 @@ public class ProviderApiSchemeService {
         return result;
     }
 
-    public static String queryProviderApi(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedInfo info) {
+    public static String queryProviderApi(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedPrompt info) {
         CommunicationData.Query query = buildApiQueryUri(schemeAndParams, info);
 
         String data = getData( schemeAndParams, query, (uri) -> Request.Get(uri).connectTimeout(5000).socketTimeout(20000));
         return data;
     }
 
-    private static CommunicationData.Query buildApiQueryUri(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedInfo info) {
+    private static CommunicationData.Query buildApiQueryUri(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedPrompt info) {
 
-        StringBuilder url = null;
-        if (schemeAndParams.scheme.scheme.baseMeta.uri!=null) {
-            url = new StringBuilder(schemeAndParams.scheme.scheme.baseMeta.uri);
-        }
-        if (url==null) {
+        if (S.b(schemeAndParams.scheme.scheme.request.uri)) {
             throw new RuntimeException("can't build an URL");
         }
-
         List<NameValuePair> nvps = new ArrayList<>();
-        for (NluData.Property prop : info.properties) {
-            if (schemeAndParams.scheme.scheme.baseMeta.attrs==null) {
-                break;
-            }
-            ApiScheme.Meta attr = schemeAndParams.scheme.scheme.baseMeta.attrs.stream().filter(o->o.object.equals(prop.name)).findFirst().orElse(null);
-            if (attr==null) {
-                continue;
-            }
-            if (attr.param==null) {
-                throw new RuntimeException("(attr.param==null)");
-            }
-            nvps.add(new BasicNameValuePair(attr.param, prop.value));
+        if (schemeAndParams.scheme.scheme.request.prompt.place==uri) {
+            nvps.add(new BasicNameValuePair(schemeAndParams.scheme.scheme.request.prompt.param, info.text));
         }
 
-        for (ApiScheme.MetaWithResponse meta : schemeAndParams.scheme.scheme.metas) {
-            if (info.object.equals(meta.meta.object)) {
-                url.append(meta.meta.uri);
+        if (schemeAndParams.auth.auth.type==Enums.AuthType.token) {
+            if (schemeAndParams.auth.auth.token==null) {
+                throw new RuntimeException("(schemeAndParams.auth.auth.tokenAuth==null)");
+            }
+            if (schemeAndParams.auth.auth.token.place!=Enums.TokenPlace.header) {
+                nvps.add(new BasicNameValuePair(schemeAndParams.auth.auth.token.param, schemeAndParams.auth.auth.token.token));
             }
         }
 
-        if (schemeAndParams.scheme.authType==Enums.AuthType.token) {
-            if (schemeAndParams.scheme.scheme.tokenAuth==null) {
-                throw new RuntimeException("(schemeAndParams.model.scheme.tokenAuth==null)");
-            }
-            if (schemeAndParams.params.api.tokenAuth==null) {
-                throw new RuntimeException("(schemeAndParams.params.api.tokenAuth==null)");
-            }
-            nvps.add(new BasicNameValuePair(schemeAndParams.scheme.scheme.tokenAuth.tokenParam, schemeAndParams.params.api.tokenAuth.token));
-        }
-
-        return new CommunicationData.Query(url.toString(), nvps);
+        return new CommunicationData.Query(schemeAndParams.scheme.scheme.request.uri, nvps);
     }
 
     @SneakyThrows
@@ -160,13 +123,19 @@ public class ProviderApiSchemeService {
 
         RestUtils.addHeaders(request);
         final Executor executor;
-        if (schemeAndParams.scheme.authType==Enums.AuthType.basic) {
-            if (schemeAndParams.params.api.basicAuth==null) {
+        if (schemeAndParams.auth.auth.type==Enums.AuthType.basic) {
+            if (schemeAndParams.auth.auth.basic==null) {
                 throw new IllegalStateException("(schemeAndParams.params.api.basicAuth==null)");
             }
-            executor = getExecutor(schemeAndParams.scheme.scheme.baseMeta.uri, schemeAndParams.params.api.basicAuth.username, schemeAndParams.params.api.basicAuth.password);
+            executor = getExecutor(schemeAndParams.scheme.scheme.request.uri, schemeAndParams.auth.auth.basic.username, schemeAndParams.auth.auth.basic.password);
         }
         else {
+            if (schemeAndParams.auth.auth.token==null) {
+                throw new IllegalStateException("(schemeAndParams.auth.auth.token==null)");
+            }
+            if (schemeAndParams.auth.auth.token.place==Enums.TokenPlace.header) {
+                request.addHeader("Authorization", "Bearer " + schemeAndParams.auth.auth.token.token);
+            }
             executor = Executor.newInstance();
         }
         Response response = executor.execute(request);

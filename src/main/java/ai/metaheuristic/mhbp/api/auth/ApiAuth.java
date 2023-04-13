@@ -15,7 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.api.params;
+package ai.metaheuristic.mhbp.api.auth;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.data.BaseParams;
@@ -25,14 +25,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 
+@SuppressWarnings("FieldMayBeStatic")
 @Data
-public class ApiParams implements BaseParams {
+public class ApiAuth implements BaseParams {
 
     public final int version=1;
 
     @Override
     public boolean checkIntegrity() {
-        if (api.basicAuth==null && api.tokenAuth==null) {
+        if (auth.basic==null && auth.token==null) {
             throw new CheckIntegrityFailedException("(api.basicAuth==null && api.tokenAuth==null)");
         }
         return true;
@@ -50,21 +51,24 @@ public class ApiParams implements BaseParams {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class TokenAuth {
+        public Enums.TokenPlace place;
         public String token;
+        public String param;
     }
+
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Api {
+    public static class Auth {
         public String code;
-        public Enums.AuthType authType;
+        public Enums.AuthType type;
         @Nullable
-        public BasicAuth basicAuth;
+        public BasicAuth basic;
 
         @Nullable
-        public TokenAuth tokenAuth;
+        public TokenAuth token;
     }
 
-    public final Api api = new Api();
+    public final Auth auth = new Auth();
 }

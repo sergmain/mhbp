@@ -33,6 +33,10 @@ public class Enums {
 
     public enum OperationStatus {OK, ERROR}
     public enum AuthType { basic, token }
+    public enum TokenPlace { param, header }
+    public enum PromptPlace { uri, text }
+    public enum PromptResponseType { json, text }
+    public enum HttpMethodType { get, post }
 
     public enum QueryResultErrorType { cant_understand, common, server_error, query_too_long }
 
