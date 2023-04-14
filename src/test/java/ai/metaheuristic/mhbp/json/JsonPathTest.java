@@ -49,4 +49,16 @@ public class JsonPathTest {
         assertEquals("\n\nThis is a test!", content);
     }
 
+    @Test
+    public void test_jsonPath_2() throws IOException {
+        String json = IOUtils.resourceToString("/openai/2_plus_2_answer-2.json", StandardCharsets.UTF_8);
+
+        String jsonpath = "$['choices'][0]['text']";
+
+        DocumentContext jsonContext = JsonPath.parse(json);
+        String content = jsonContext.read(jsonpath);
+
+        assertEquals("\n\n4", content);
+    }
+
 }

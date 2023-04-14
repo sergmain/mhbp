@@ -156,6 +156,7 @@ public class ProviderApiSchemeService {
             }
             executor = Executor.newInstance();
         }
+        request.addHeader("Content-Type", "application/json");
 
         Response response = executor.execute(request);
 
