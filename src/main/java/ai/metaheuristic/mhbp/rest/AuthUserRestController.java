@@ -47,5 +47,4 @@ public class AuthUserRestController {
         return new AccountData.UserData(acc.username, acc.getPublicName(), authorities, acc.companyId);
     }
 
-
 }

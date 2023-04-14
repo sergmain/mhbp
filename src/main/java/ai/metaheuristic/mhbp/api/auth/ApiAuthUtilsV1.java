@@ -43,10 +43,10 @@ public class ApiAuthUtilsV1 extends
         v1.checkIntegrity();
 
         ApiAuth t = new ApiAuth();
-        t.auth.code = v1.api.code;
-        t.auth.type = v1.api.type;
-        t.auth.basic = toBasicAuth(v1.api.basic);
-        t.auth.token = toTokenAuth(v1.api.token);
+        t.auth.code = v1.auth.code;
+        t.auth.type = v1.auth.type;
+        t.auth.basic = toBasicAuth(v1.auth.basic);
+        t.auth.token = toTokenAuth(v1.auth.token);
 
         t.checkIntegrity();
         return t;

@@ -56,7 +56,6 @@ public class ApiAuth implements BaseParams {
         public String param;
     }
 
-
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

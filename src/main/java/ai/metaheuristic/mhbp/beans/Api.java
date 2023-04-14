@@ -71,20 +71,6 @@ public class Api implements Serializable {
     @Column(name="DISABLED")
     public boolean disabled;
 
-    @Column(name = "PARAMS")
-    private String params;
-
-    public void setParams(String params) {
-        synchronized (this) {
-            this.params = params;
-            this.apiParams = null;
-        }
-    }
-
-    public String getParams() {
-        return params;
-    }
-
     @Column(name = "SCHEME")
     private String scheme;
 
@@ -97,34 +83,6 @@ public class Api implements Serializable {
 
     public String getScheme() {
         return scheme;
-    }
-
-    @Transient
-    @JsonIgnore
-    @Nullable
-    private ApiAuth apiParams = null;
-
-    @Transient
-    @JsonIgnore
-    private final Object syncParamsObj = new Object();
-
-    @JsonIgnore
-    public ApiAuth getApiParams() {
-        if (apiParams ==null) {
-            synchronized (syncParamsObj) {
-                if (apiParams ==null) {
-                    //noinspection UnnecessaryLocalVariable
-                    ApiAuth temp = ApiAuthUtils.UTILS.to(params);
-                    apiParams = temp;
-                }
-            }
-        }
-        return apiParams;
-    }
-
-    @JsonIgnore
-    public void updateParams(ApiAuth apy) {
-        setParams(ApiAuthUtils.UTILS.toString(apy));
     }
 
     @Transient

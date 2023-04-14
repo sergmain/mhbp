@@ -95,11 +95,10 @@ public class ApiService {
     }
 
     @Transactional
-    public OperationStatusRest createApi(String name, String code, String params, String scheme, RequestContext context) {
+    public OperationStatusRest createApi(String name, String code, String scheme, RequestContext context) {
         Api api = new Api();
         api.name = name;
         api.code = code;
-        api.setParams(params);
         api.setScheme(scheme);
         api.companyId = context.getCompanyId();
         api.accountId = context.getAccountId();

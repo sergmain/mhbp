@@ -33,7 +33,7 @@ public class ApiAuthV1 implements BaseParams  {
 
     @Override
     public boolean checkIntegrity() {
-        if (api.basic==null && api.token==null) {
+        if (auth.basic==null && auth.token==null) {
             throw new CheckIntegrityFailedException("(api.basicAuth==null && api.tokenAuth==null)");
         }
         return true;
@@ -53,12 +53,13 @@ public class ApiAuthV1 implements BaseParams  {
     public static class TokenAuthV1 {
         public Enums.TokenPlace place;
         public String token;
-        public String param;    }
+        public String param;
+    }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ApiV1 {
+    public static class AuthV1 {
         public String code;
         public Enums.AuthType type;
 
@@ -69,5 +70,5 @@ public class ApiAuthV1 implements BaseParams  {
         public TokenAuthV1 token;
     }
 
-    public final ApiV1 api = new ApiV1();
+    public final AuthV1 auth = new AuthV1();
 }

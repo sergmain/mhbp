@@ -84,6 +84,7 @@ public class AuthService {
         auth.setParams(params);
         auth.companyId = context.getCompanyId();
         auth.accountId = context.getAccountId();
+        auth.createdOn = System.currentTimeMillis();
 
         authRepository.save(auth);
 

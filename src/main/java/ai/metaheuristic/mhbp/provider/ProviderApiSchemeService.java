@@ -18,11 +18,12 @@
 package ai.metaheuristic.mhbp.provider;
 
 import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import ai.metaheuristic.mhbp.beans.Api;
+import ai.metaheuristic.mhbp.beans.Auth;
 import ai.metaheuristic.mhbp.data.ApiData;
 import ai.metaheuristic.mhbp.data.CommunicationData;
 import ai.metaheuristic.mhbp.data.NluData;
-import ai.metaheuristic.mhbp.repositories.ApiRepository;
 import ai.metaheuristic.mhbp.repositories.AuthRepository;
 import ai.metaheuristic.mhbp.utils.RestUtils;
 import ai.metaheuristic.mhbp.utils.S;
@@ -38,6 +39,7 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URIUtils;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.stereotype.Service;
 
@@ -47,9 +49,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
-
-import static ai.metaheuristic.mhbp.Enums.PromptPlace.uri;
 
 /**
  * @author Sergio Lissner
@@ -63,25 +62,19 @@ public class ProviderApiSchemeService {
 
     private final AuthRepository authRepository;
 
-    public List<ApiData.SchemeAndParams> getProviderSchemeAndParams(NluData.QueriedPrompt info) {
-        return schemes.getOrDefault(info.object, List.of());
-    }
-
     public List<ApiData.SchemeAndParamResult> queryProviders(Api api, NluData.QueriedPrompt info) {
-        List<ApiData.SchemeAndParams> schemeAndParamses = getProviderSchemeAndParams(info);
-        List<ApiData.SchemeAndParamResult> result = new ArrayList<>();
-        for (ApiData.SchemeAndParams schemeAndParams : schemeAndParamses) {
-            String data = queryProviderApi(schemeAndParams, info);
-            result.add(new ApiData.SchemeAndParamResult(schemeAndParams, data));
+        ApiScheme scheme = api.getApiScheme();
+        List<Auth> auths = authRepository.findAllByCompanyUniqueId(api.companyId);
+        Auth auth = auths.stream().filter(o->o.getAuthParams().auth.code.equals(scheme.scheme.auth.code)).findFirst().orElse(null);
+        if (auth==null) {
+            throw new RuntimeException("Auth wasn't found for code " + scheme.scheme.auth.code);
         }
+        ApiData.SchemeAndParams schemeAndParams = new ApiData.SchemeAndParams(scheme, auth.getAuthParams());
+
+        List<ApiData.SchemeAndParamResult> result = new ArrayList<>();
+        String data = queryProviderApi(schemeAndParams, info);
+        result.add(new ApiData.SchemeAndParamResult(schemeAndParams, data));
         return result;
-    }
-
-    public static String queryProviderApi(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedPrompt info) {
-        CommunicationData.Query query = buildApiQueryUri(schemeAndParams, info);
-
-        String data = getData( schemeAndParams, query, (uri) -> Request.Get(uri).connectTimeout(5000).socketTimeout(20000));
-        return data;
     }
 
     private static CommunicationData.Query buildApiQueryUri(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedPrompt info) {
@@ -90,7 +83,7 @@ public class ProviderApiSchemeService {
             throw new RuntimeException("can't build an URL");
         }
         List<NameValuePair> nvps = new ArrayList<>();
-        if (schemeAndParams.scheme.scheme.request.prompt.place==uri) {
+        if (schemeAndParams.scheme.scheme.request.prompt.place==Enums.PromptPlace.uri) {
             nvps.add(new BasicNameValuePair(schemeAndParams.scheme.scheme.request.prompt.param, info.text));
         }
 
@@ -107,7 +100,9 @@ public class ProviderApiSchemeService {
     }
 
     @SneakyThrows
-    public static String getData(ApiData.SchemeAndParams schemeAndParams, CommunicationData.Query query, Function<URI, Request> requestFunc) {
+    public static String queryProviderApi(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedPrompt info) {
+        CommunicationData.Query query = buildApiQueryUri(schemeAndParams, info);
+
         if (query.url==null) {
             throw new RuntimeException("url is null");
         }
@@ -115,12 +110,34 @@ public class ProviderApiSchemeService {
             throw new RuntimeException("params of query must be set via nvps");
         }
 
-        final URIBuilder builder = new URIBuilder(query.url).setCharset(StandardCharsets.UTF_8);
+        final URIBuilder uriBuilder1 = new URIBuilder(query.url).setCharset(StandardCharsets.UTF_8);
         if (!query.nvps.isEmpty()) {
-            builder.addParameters(query.nvps);
+            uriBuilder1.addParameters(query.nvps);
         }
-        final URI build = builder.build();
-        final Request request = requestFunc.apply(build);
+        final URI uri = uriBuilder1.build();
+
+        final Request request;
+        if (schemeAndParams.scheme.scheme.request.type==Enums.HttpMethodType.post) {
+            request = Request.Post(uri).connectTimeout(5000).socketTimeout(20000);
+            if (schemeAndParams.scheme.scheme.request.prompt.place==Enums.PromptPlace.text) {
+                String json = schemeAndParams.scheme.scheme.request.prompt.text.replace(schemeAndParams.scheme.scheme.request.prompt.replace, info.text);
+                StringEntity entity = new StringEntity(json, StandardCharsets.UTF_8);
+                request.body(entity);
+            }
+        }
+        else if (schemeAndParams.scheme.scheme.request.type==Enums.HttpMethodType.get) {
+            request = Request.Get(uri).connectTimeout(5000).socketTimeout(20000);
+        }
+        else {
+            throw new RuntimeException();
+        }
+
+        String data = getData( schemeAndParams, request);
+        return data;
+    }
+
+    @SneakyThrows
+    public static String getData(ApiData.SchemeAndParams schemeAndParams, final Request request) {
 
         RestUtils.addHeaders(request);
         final Executor executor;
@@ -139,6 +156,7 @@ public class ProviderApiSchemeService {
             }
             executor = Executor.newInstance();
         }
+
         Response response = executor.execute(request);
 
         final HttpResponse httpResponse = response.returnResponse();

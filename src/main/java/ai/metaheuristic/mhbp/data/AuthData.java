@@ -18,15 +18,10 @@
 package ai.metaheuristic.mhbp.data;
 
 import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.api.auth.ApiAuth;
-import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.domain.Slice;
-import org.springframework.lang.Nullable;
 
 import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Sergio Lissner
@@ -35,100 +30,12 @@ import java.util.List;
  */
 public class AuthData {
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SimpleError {
-        public String error;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class NewApi {
-        public String code;
-        public Enums.AuthType authType;
-        public String username;
-        public String password;
-        public String token;
-        public String url;
-        public String text;
-
-        public Enums.AuthType[] authTypes = Enums.AuthType.values();
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Error {
-        public String error;
-        public Enums.QueryResultErrorType errorType;
-    }
-
-    // this is a result of querying of info provider
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class QueryResult {
-        public List<String> answers;
-        public boolean success;
-
-        @Nullable
-        @JsonInclude(value= JsonInclude.Include.NON_NULL)
-        public ApiData.Error error;
-
-        public QueryResult(List<String> answers, boolean success) {
-            this.answers = answers;
-            this.success = success;
-        }
-
-        public static ApiData.QueryResult asError(String error, Enums.QueryResultErrorType errorType) {
-            return new ApiData.QueryResult(null, false, new ApiData.Error(error, errorType));
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class FullQueryResult {
-        public ApiData.QueryResult queryResult;
-        public String json;
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class QueriedInfoWithError {
-        public @Nullable NluData.QueriedPrompt queriedInfo;
-        public @Nullable ApiData.Error error;
-
-        public static ApiData.QueriedInfoWithError asError(String error, Enums.QueryResultErrorType errorType) {
-            return new ApiData.QueriedInfoWithError(null, new ApiData.Error(error, errorType));
-        }
-    }
-
-
-    @Data
-    @AllArgsConstructor
-    public static class SchemeAndParams {
-        public ApiScheme scheme;
-        public ApiAuth auth;
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class SchemeAndParamResult {
-        public ApiData.SchemeAndParams schemeAndParams;
-        public String result;
-    }
-
     public static class SimpleAuth {
         public long id;
         public String code;
         public String params;
 
         public SimpleAuth(ai.metaheuristic.mhbp.beans.Auth auth) {
-            super();
             this.id = auth.id;
             this.code = auth.code;
             this.params = auth.getParams();
@@ -137,7 +44,7 @@ public class AuthData {
 
     @RequiredArgsConstructor
     public static class Auths extends BaseDataClass {
-        public final Slice<SimpleAuth> apis;
+        public final Slice<SimpleAuth> auths;
     }
 
     @Data

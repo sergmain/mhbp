@@ -74,6 +74,7 @@ public class ApiSchemeUtilsV2 extends
         r.place = v2.place;
         r.replace = v2.replace;
         r.text = v2.text;
+        r.param = v2.param;
         return r;
     }
 

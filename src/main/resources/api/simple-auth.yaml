@@ -2,6 +2,6 @@ version: 1
 auth:
   code: simple
   type: basic
-  basicAuth:
+  basic:
     username: q
     password: '123'

@@ -128,7 +128,6 @@ public class ApiData {
         public long id;
         public String name;
         public String code;
-        public String params;
         public String scheme;
 
         public SimpleApi(ai.metaheuristic.mhbp.beans.Api api) {
@@ -136,7 +135,6 @@ public class ApiData {
             this.id = api.id;
             this.name = api.name;
             this.code = api.code;
-            this.params = api.getParams();
             this.scheme = api.getScheme();
         }
     }

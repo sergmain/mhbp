@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.api;
 
+import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import ai.metaheuristic.mhbp.api.scheme.ApiSchemeUtils;
 import org.apache.commons.io.IOUtils;
@@ -25,7 +26,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static ai.metaheuristic.mhbp.Enums.HttpMethodType.get;
 import static ai.metaheuristic.mhbp.Enums.HttpMethodType.post;
+import static ai.metaheuristic.mhbp.Enums.PromptPlace.uri;
 import static ai.metaheuristic.mhbp.Enums.PromptResponseType.json;
 import static ai.metaheuristic.mhbp.Enums.PromptResponseType.text;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class ApiSchemeTest {
 
     @Test
-    public void test_55() throws IOException {
+    public void test_openai() throws IOException {
         String yaml  = IOUtils.resourceToString("/api/openai-provider.yaml", StandardCharsets.UTF_8);
 
         ApiScheme as = ApiSchemeUtils.UTILS.to(yaml);
@@ -49,22 +52,40 @@ public class ApiSchemeTest {
         assertEquals(post, as.scheme.request.type);
         assertEquals("https://api.openai.com/v1/completions", as.scheme.request.uri);
         assertNotNull(as.scheme.request.prompt);
-        assertEquals(text, as.scheme.request.prompt.place);
+        final Enums.PromptPlace place = as.scheme.request.prompt.place;
+        assertEquals(ai.metaheuristic.mhbp.Enums.PromptPlace.text, place);
         assertEquals("$prompt$", as.scheme.request.prompt.replace);
         assertEquals("""
-                    {
-                        "model": "text-davinci-003",
-                            "prompt": "$prompt$",
-                            "temperature": 0.9,
-                            "max_tokens": 150,
-                            "top_p": 1,
-                            "frequency_penalty": 0,
-                            "presence_penalty": 0.6,
-                            "stop": [" Human:", " AI:"]
-                    }
-                    """, as.scheme.request.prompt.text);
+                {
+                  "model": "text-davinci-003",
+                  "prompt": "$prompt$",
+                  "temperature": 0.9,
+                  "max_tokens": 150,
+                  "top_p": 1,
+                  "frequency_penalty": 0,
+                  "presence_penalty": 0.6,
+                  "stop": [" Human:", " AI:"]
+                }
+                """, as.scheme.request.prompt.text);
 
         assertEquals(json, as.scheme.response.type);
         assertEquals("$['choices'][0]['message']['content']", as.scheme.response.path);
+    }
+
+    @Test
+    public void test_simple() throws IOException {
+        String yaml  = IOUtils.resourceToString("/api/simple-provider.yaml", StandardCharsets.UTF_8);
+
+        ApiScheme as = ApiSchemeUtils.UTILS.to(yaml);
+
+        assertEquals("simple-provider-localhost:1.0", as.code);
+        assertEquals("simple", as.scheme.auth.code);
+        assertEquals(get, as.scheme.request.type);
+        assertEquals("http://localhost:8080/rest/v1/provider/simple/stub/question", as.scheme.request.uri);
+        assertNotNull(as.scheme.request.prompt);
+        assertEquals(uri, as.scheme.request.prompt.place);
+        assertEquals("q", as.scheme.request.prompt.param);
+
+        assertEquals(text, as.scheme.response.type);
     }
 }

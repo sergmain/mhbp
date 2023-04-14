@@ -111,7 +111,6 @@ CREATE table mhbp_api
     NAME            VARCHAR(250)    NOT NULL,
     CODE            VARCHAR(50)     NOT NULL,
     DISABLED        BOOLEAN         not null default false,
-    PARAMS          TEXT            not null,
     SCHEME          TEXT            not null
 );
 

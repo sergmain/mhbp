@@ -55,6 +55,7 @@ public class ApiSchemeV2 implements BaseParams {
     @AllArgsConstructor
     public static class PromptV2 {
         public Enums.PromptPlace place;
+        public String param;
         public String replace;
         public String text;
     }

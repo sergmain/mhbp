@@ -74,12 +74,11 @@ public class ApiRestController {
     public OperationStatusRest addFormCommit(
             @RequestParam(name = "name") String name,
             @RequestParam(name = "code") String code,
-            @RequestParam(name = "params") String params,
             @RequestParam(name = "scheme") String scheme,
             Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
 
-        return apiService.createApi(name, code, params, scheme, context);
+        return apiService.createApi(name, code, scheme, context);
     }
 /*
     @PostMapping("/evaluation-add-commit")
