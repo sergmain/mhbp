@@ -15,12 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.yaml;
+@ParametersAreNonnullByDefault
+package ai.metaheuristic.mhbp.events;
 
-/**
- * @author Sergio Lissner
- * Date: 4/14/2023
- * Time: 10:23 PM
- */
-public class KbConfig {
-}
+import javax.annotation.ParametersAreNonnullByDefault;

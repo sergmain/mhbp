@@ -117,6 +117,20 @@ CREATE table mhbp_api
 CREATE INDEX mhbp_api_company_id_idx
     ON mhbp_api (COMPANY_ID);
 
+CREATE table mhbp_kb
+(
+    ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
+    VERSION         NUMERIC(10, 0)  NOT NULL,
+    COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
+    ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
+    CREATED_ON      bigint          NOT NULL,
+    CODE            VARCHAR(50)     NOT NULL,
+    DISABLED        BOOLEAN         not null default false,
+    PARAMS          TEXT            not null
+);
+
+CREATE INDEX mhbp_kb_company_id_idx
+    ON mhbp_kb (COMPANY_ID);
 
 CREATE table mhbp_answer
 (

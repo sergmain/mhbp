@@ -15,39 +15,32 @@
  *
  */
 
-package ai.metaheuristic.mhbp;
+package ai.metaheuristic.mhbp.yaml.kb;
 
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.Globals;
+import ai.metaheuristic.mhbp.data.BaseParams;
+import ai.metaheuristic.mhbp.exceptions.CheckIntegrityFailedException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Sergio Lissner
- * Date: 3/4/2023
- * Time: 3:29 PM
- */
-@ConfigurationProperties("mhbp")
-@Getter
-@Setter
-@Slf4j
-@RequiredArgsConstructor
-public class Globals {
+@SuppressWarnings("FieldMayBeStatic")
+@Data
+public class KbParams implements BaseParams {
 
-    public static class Threads {
-        @Getter @Setter
-        private int scheduler = 10;
-        @Getter @Setter
-        private int event =  10;
-    }
+    public final int version=1;
 
-    @Getter
-    @Setter
-    public static class RowsLimit {
-        public int defaultLimit = 20;
+    @Override
+    public boolean checkIntegrity() {
+        if (kb.git==null && kb.file==null) {
+            throw new CheckIntegrityFailedException("(kb.git==null && kb.file==null)");
+        }
+        return true;
     }
 
     @Data
@@ -65,7 +58,7 @@ public class Globals {
         public String repo;
         public String branch;
         public String commit;
-        public List<KbPath> kbPaths = new ArrayList<>();
+        public final List<KbPath> kbPaths = new ArrayList<>();
     }
 
     @Data
@@ -81,30 +74,12 @@ public class Globals {
     public static class Kb {
         public String code;
         public String type;
-        public boolean disabled = false;
+        @Nullable
         public Git git;
+        @Nullable
         public File file;
     }
 
-    public Threads threads;
-    public RowsLimit rowsLimit;
-
-    public final List<String> corsAllowedOrigins = new ArrayList<>(List.of("*"));
-
-    public String mainUsername;
-    public String mainPassword;
-    public int consoleOutputMaxLines = 1000;
-
-    public boolean sslRequired = true;
-    public boolean testing = false;
-
-    public Kb[] kb;
-
-    public void setCorsAllowedOrigins(List<String> corsAllowedOrigins) {
-        if (corsAllowedOrigins.isEmpty()) {
-            return;
-        }
-        this.corsAllowedOrigins.clear();
-        this.corsAllowedOrigins.addAll(corsAllowedOrigins);
-    }
+    public final Kb kb = new Kb();
+    public boolean disabled = false;
 }
