@@ -17,13 +17,18 @@
 
 package ai.metaheuristic.mhbp.utils;
 
+import ai.metaheuristic.mhbp.Consts;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.file.PathUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.springframework.lang.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,6 +38,44 @@ import java.util.List;
  */
 @Slf4j
 public class DirUtils {
+
+    @Nullable
+    public static Path createTempPath(Path trgDir, String prefix) {
+        Date date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String prefixDate = format.format(date);
+        for (int i = 0; i < 5; i++) {
+            Path newTempDir = trgDir.resolve( prefix + prefixDate + "-" + System.nanoTime());
+            if (Files.exists(newTempDir)) {
+                continue;
+            }
+            try {
+                Files.createDirectories(newTempDir);
+                if (Files.exists(newTempDir)) {
+                    return newTempDir;
+                }
+            } catch (IOException e) {
+                log.error(S.f("#017.040 Can't create temporary dir %s, attempt #%d, error: %s", newTempDir.normalize(), i, e.getMessage()));
+            }
+        }
+        return null;
+    }
+
+    @SneakyThrows
+    @Nullable
+    public static Path createMhTempPath(String prefix) {
+        return createMhTempPath(SystemUtils.getJavaIoTmpDir().toPath(), prefix);
+    }
+
+    @SneakyThrows
+    @Nullable
+    public static Path createMhTempPath(Path base, String prefix) {
+        Path trgDir = base.resolve(Consts.METAHEURISTIC_TEMP);
+        if (Files.notExists(trgDir)) {
+            Files.createDirectories(trgDir);
+        }
+        return createTempPath(trgDir, prefix);
+    }
 
     public static void deletePathAsync(@Nullable final Path fileOrDir) {
         if (fileOrDir != null) {

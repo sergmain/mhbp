@@ -15,29 +15,26 @@
  *
  */
 
-package ai.metaheuristic.mhbp.utils;
+package ai.metaheuristic.mhbp.questions;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.junit.jupiter.api.Test;
 
-import java.util.Locale;
-import java.util.Objects;
+import java.util.List;
+
+import static ai.metaheuristic.mhbp.questions.QuestionAndAnswerService.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Sergio Lissner
- * Date: 3/5/2023
- * Time: 5:39 PM
+ * Date: 4/14/2023
+ * Time: 12:53 PM
  */
-public class S {
-    public static @NonNull String f(@NonNull String format, @Nullable Object... args) {
-        return Objects.requireNonNull(String.format(format, args));
-    }
+public class QuestionAndAnswerServiceTest {
 
-    public static @NonNull String f(@NonNull Locale l, @NonNull String format, Object... args) {
-        return String.format(l, format, args);
-    }
-
-    public static boolean b(@Nullable String s) {
-        return s==null || s.isBlank();
+    @Test
+    public void test_() {
+        final List<QuestionData.QuestionWithAnswerToAsk> list = getFirstQuestionWithAnswerToAsks();
+        assertEquals(1, list.size());
+        assertEquals("1", list.get(0).qCode());
     }
 }

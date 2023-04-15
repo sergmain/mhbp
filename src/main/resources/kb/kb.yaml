@@ -1,0 +1,6 @@
+version: 1
+kb:
+  - git:
+      repo: https://github.com/openai/evals.git
+      branch: main
+      commit: origin

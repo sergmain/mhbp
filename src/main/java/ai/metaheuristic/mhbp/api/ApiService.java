@@ -60,7 +60,7 @@ public class ApiService {
         return new ApiData.Apis(new PageImpl<>(sorted, pageable, list.size()));
     }
 
-    public OperationStatusRest evaluate(@Nullable Long apiId, RequestContext context) {
+    public OperationStatusRest evaluate(@Nullable Long apiId, RequestContext context, int limit) {
         if (apiId==null) {
             return OperationStatusRest.OPERATION_STATUS_OK;
         }
@@ -72,7 +72,7 @@ public class ApiService {
         if (api.companyId!=context.getCompanyId()) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.200 apiId: " + apiId);
         }
-        eventPublisher.publishEvent(new EvaluateProviderEvent(apiId));
+        eventPublisher.publishEvent(new EvaluateProviderEvent(apiId, limit));
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 

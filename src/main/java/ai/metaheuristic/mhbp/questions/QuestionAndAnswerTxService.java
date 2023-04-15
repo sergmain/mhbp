@@ -49,7 +49,7 @@ public class QuestionAndAnswerTxService {
         a.apiInfo = "n/a";
         a.answeredOn = System.currentTimeMillis();
         if (qaa.status()==OK) {
-            a.status = question.a().equals(qaa.a()) ? Enums.AnswerStatus.normal.code : Enums.AnswerStatus.fail.code;
+            a.status = qaa.a()!=null && question.a().equals(qaa.a().strip()) ? Enums.AnswerStatus.normal.code : Enums.AnswerStatus.fail.code;
         }
         else {
             a.status = Enums.AnswerStatus.error.code;

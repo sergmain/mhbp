@@ -46,13 +46,19 @@ public class ApiRestController {
     @GetMapping("/evaluate/{apiId}")
     public OperationStatusRest evaluate(@PathVariable @Nullable Long apiId, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return apiService.evaluate(apiId, context);
+        return apiService.evaluate(apiId, context, 0);
     }
 
     @PostMapping("/run-evaluation")
     public OperationStatusRest runEvaluation(Long id, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return apiService.evaluate(id, context);
+        return apiService.evaluate(id, context, 0);
+    }
+
+    @PostMapping("/run-test-evaluation")
+    public OperationStatusRest runTestEvaluation(Long id, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return apiService.evaluate(id, context, 1);
     }
 
     @GetMapping("/apis")

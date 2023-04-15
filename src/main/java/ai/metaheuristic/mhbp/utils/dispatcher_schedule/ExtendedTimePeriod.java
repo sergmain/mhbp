@@ -15,29 +15,33 @@
  *
  */
 
-package ai.metaheuristic.mhbp.utils;
+package ai.metaheuristic.mhbp.utils.dispatcher_schedule;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import lombok.Data;
 
-import java.util.Locale;
-import java.util.Objects;
+@Data
+public class ExtendedTimePeriod {
 
-/**
- * @author Sergio Lissner
- * Date: 3/5/2023
- * Time: 5:39 PM
- */
-public class S {
-    public static @NonNull String f(@NonNull String format, @Nullable Object... args) {
-        return Objects.requireNonNull(String.format(format, args));
+    public enum SchedulePolicy {
+        normal, strict
     }
 
-    public static @NonNull String f(@NonNull Locale l, @NonNull String format, Object... args) {
-        return String.format(l, format, args);
+    @Data
+    public static class WeekTimePeriod {
+        public String mon;
+        public String tue;
+        public String wed;
+        public String thu;
+        public String fri;
+        public String sat;
+        public String sun;
     }
 
-    public static boolean b(@Nullable String s) {
-        return s==null || s.isBlank();
-    }
+    public String workingDay;
+    public String weekend;
+    public String dayMask;
+    public String holiday;
+    public String exceptionWorkingDay;
+    public WeekTimePeriod week;
+    public SchedulePolicy policy = SchedulePolicy.normal;
 }

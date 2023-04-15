@@ -40,15 +40,22 @@ public class QuestionAndAnswerService {
     public final AnswerRepository answerRepository;
 
     public static final List<QuestionData.QuestionWithAnswerToAsk> qqs = List.of(
-            new QuestionData.QuestionWithAnswerToAsk("1","q1", "42"),
+            new QuestionData.QuestionWithAnswerToAsk("1","answer 2+2 with digits only", "4"),
             new QuestionData.QuestionWithAnswerToAsk("2","q2", "Good"),
             new QuestionData.QuestionWithAnswerToAsk("3","q3", "Good"),
             new QuestionData.QuestionWithAnswerToAsk("4","q4", "Bad"),
             new QuestionData.QuestionWithAnswerToAsk("5","q5", "Good")
     );
 
-    public List<QuestionData.QuestionWithAnswerToAsk> getQuestionToAsk(String providerCode) {
+    public List<QuestionData.QuestionWithAnswerToAsk> getQuestionToAsk(String providerCode, int limit) {
+        if (limit!=0) {
+            return getFirstQuestionWithAnswerToAsks();
+        }
         return qqs;
+    }
+
+    public static List<QuestionData.QuestionWithAnswerToAsk> getFirstQuestionWithAnswerToAsks() {
+        return qqs.subList(0, 1);
     }
 
     public void process(Session session, QuestionData.QuestionWithAnswerToAsk question, ProviderData.QuestionAndAnswer qaa) {

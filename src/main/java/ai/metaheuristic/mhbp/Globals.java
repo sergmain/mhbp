@@ -17,9 +17,7 @@
 
 package ai.metaheuristic.mhbp;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.lang.Nullable;
@@ -52,6 +50,22 @@ public class Globals {
         public int defaultLimit = 20;
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Git {
+        public String repo;
+        public String branch;
+        public String commit;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Kb {
+        public Git[] gits;
+    }
+
     public Threads threads;
     public RowsLimit rowsLimit;
 
@@ -59,9 +73,12 @@ public class Globals {
 
     public String mainUsername;
     public String mainPassword;
+    public int consoleOutputMaxLines = 1000;
 
     public boolean sslRequired = true;
     public boolean testing = false;
+
+    public Kb kb;
 
     public void setCorsAllowedOrigins(List<String> corsAllowedOrigins) {
         if (corsAllowedOrigins.isEmpty()) {

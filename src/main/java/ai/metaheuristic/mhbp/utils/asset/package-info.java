@@ -15,13 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.events;
+@ParametersAreNonnullByDefault
+package ai.metaheuristic.mhbp.utils.asset;
 
-import org.springframework.lang.Nullable;
-
-/**
- * @author Sergio Lissner
- * Date: 3/19/2023
- * Time: 10:42 PM
- */
-public record EvaluateProviderEvent(long apiId, int limit) {}
+import javax.annotation.ParametersAreNonnullByDefault;

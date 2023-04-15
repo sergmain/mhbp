@@ -15,29 +15,12 @@
  *
  */
 
-package ai.metaheuristic.mhbp.utils;
-
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
-import java.util.Locale;
-import java.util.Objects;
+package ai.metaheuristic.mhbp.exceptions;
 
 /**
  * @author Sergio Lissner
- * Date: 3/5/2023
- * Time: 5:39 PM
+ * Date: 4/14/2023
+ * Time: 5:40 PM
  */
-public class S {
-    public static @NonNull String f(@NonNull String format, @Nullable Object... args) {
-        return Objects.requireNonNull(String.format(format, args));
-    }
-
-    public static @NonNull String f(@NonNull Locale l, @NonNull String format, Object... args) {
-        return String.format(l, format, args);
-    }
-
-    public static boolean b(@Nullable String s) {
-        return s==null || s.isBlank();
-    }
+public class ScheduleInactivePeriodException extends RuntimeException {
 }

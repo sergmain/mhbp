@@ -45,4 +45,11 @@ public class Consts {
             List.of(ROLE_SERVER_REST_ACCESS, ROLE_MAIN_OPERATOR, ROLE_MAIN_SUPPORT, "ROLE_MAIN_ASSET_MANAGER");
 
     public static final ParamsVersion PARAMS_VERSION_1 = new ParamsVersion();
+
+    public static final String METAHEURISTIC_TEMP = "metaheuristic-temp";
+
+    public static final String ARTIFACTS_DIR = "artifacts";
+
+    public static final String HTTP = "http://";
+    public static final String HTTPS = "https://";
 }

@@ -71,7 +71,7 @@ public class ProviderQueryService {
             s = sessionTxService.create(api.code);
 
             log.debug("call EvaluateProviderService.evaluateProvider({})", event.apiId());
-            List<QuestionData.QuestionWithAnswerToAsk> questions = questionAndAnswerService.getQuestionToAsk(api.code);
+            List<QuestionData.QuestionWithAnswerToAsk> questions = questionAndAnswerService.getQuestionToAsk(api.code, event.limit());
 
             for (QuestionData.QuestionWithAnswerToAsk question : questions) {
                 ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.q(), null);
