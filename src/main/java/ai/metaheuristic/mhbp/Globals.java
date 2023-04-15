@@ -53,17 +53,35 @@ public class Globals {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class KbPath {
+        public String evals;
+        public String data;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Git {
         public String repo;
         public String branch;
         public String commit;
+        public KbPath[] kbPaths;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class File {
+        public String url;
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Kb {
-        public Git[] gits;
+        public String type;
+        public Git git;
+        public File file;
     }
 
     public Threads threads;
@@ -78,7 +96,7 @@ public class Globals {
     public boolean sslRequired = true;
     public boolean testing = false;
 
-    public Kb kb;
+    public Kb[] kb;
 
     public void setCorsAllowedOrigins(List<String> corsAllowedOrigins) {
         if (corsAllowedOrigins.isEmpty()) {

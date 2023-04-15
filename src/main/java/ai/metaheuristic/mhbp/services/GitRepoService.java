@@ -51,7 +51,8 @@ public class GitRepoService {
     public String initRepo() {
 
         String s = "";
-        for (Globals.Git git : globals.kb.gits) {
+        for (Globals.Kb kb : globals.kb) {
+            Globals.Git git = kb.git;
             String code = NetUtils.asCode(git.repo);
             Path p = gitPath.resolve(code);
             if (Files.notExists(p)) {
