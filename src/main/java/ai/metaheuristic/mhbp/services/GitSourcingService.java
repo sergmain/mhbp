@@ -26,7 +26,6 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -119,24 +118,16 @@ public class GitSourcingService {
         return assetFile;
     }
 
-    public SystemProcessLauncher.ExecResult prepareFunction(final File resourceDir, String code, Git git) {
+    public SystemProcessLauncher.ExecResult prepareFunction(final File resourceDir, Git git) {
 
-        log.info("#027.050 Start preparing function dir");
-        AssetFile assetFile = prepareFunctionDir(resourceDir, code);
-        log.info("#027.060 assetFile.isError: {}" , assetFile.isError);
-        if (assetFile.isError) {
-            return new SystemProcessLauncher.ExecResult(null,false, "#027.060 Can't create dir for function " + code);
-        }
-
-        File functionDir = assetFile.file;
-        File repoDir = new File(functionDir, "git");
+        File repoDir = new File(resourceDir, "repo");
         log.info("#027.070 Target dir: {}, exist: {}", repoDir.getAbsolutePath(), repoDir.exists() );
 
         if (!repoDir.exists()) {
-            SystemProcessLauncher.ExecResult result = execClone(functionDir, git);
+            SystemProcessLauncher.ExecResult result = execClone(repoDir, git);
             log.info("#027.080 Result of cloning repo: {}", result.toString());
             if (!result.ok || !result.systemExecResult.isOk()) {
-                result = tryToRepairRepo(functionDir, code, git);
+                result = tryToRepairRepo(repoDir, git);
                 log.info("#027.090 Result of repairing of repo: {}", result.toString());
                 return result;
             }
@@ -150,7 +141,7 @@ public class GitSourcingService {
             return new SystemProcessLauncher.ExecResult(null,false, result.systemExecResult.console);
         }
         if (!"true".equals(result.systemExecResult.console.strip())) {
-            result = tryToRepairRepo(repoDir, code, git);
+            result = tryToRepairRepo(repoDir, git);
             log.info("#027.110 Result of tryToRepairRepo: {}", result.toString());
             if (!result.ok) {
                 return result;
@@ -197,17 +188,17 @@ public class GitSourcingService {
         }
         log.info("#027.160 repoDir: {}, exist: {}", repoDir.getAbsolutePath(), repoDir.exists());
 
-        return new SystemProcessLauncher.ExecResult(repoDir, new ExecData.SystemExecResult(code, true, 0, "" ), true, null);
+        return new SystemProcessLauncher.ExecResult(repoDir, new ExecData.SystemExecResult(null, true, 0, "" ), true, null);
     }
 
-    public SystemProcessLauncher.ExecResult tryToRepairRepo(File functionDir, String code, Globals.Git git) {
+    public SystemProcessLauncher.ExecResult tryToRepairRepo(File functionDir, Globals.Git git) {
         File repoDir = new File(functionDir, "git");
         SystemProcessLauncher.ExecResult result;
         FileUtils.deleteQuietly(repoDir);
         if (repoDir.exists()) {
             return new SystemProcessLauncher.ExecResult(null,
                     false,
-                    "#027.170 Function "+code+", can't prepare repo dir for function: " + repoDir.getAbsolutePath());
+                    "#027.170 can't prepare repo dir for function: " + repoDir.getAbsolutePath());
         }
         result = execClone(functionDir, git);
         return result;
@@ -264,7 +255,7 @@ public class GitSourcingService {
     private SystemProcessLauncher.ExecResult execClone(File repoDir, Globals.Git git) {
         // git -C <path> clone <git-repo-url> git
         String gitUrl = git.repo;
-        List<String> cmd = List.of("git", "-C", repoDir.getAbsolutePath(), "clone", gitUrl, "git");
+        List<String> cmd = List.of("git", "-C", repoDir.getAbsolutePath(), "clone", gitUrl);
         log.info("exec {}", cmd);
         SystemProcessLauncher.ExecResult result = execGitCmd(cmd, 0L);
         return result;

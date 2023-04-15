@@ -57,7 +57,7 @@ public class GitRepoService {
             if (Files.notExists(p)) {
                 Files.createDirectories(p);
             }
-            SystemProcessLauncher.ExecResult execResult = gitSourcingService.prepareFunction(p.toFile(), "repo", git);
+            SystemProcessLauncher.ExecResult execResult = gitSourcingService.prepareFunction(p.toFile(), git);
             final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
             s += ("\n"+asString);
             System.out.println(asString);
