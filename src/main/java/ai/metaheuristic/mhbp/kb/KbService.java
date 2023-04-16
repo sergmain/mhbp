@@ -19,9 +19,16 @@ package ai.metaheuristic.mhbp.kb;
 
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.beans.Kb;
+import ai.metaheuristic.mhbp.data.KbData;
+import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.repositories.KbRepository;
+import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -42,6 +49,7 @@ public class KbService {
 
     public final Globals globals;
     public final KbTxService kbTxService;
+    public final KbRepository kbRepository;
 
     @PostConstruct
     public void inti() {
@@ -103,4 +111,28 @@ public class KbService {
         KbParams.KbPath ta = new KbParams.KbPath(v1.evals, v1.data);
         return ta;
     }
+
+    public KbData.Kbs getKbs(Pageable pageable, RequestContext context) {
+        pageable = ControllerUtils.fixPageSize(20, pageable);
+
+        Page<Kb> kbs = kbRepository.findAllByCompanyUniqueId(pageable, context.getCompanyId());
+        List<KbData.SimpleKb> list = kbs.stream().map(KbData.SimpleKb::new).toList();
+        var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.id, o1.id)).collect(Collectors.toList());
+        return new KbData.Kbs(new PageImpl<>(sorted, pageable, list.size()));
+    }
+
+    public KbData.Kb getKb(@Nullable Long kbId, RequestContext context) {
+        if (kbId==null) {
+            return new KbData.Kb("Not found");
+        }
+        Kb kb = kbRepository.findById(kbId).orElse(null);
+        if (kb == null) {
+            return new KbData.Kb("Not found");
+        }
+        if (kb.companyId!=context.getCompanyId()) {
+            return new KbData.Kb("Illegal access");
+        }
+        return new KbData.Kb(new KbData.SimpleKb(kb));
+    }
+
 }
