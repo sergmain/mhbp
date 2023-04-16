@@ -36,36 +36,37 @@ public class KbData {
         public long id;
         public String code;
         public String params;
+        public boolean editable;
 
-        public SimpleKb(ai.metaheuristic.mhbp.beans.Kb auth) {
-            this.id = auth.id;
-            this.code = auth.code;
-            this.params = auth.getParams();
+        public SimpleKb(ai.metaheuristic.mhbp.beans.Kb kb) {
+            this.id = kb.id;
+            this.code = kb.code;
+            this.params = kb.getParams();
         }
     }
 
     @RequiredArgsConstructor
     public static class Kbs extends BaseDataClass {
-        public final Slice<SimpleKb> auths;
+        public final Slice<SimpleKb> kbs;
     }
 
     @Data
     @EqualsAndHashCode(callSuper = false)
     @NoArgsConstructor
     public static class Kb extends BaseDataClass {
-        public SimpleKb auth;
+        public SimpleKb kb;
 
         public Kb(String errorMessage) {
             this.errorMessages = Collections.singletonList(errorMessage);
         }
 
-        public Kb(SimpleKb auth, String errorMessage) {
-            this.auth = auth;
+        public Kb(SimpleKb kb, String errorMessage) {
+            this.kb = kb;
             this.errorMessages = Collections.singletonList(errorMessage);
         }
 
-        public Kb(SimpleKb auth) {
-            this.auth = auth;
+        public Kb(SimpleKb kb) {
+            this.kb = kb;
         }
     }
 

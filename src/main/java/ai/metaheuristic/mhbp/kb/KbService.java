@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.kb;
 
+import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.data.KbData;
@@ -34,6 +35,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -115,10 +117,15 @@ public class KbService {
     public KbData.Kbs getKbs(Pageable pageable, RequestContext context) {
         pageable = ControllerUtils.fixPageSize(20, pageable);
 
-        Page<Kb> kbs = kbRepository.findAllByCompanyUniqueId(pageable, context.getCompanyId());
-        List<KbData.SimpleKb> list = kbs.stream().map(KbData.SimpleKb::new).toList();
-        var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.id, o1.id)).collect(Collectors.toList());
-        return new KbData.Kbs(new PageImpl<>(sorted, pageable, list.size()));
+        List<KbData.SimpleKb> simpleKbs = new ArrayList<>(50);
+        Page<Kb> kbs = kbRepository.findAllByCompanyUniqueId(pageable, Consts.ID_1);
+        kbs.stream().map(KbData.SimpleKb::new).collect(Collectors.toCollection(()->simpleKbs));
+
+        kbs = kbRepository.findAllByCompanyUniqueId(pageable, context.getCompanyId());
+        kbs.stream().map(KbData.SimpleKb::new).collect(Collectors.toCollection(()->simpleKbs));
+
+        var sorted = simpleKbs.stream().sorted((o1, o2)->Long.compare(o2.id, o1.id)).collect(Collectors.toList());
+        return new KbData.Kbs(new PageImpl<>(sorted, pageable, simpleKbs.size()));
     }
 
     public KbData.Kb getKb(@Nullable Long kbId, RequestContext context) {
