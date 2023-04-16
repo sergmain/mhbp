@@ -37,7 +37,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class EvaluateProviderService {
+public class ProcessSessionOfEvaluationService {
 
     public final ProviderQueryService providerQueryService;
 
@@ -67,7 +67,7 @@ public class EvaluateProviderService {
         }
     }
 
-    public void processEvaluateProviderEvent() {
+    public void processSessionEvent() {
         if (executor.getActiveCount()>0) {
             return;
         }

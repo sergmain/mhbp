@@ -17,34 +17,37 @@
 
 package ai.metaheuristic.mhbp.rest;
 
-import ai.metaheuristic.mhbp.data.EvaluationData;
+import ai.metaheuristic.mhbp.data.SessionData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
-import ai.metaheuristic.mhbp.evaluation.EvaluationService;
+import ai.metaheuristic.mhbp.session.SessionService;
 import ai.metaheuristic.mhbp.sec.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Sergio Lissner
- * Date: 3/26/2023
- * Time: 2:57 AM
+ * Date: 4/15/2023
+ * Time: 7:29 PM
  */
 @RestController
-@RequestMapping("/rest/v1/dispatcher/evaluation")
+@RequestMapping("/rest/v1/dispatcher/evaluations")
 @Slf4j
 @RequiredArgsConstructor
-public class EvaluationRestController {
+public class EvaluationsRestController {
 
-    private final EvaluationService evaluationService;
+    private final SessionService evaluationService;
     private final UserContextService userContextService;
 
     @GetMapping("/evaluations")
-    public EvaluationData.EvalStatuses evaluations(Pageable pageable) {
-        final EvaluationData.EvalStatuses statuses = evaluationService.getStatuses(pageable);
+    public SessionData.SessionStatuses evaluations(Pageable pageable) {
+        final SessionData.SessionStatuses statuses = evaluationService.getStatuses(pageable);
         return statuses;
     }
 
@@ -63,11 +66,11 @@ public class EvaluationRestController {
     }
 */
 
-    @PostMapping("/evaluation-delete-commit")
+    @PostMapping("/evaluations-delete-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
     public OperationStatusRest deleteCommit(Long evaluationId, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return evaluationService.deleteEvaluationById(evaluationId, context);
+        return evaluationService.deleteSessionById(evaluationId, context);
     }
 
 

@@ -17,10 +17,9 @@
 
 package ai.metaheuristic.mhbp;
 
-import ai.metaheuristic.mhbp.provider.EvaluateProviderService;
+import ai.metaheuristic.mhbp.provider.ProcessSessionOfEvaluationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -39,14 +38,14 @@ public class Schedulers {
     public static class DispatcherSchedulers {
 
         private final Globals globals;
-        private final EvaluateProviderService evaluateProviderService;
+        private final ProcessSessionOfEvaluationService evaluateProviderService;
 
         @Scheduled(initialDelay = 15_000, fixedDelay = 5_000 )
         public void processEvaluateProviderService() {
             if (globals.testing) {
                 return;
             }
-            evaluateProviderService.processEvaluateProviderEvent();
+            evaluateProviderService.processSessionEvent();
         }
     }
 }

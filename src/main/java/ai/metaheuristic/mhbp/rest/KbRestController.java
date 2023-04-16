@@ -15,28 +15,12 @@
  *
  */
 
-package ai.metaheuristic.mhbp.data;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Slice;
-import org.springframework.lang.Nullable;
+package ai.metaheuristic.mhbp.rest;
 
 /**
  * @author Sergio Lissner
- * Date: 3/26/2023
- * Time: 3:00 AM
+ * Date: 4/15/2023
+ * Time: 3:31 PM
  */
-public class EvaluationData {
-
-    public record EvalStatus(
-            long sessionId, long startedOn, @Nullable Long finishedOn, String sessionStatus,
-            @Nullable String safe,
-            float normalPercent, float failPercent, float errorPercent,
-            String providerCode, String apiInfo) {
-    }
-
-    @RequiredArgsConstructor
-    public static class EvalStatuses extends BaseDataClass {
-        public final Slice<EvalStatus> evaluations;
-    }
+public class KbRestController {
 }

@@ -15,7 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.evaluation;
+package ai.metaheuristic.mhbp.session;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.beans.Session;
@@ -36,8 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ai.metaheuristic.mhbp.data.EvaluationData.EvalStatus;
-import static ai.metaheuristic.mhbp.data.EvaluationData.EvalStatuses;
+import static ai.metaheuristic.mhbp.data.SessionData.SessionStatus;
+import static ai.metaheuristic.mhbp.data.SessionData.SessionStatuses;
 
 /**
  * @author Sergio Lissner
@@ -47,22 +47,22 @@ import static ai.metaheuristic.mhbp.data.EvaluationData.EvalStatuses;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class EvaluationService {
+public class SessionService {
 
     public final SessionRepository sessionRepository;
     public final AnswerRepository answerRepository;
 
-    public EvalStatuses getStatuses(Pageable pageable) {
+    public SessionStatuses getStatuses(Pageable pageable) {
         pageable = ControllerUtils.fixPageSize(10, pageable);
 
         List<Session> sessions = sessionRepository.getSessions(pageable);
         if (sessions.isEmpty()) {
-            return new EvalStatuses(new SliceImpl<>(List.of(), pageable, false));
+            return new SessionStatuses(new SliceImpl<>(List.of(), pageable, false));
         }
 
         final List<Long> sessionIds = sessions.stream().map(o -> o.id).collect(Collectors.toList());
         final List<Object[]> statuses = answerRepository.getStatusesJpql(sessionIds);
-        List<EvalStatus> list = new ArrayList<>();
+        List<SessionStatus> list = new ArrayList<>();
         for (Object[] status : statuses) {
             long sessionId = (long)status[0];
             Session s = sessions.stream().filter(o->o.id==sessionId).findFirst().orElseThrow();
@@ -76,7 +76,7 @@ public class EvaluationService {
                 errorPercent = (long) status[4] / total;
             }
 
-            EvalStatus es = new EvalStatus(
+            SessionStatus es = new SessionStatus(
                     s.id, s.startedOn, s.finishedOn, Enums.SessionStatus.to(s.status).toString(),
                     null,
                     normalPercent, failPercent, errorPercent, s.providerCode, "n/a"
@@ -84,20 +84,20 @@ public class EvaluationService {
             list.add(es);
         }
         var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.sessionId(), o1.sessionId())).collect(Collectors.toList());
-        return new EvalStatuses(new PageImpl<>(sorted, pageable, list.size()));
+        return new SessionStatuses(new PageImpl<>(sorted, pageable, list.size()));
     }
 
     @Transactional
-    public OperationStatusRest deleteEvaluationById(Long evaluationId, RequestContext context) {
-        if (evaluationId==null) {
+    public OperationStatusRest deleteSessionById(Long sessionId, RequestContext context) {
+        if (sessionId==null) {
             return OperationStatusRest.OPERATION_STATUS_OK;
         }
-        Session sourceCode = sessionRepository.findById(evaluationId).orElse(null);
+        Session sourceCode = sessionRepository.findById(sessionId).orElse(null);
         if (sourceCode == null) {
             return new OperationStatusRest(Enums.OperationStatus.OK,
-                    "#565.250 session wasn't found, evaluationId: " + evaluationId, null);
+                    "#565.250 session wasn't found, sessionId: " + sessionId, null);
         }
-        sessionRepository.deleteById(evaluationId);
+        sessionRepository.deleteById(sessionId);
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 
