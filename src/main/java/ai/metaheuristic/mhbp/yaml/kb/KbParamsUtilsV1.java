@@ -23,6 +23,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class KbParamsUtilsV1 extends
@@ -50,6 +51,7 @@ public class KbParamsUtilsV1 extends
         t.kb.type = v1.kb.type;
         t.kb.git = toGit(v1.kb.git);
         t.kb.file = toFile(v1.kb.file);
+        t.kb.inline = toInline(v1.kb.inline);
 
         t.checkIntegrity();
         return t;
@@ -78,6 +80,14 @@ public class KbParamsUtilsV1 extends
     public static KbParams.KbPath toKbPath(KbParamsV1.KbPathV1 v1) {
         KbParams.KbPath ta = new KbParams.KbPath(v1.evals, v1.data);
         return ta;
+    }
+
+    @Nullable
+    public static List<KbParams.Inline> toInline(@Nullable List<KbParamsV1.InlineV1> v1) {
+        if (v1==null) {
+            return null;
+        }
+        return v1.stream().map(o->new KbParams.Inline(o.p, o.a)).toList();
     }
 
     @NonNull

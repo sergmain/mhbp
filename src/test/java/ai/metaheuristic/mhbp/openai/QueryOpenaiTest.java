@@ -66,12 +66,19 @@ public class QueryOpenaiTest {
             }
             """;
 
+        String json2 = """
+            {
+              "model": "text-davinci-003",
+              "prompt": "answer square root of 9 with only digits"
+            }
+            """;
+
         final URI uri = new URIBuilder("https://api.openai.com/v1/completions")
                 .setCharset(StandardCharsets.UTF_8)
                 .build();
         final Request request = Request.Post(uri).connectTimeout(5000).socketTimeout(20000);
 
-        request.body(new StringEntity(json1, StandardCharsets.UTF_8));
+        request.body(new StringEntity(json2, StandardCharsets.UTF_8));
 
         RestUtils.addHeaders(request);
         request.addHeader("Content-Type", "application/json");

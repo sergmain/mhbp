@@ -37,8 +37,8 @@ public class KbParams implements BaseParams {
 
     @Override
     public boolean checkIntegrity() {
-        if (kb.git==null && kb.file==null) {
-            throw new CheckIntegrityFailedException("(kb.git==null && kb.file==null)");
+        if (kb.git==null && kb.file==null && (kb.inline==null || kb.inline.isEmpty())) {
+            throw new CheckIntegrityFailedException("(kb.git==null && kb.file==null && (kb.inline==null || kb.inline.isEmpty()))");
         }
         return true;
     }
@@ -71,6 +71,14 @@ public class KbParams implements BaseParams {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class Inline {
+        public String p;
+        public String a;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Kb {
         public String code;
         public String type;
@@ -78,6 +86,8 @@ public class KbParams implements BaseParams {
         public Git git;
         @Nullable
         public File file;
+        @Nullable
+        public List<Inline> inline;
     }
 
     public final Kb kb = new Kb();

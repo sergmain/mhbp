@@ -22,6 +22,7 @@ import ai.metaheuristic.mhbp.exceptions.CheckIntegrityFailedException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +35,8 @@ public class KbParamsV1 implements BaseParams  {
 
     @Override
     public boolean checkIntegrity() {
-        if (kb.git==null && kb.file==null) {
-            throw new CheckIntegrityFailedException("(kb.git==null && kb.file==null)");
+        if (kb.git==null && kb.file==null && (kb.inline==null || kb.inline.isEmpty())) {
+            throw new CheckIntegrityFailedException("(kb.git==null && kb.file==null && (kb.inline==null || kb.inline.isEmpty()))");
         }
         return true;
     }
@@ -68,11 +69,21 @@ public class KbParamsV1 implements BaseParams  {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class InlineV1 {
+        public String p;
+        public String a;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class KbV1 {
         public String code;
         public String type;
         public GitV1 git;
         public FileV1 file;
+        @Nullable
+        public List<InlineV1> inline;
     }
 
     public final KbV1 kb = new KbV1();
