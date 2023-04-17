@@ -17,13 +17,23 @@
 
 package ai.metaheuristic.mhbp.beans;
 
+import ai.metaheuristic.mhbp.utils.S;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
+import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Sergio Lissner
@@ -37,6 +47,28 @@ import java.io.Serializable;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Evaluation implements Serializable {
+
+    public static class KbIdsConverter implements AttributeConverter<List<Long>, String> {
+
+        @Override
+        public String convertToDatabaseColumn(@Nullable List<Long> extraFields) {
+            if (extraFields==null) {
+                throw new IllegalStateException("(extraFields==null)");
+            }
+            String s = extraFields.stream().map(Object::toString).collect(Collectors.joining(","));
+            return s;
+        }
+
+        @Override
+        public List<Long> convertToEntityAttribute(String data) {
+            if (S.b(data)) {
+                return new ArrayList<>();
+            }
+            List<Long> list = Arrays.stream(StringUtils.split(data, ',')).map(Long::parseLong).toList();
+            return list;
+        }
+    }
+
     @Serial
     private static final long serialVersionUID = -5515608565018985069L;
 
@@ -56,8 +88,9 @@ public class Evaluation implements Serializable {
     @Column(name = "API_ID")
     public long apiId;
 
-    @Column(name = "KB_ID")
-     public long kbId;
+    @Column(name = "KB_IDS")
+    @Convert(converter = KbIdsConverter.class)
+    public List<Long> kbIds;
 
     public long createdOn;
 

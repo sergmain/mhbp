@@ -171,7 +171,7 @@ CREATE table mhbp_evaluation
     COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
     ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
     API_ID          NUMERIC(10, 0)  NOT NULL,
-    KB_ID           NUMERIC(10, 0)  NOT NULL,
+    KB_IDS          VARCHAR(2048)   NOT NULL,
     CREATED_ON      bigint          NOT NULL,
     NAME            VARCHAR(50)     NOT NULL
 );
