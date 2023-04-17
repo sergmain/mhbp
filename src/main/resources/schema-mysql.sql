@@ -157,18 +157,20 @@ CREATE table mhbp_session
     STATUS          tinyint(1)      NOT NULL
 );
 
-CREATE table mhbp_evaluate
+CREATE table mhbp_evaluation
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
     VERSION         NUMERIC(10, 0)  NOT NULL,
-    SESSION_ID      NUMERIC(10, 0)  NOT NULL,
+    COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
+    ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
+    API_ID          NUMERIC(10, 0)  NOT NULL,
+    KB_ID           NUMERIC(10, 0)  NOT NULL,
     CREATED_ON      bigint          NOT NULL,
-    PROVIDER_CODE   VARCHAR(20)     NOT NULL,
-    PARAMS          MEDIUMTEXT      NOT NULL
+    NAME            VARCHAR(50)     NOT NULL
 );
 
-CREATE INDEX mhbp_api_company_id_idx
-    ON mhbp_answer (SESSION_ID);
+CREATE INDEX mhbp_evaluation_company_id_idx
+    ON mhbp_evaluation (COMPANY_ID);
 
 
 

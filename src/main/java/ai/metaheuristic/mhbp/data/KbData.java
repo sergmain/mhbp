@@ -43,6 +43,12 @@ public class KbData {
             this.code = kb.code;
             this.params = kb.getParams();
         }
+
+        public static SimpleKb editableSimpleKb(ai.metaheuristic.mhbp.beans.Kb kb) {
+            SimpleKb simpleKb = new SimpleKb(kb);
+            simpleKb.editable = true;
+            return simpleKb;
+        }
     }
 
     @RequiredArgsConstructor

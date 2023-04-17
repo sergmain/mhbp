@@ -122,7 +122,7 @@ public class KbService {
         kbs.stream().map(KbData.SimpleKb::new).collect(Collectors.toCollection(()->simpleKbs));
 
         kbs = kbRepository.findAllByCompanyUniqueId(pageable, context.getCompanyId());
-        kbs.stream().map(KbData.SimpleKb::new).collect(Collectors.toCollection(()->simpleKbs));
+        kbs.stream().map(KbData.SimpleKb::editableSimpleKb).collect(Collectors.toCollection(()->simpleKbs));
 
         var sorted = simpleKbs.stream().sorted((o1, o2)->Long.compare(o2.id, o1.id)).collect(Collectors.toList());
         return new KbData.Kbs(new PageImpl<>(sorted, pageable, simpleKbs.size()));

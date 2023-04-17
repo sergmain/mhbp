@@ -20,7 +20,6 @@ package ai.metaheuristic.mhbp.beans;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.io.Serial;
@@ -48,12 +47,19 @@ public class Evaluation implements Serializable {
     @Version
     public Integer version;
 
-    public long startedOn;
+    @Column(name = "COMPANY_ID")
+    public long companyId;
 
-    public String providerCode;
+    @Column(name = "ACCOUNT_ID")
+    public long accountId;
 
-    @Nullable
-    public Long finishedOn;
+    @Column(name = "API_ID")
+    public long apiId;
 
-    public int status;
+    @Column(name = "KB_ID")
+     public long kbId;
+
+    public long createdOn;
+
+    public String name;
 }
