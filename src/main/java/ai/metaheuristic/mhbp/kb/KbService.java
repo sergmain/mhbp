@@ -128,6 +128,15 @@ public class KbService {
         return new KbData.Kbs(new PageImpl<>(sorted, pageable, simpleKbs.size()));
     }
 
+    public List<Kb> getKbsAllowedForCompany(RequestContext context) {
+        List<Kb> result = new ArrayList<>(50);
+        List<Kb> kbs = kbRepository.findAllByCompanyUniqueId(Consts.ID_1);
+        result.addAll(kbs);
+        kbs = kbRepository.findAllByCompanyUniqueId(context.getCompanyId());
+        result.addAll(kbs);
+        return result;
+    }
+
     public KbData.Kb getKb(@Nullable Long kbId, RequestContext context) {
         if (kbId==null) {
             return new KbData.Kb("Not found");

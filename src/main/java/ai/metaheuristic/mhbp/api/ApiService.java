@@ -60,6 +60,11 @@ public class ApiService {
         return new ApiData.Apis(new PageImpl<>(sorted, pageable, list.size()));
     }
 
+    public List<Api> getApisAllowedForCompany(RequestContext context) {
+        List<Api> apis = apiRepository.findAllByCompanyUniqueId(context.getCompanyId());
+        return apis;
+    }
+
     public OperationStatusRest evaluate(@Nullable Long apiId, RequestContext context, int limit) {
         if (apiId==null) {
             return OperationStatusRest.OPERATION_STATUS_OK;

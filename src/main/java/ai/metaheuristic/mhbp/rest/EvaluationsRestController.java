@@ -17,10 +17,10 @@
 
 package ai.metaheuristic.mhbp.rest;
 
-import ai.metaheuristic.mhbp.data.SessionData;
+import ai.metaheuristic.mhbp.data.EvaluationData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
-import ai.metaheuristic.mhbp.session.SessionService;
+import ai.metaheuristic.mhbp.evaluation.EvaluationService;
 import ai.metaheuristic.mhbp.sec.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,15 +42,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class EvaluationsRestController {
 
-    private final SessionService evaluationService;
+    private final EvaluationService evaluationService;
     private final UserContextService userContextService;
 // http://localhost:8080/rest/v1/dispatcher/evaluation/evaluations?page=0
 
     @GetMapping("/evaluations")
-    public SessionData.SessionStatuses evaluations(Pageable pageable) {
-        final SessionData.SessionStatuses statuses = evaluationService.getStatuses(pageable);
-        return statuses;
+    public EvaluationData.Evaluations evaluations(Pageable pageable, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        final EvaluationData.Evaluations evaluations = evaluationService.getEvaluations(pageable, context);
+        return evaluations;
     }
+
+    @GetMapping(value = "/evaluation-add")
+    public EvaluationData.EvaluationUidsForCompany batchAdd(Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        EvaluationData.EvaluationUidsForCompany result = evaluationService.getEvaluationUidsForCompany(context);
+        return result;
+    }
+
 
 /*
     @PostMapping("/evaluation-add-commit")
@@ -59,7 +68,9 @@ public class EvaluationsRestController {
         RequestContext context = userContextService.getContext(authentication);
         return sourceCodeTopLevelService.createSourceCode(sourceCodeYamlAsStr, context.getCompanyId());
     }
+*/
 
+/*
     @PostMapping("/evaluation-edit-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
     public SourceCodeApiData.SourceCodeResult editFormCommit(Long sourceCodeId, @RequestParam(name = "source") String sourceCodeYamlAsStr) {
@@ -67,6 +78,7 @@ public class EvaluationsRestController {
     }
 */
 
+/*
     @PostMapping("/evaluations-delete-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
     public OperationStatusRest deleteCommit(Long evaluationId, Authentication authentication) {
@@ -74,5 +86,6 @@ public class EvaluationsRestController {
         return evaluationService.deleteSessionById(evaluationId, context);
     }
 
+*/
 
 }

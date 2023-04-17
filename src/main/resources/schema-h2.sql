@@ -173,7 +173,7 @@ CREATE table mhbp_evaluation
     API_ID          NUMERIC(10, 0)  NOT NULL,
     KB_IDS          VARCHAR(2048)   NOT NULL,
     CREATED_ON      bigint          NOT NULL,
-    NAME            VARCHAR(50)     NOT NULL
+    CODE            VARCHAR(50)     NOT NULL
 );
 
 CREATE INDEX mhbp_evaluation_company_id_idx

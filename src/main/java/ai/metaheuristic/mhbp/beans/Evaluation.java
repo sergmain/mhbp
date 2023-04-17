@@ -18,10 +18,6 @@
 package ai.metaheuristic.mhbp.beans;
 
 import ai.metaheuristic.mhbp.utils.S;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -29,10 +25,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -94,5 +91,5 @@ public class Evaluation implements Serializable {
 
     public long createdOn;
 
-    public String name;
+    public String code;
 }

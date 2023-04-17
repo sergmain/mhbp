@@ -17,7 +17,7 @@
 
 package ai.metaheuristic.mhbp.repositories;
 
-import ai.metaheuristic.mhbp.beans.Api;
+import ai.metaheuristic.mhbp.beans.Evaluation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -29,18 +29,18 @@ import java.util.List;
 
 /**
  * @author Sergio Lissner
- * Date: 3/19/2023
- * Time: 9:05 PM
+ * Date: 4/17/2023
+ * Time: 1:49 AM
  */
 @Repository
-public interface ApiRepository extends CrudRepository<Api, Long> {
+public interface EvaluationRepository extends CrudRepository<Evaluation, Long> {
 
     @Transactional(readOnly = true)
-    @Query(value= "select a from Api a where a.companyId=:companyUniqueId")
-    Page<Api> findAllByCompanyUniqueId(Pageable pageable, Long companyUniqueId);
+    @Query(value= "select a from Evaluation a where a.companyId=:companyUniqueId")
+    Page<Evaluation> findAllByCompanyUniqueId(Pageable pageable, Long companyUniqueId);
 
     @Transactional(readOnly = true)
-    @Query(value= "select a from Api a where a.companyId=:companyUniqueId")
-    List<Api> findAllByCompanyUniqueId(Long companyUniqueId);
+    @Query(value= "select a from Evaluation a where a.companyId=:companyUniqueId")
+    List<Evaluation> findAllByCompanyUniqueId(Long companyUniqueId);
 
 }
