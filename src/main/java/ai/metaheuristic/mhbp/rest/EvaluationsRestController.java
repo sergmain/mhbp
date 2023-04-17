@@ -37,13 +37,14 @@ import org.springframework.web.bind.annotation.RestController;
  * Time: 7:29 PM
  */
 @RestController
-@RequestMapping("/rest/v1/dispatcher/evaluations")
+@RequestMapping("/rest/v1/dispatcher/evaluation")
 @Slf4j
 @RequiredArgsConstructor
 public class EvaluationsRestController {
 
     private final SessionService evaluationService;
     private final UserContextService userContextService;
+// http://localhost:8080/rest/v1/dispatcher/evaluation/evaluations?page=0
 
     @GetMapping("/evaluations")
     public SessionData.SessionStatuses evaluations(Pageable pageable) {

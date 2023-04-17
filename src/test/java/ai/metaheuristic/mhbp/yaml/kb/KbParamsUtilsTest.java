@@ -43,7 +43,6 @@ public class KbParamsUtilsTest {
                 a: 4
               - p: answer square root of 9 with only digits
                 a: 3
-                    
             """;
 
         KbParams kbp = KbParamsUtils.UTILS.to(s);
