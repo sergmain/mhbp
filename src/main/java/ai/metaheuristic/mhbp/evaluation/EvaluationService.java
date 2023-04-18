@@ -20,6 +20,7 @@ package ai.metaheuristic.mhbp.evaluation;
 import ai.metaheuristic.mhbp.api.ApiService;
 import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.data.EvaluationData;
+import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.kb.KbService;
 import ai.metaheuristic.mhbp.repositories.EvaluationRepository;
@@ -46,6 +47,7 @@ public class EvaluationService {
 
     public final ApiService apiService;
     public final KbService kbService;
+    public final EvaluationTxService evaluationTxService;
     public final EvaluationRepository evaluationRepository;
 
     public EvaluationData.Evaluations getEvaluations(Pageable pageable, RequestContext context) {
@@ -71,4 +73,8 @@ public class EvaluationService {
         return r;
     }
 
+    public OperationStatusRest createEvaluation(String code, String apiId, String[] kbIds, long companyId, long accountId) {
+        evaluationTxService.createEvaluation(code, apiId, kbIds, companyId, accountId);
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
 }

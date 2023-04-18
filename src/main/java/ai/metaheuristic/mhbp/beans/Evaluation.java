@@ -45,10 +45,10 @@ import java.util.stream.Collectors;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Evaluation implements Serializable {
 
-    public static class KbIdsConverter implements AttributeConverter<List<Long>, String> {
+    public static class KbIdsConverter implements AttributeConverter<List<String>, String> {
 
         @Override
-        public String convertToDatabaseColumn(@Nullable List<Long> extraFields) {
+        public String convertToDatabaseColumn(@Nullable List<String> extraFields) {
             if (extraFields==null) {
                 throw new IllegalStateException("(extraFields==null)");
             }
@@ -57,11 +57,11 @@ public class Evaluation implements Serializable {
         }
 
         @Override
-        public List<Long> convertToEntityAttribute(String data) {
+        public List<String> convertToEntityAttribute(String data) {
             if (S.b(data)) {
                 return new ArrayList<>();
             }
-            List<Long> list = Arrays.stream(StringUtils.split(data, ',')).map(Long::parseLong).toList();
+            List<String> list = List.of(StringUtils.split(data, ','));
             return list;
         }
     }
@@ -87,7 +87,7 @@ public class Evaluation implements Serializable {
 
     @Column(name = "KB_IDS")
     @Convert(converter = KbIdsConverter.class)
-    public List<Long> kbIds;
+    public List<String> kbIds;
 
     public long createdOn;
 

@@ -35,16 +35,16 @@ public class EvaluationTest {
     public void test_KbIdsConverter() {
         Evaluation.KbIdsConverter converter = new Evaluation.KbIdsConverter();
 
-        List<Long> list = converter.convertToEntityAttribute("11");
+        List<String> list = converter.convertToEntityAttribute("11");
         assertNotNull(list);
         assertEquals(1, list.size());
-        assertEquals(11L, list.get(0));
+        assertEquals("11", list.get(0));
 
 
         list = converter.convertToEntityAttribute("11,42");
         assertNotNull(list);
         assertEquals(2, list.size());
-        assertEquals(11L, list.get(0));
-        assertEquals(42L, list.get(1));
+        assertEquals("11", list.get(0));
+        assertEquals("42", list.get(1));
     }
 }

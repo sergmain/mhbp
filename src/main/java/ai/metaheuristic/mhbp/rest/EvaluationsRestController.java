@@ -26,10 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Sergio Lissner
@@ -61,14 +58,16 @@ public class EvaluationsRestController {
     }
 
 
-/*
     @PostMapping("/evaluation-add-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
-    public SourceCodeApiData.SourceCodeResult addFormCommit(@RequestParam(name = "source") String sourceCodeYamlAsStr, Authentication authentication) {
+    // apiId, kbIds
+    public OperationStatusRest addFormCommit(
+            @RequestParam(name = "code") String code,
+            @RequestParam(name = "apiId") String apiId,
+            @RequestParam(name = "kbIds") String[] kbIds, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return sourceCodeTopLevelService.createSourceCode(sourceCodeYamlAsStr, context.getCompanyId());
+        return evaluationService.createEvaluation(code, apiId, kbIds, context.getCompanyId(), context.getAccountId());
     }
-*/
 
 /*
     @PostMapping("/evaluation-edit-commit")
