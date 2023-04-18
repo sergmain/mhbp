@@ -154,11 +154,10 @@ CREATE table mhbp_session
     COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
     ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
     EVALUATION_ID   NUMERIC(10, 0)  NOT NULL,
-    CREATED_ON      bigint          NOT NULL,
     STARTED_ON      bigint          NOT NULL,
-    PROVIDER_CODE   VARCHAR(20)     NOT NULL,
+    PROVIDER_CODE   VARCHAR(50)     NOT NULL,
     FINISHED_ON     bigint,
-    STATUS          tinyint      NOT NULL
+    STATUS          tinyint         NOT NULL
 );
 
 CREATE INDEX mhbp_session_company_id_idx

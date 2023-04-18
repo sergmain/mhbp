@@ -24,4 +24,4 @@ import org.springframework.lang.Nullable;
  * Date: 3/19/2023
  * Time: 10:42 PM
  */
-public record EvaluateProviderEvent(long apiId, int limit) {}
+public record EvaluateProviderEvent(long evaluationId, int limit, long accountId) {}

@@ -81,7 +81,7 @@ public class KbParams implements BaseParams {
     @AllArgsConstructor
     public static class Kb {
         public String code;
-        public String type;
+        public Enums.KbFileFormat type;
         @Nullable
         public Git git;
         @Nullable

@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.yaml.kb;
 
+import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.data.BaseParams;
 import ai.metaheuristic.mhbp.exceptions.CheckIntegrityFailedException;
 import lombok.AllArgsConstructor;
@@ -79,7 +80,7 @@ public class KbParamsV1 implements BaseParams  {
     @AllArgsConstructor
     public static class KbV1 {
         public String code;
-        public String type;
+        public Enums.KbFileFormat type;
         public GitV1 git;
         public FileV1 file;
         @Nullable

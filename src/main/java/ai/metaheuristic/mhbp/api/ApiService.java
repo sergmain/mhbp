@@ -49,7 +49,6 @@ import java.util.stream.Collectors;
 public class ApiService {
 
     private final ApiRepository apiRepository;
-    private final ApplicationEventPublisher eventPublisher;
 
     public ApiData.Apis getApis(Pageable pageable, RequestContext context) {
         pageable = ControllerUtils.fixPageSize(20, pageable);
@@ -63,22 +62,6 @@ public class ApiService {
     public List<Api> getApisAllowedForCompany(RequestContext context) {
         List<Api> apis = apiRepository.findAllByCompanyUniqueId(context.getCompanyId());
         return apis;
-    }
-
-    public OperationStatusRest evaluate(@Nullable Long apiId, RequestContext context, int limit) {
-        if (apiId==null) {
-            return OperationStatusRest.OPERATION_STATUS_OK;
-        }
-        Api api = apiRepository.findById(apiId).orElse(null);
-        if (api == null) {
-            return new OperationStatusRest(Enums.OperationStatus.ERROR,
-                    "#565.150 API wasn't found, apiId: " + apiId, null);
-        }
-        if (api.companyId!=context.getCompanyId()) {
-            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.200 apiId: " + apiId);
-        }
-        eventPublisher.publishEvent(new EvaluateProviderEvent(apiId, limit));
-        return OperationStatusRest.OPERATION_STATUS_OK;
     }
 
     @Transactional

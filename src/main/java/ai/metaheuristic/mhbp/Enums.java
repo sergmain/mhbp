@@ -42,6 +42,7 @@ public class Enums {
 
     public enum GitStatus {unknown, installed, not_found, error }
     public enum DataType {variable, global_variable, function}
+    public enum KbFileFormat { openai, mhbp, coqa }
 
     public enum SessionStatus { created(0), finished(1), finished_with_error(2);
         public final int code;

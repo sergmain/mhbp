@@ -25,6 +25,7 @@ import ai.metaheuristic.mhbp.sec.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +42,24 @@ public class EvaluationsRestController {
 
     private final EvaluationService evaluationService;
     private final UserContextService userContextService;
-// http://localhost:8080/rest/v1/dispatcher/evaluation/evaluations?page=0
+
+    @GetMapping("/evaluate/{apiId}")
+    public OperationStatusRest evaluate(@PathVariable @Nullable Long apiId, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return evaluationService.evaluate(apiId, context, 0);
+    }
+
+    @PostMapping("/run-evaluation")
+    public OperationStatusRest runEvaluation(Long id, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return evaluationService.evaluate(id, context, 0);
+    }
+
+    @PostMapping("/run-test-evaluation")
+    public OperationStatusRest runTestEvaluation(Long id, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return evaluationService.evaluate(id, context, 1);
+    }
 
     @GetMapping("/evaluations")
     public EvaluationData.Evaluations evaluations(Pageable pageable, Authentication authentication) {

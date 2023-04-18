@@ -18,6 +18,8 @@
 package ai.metaheuristic.mhbp.session;
 
 import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.beans.Api;
+import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.repositories.SessionRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +38,15 @@ public class SessionTxService {
     public final SessionRepository sessionRepository;
 
     @Transactional
-    public Session create(String providerCode) {
+    public Session create(Evaluation evaluation, Api api, Long accountId) {
         Session s = new Session();
+        s.evaluationId = evaluation.id;
+        s.companyId = evaluation.companyId;
+        s.accountId = accountId;
         s.startedOn = System.currentTimeMillis();
-        s.providerCode = providerCode;
+        s.providerCode = ""+api.id+":"+api.code;
         s.status = Enums.SessionStatus.created.code;
+
         sessionRepository.save(s);
         return s;
     }
@@ -51,6 +57,4 @@ public class SessionTxService {
         s.status = status.code;
         sessionRepository.save(s);
     }
-
-
 }

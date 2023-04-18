@@ -31,10 +31,4 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class QuestionAndAnswerServiceTest {
 
-    @Test
-    public void test_() {
-        final List<QuestionData.QuestionWithAnswerToAsk> list = getFirstQuestionWithAnswerToAsks();
-        assertEquals(1, list.size());
-        assertEquals("1", list.get(0).qCode());
-    }
 }

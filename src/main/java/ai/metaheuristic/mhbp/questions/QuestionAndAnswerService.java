@@ -17,14 +17,21 @@
 
 package ai.metaheuristic.mhbp.questions;
 
+import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.provider.ProviderData;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
+import ai.metaheuristic.mhbp.repositories.KbRepository;
+import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static ai.metaheuristic.mhbp.questions.QuestionData.QuestionWithAnswerToAsk;
 
 /**
  * @author Sergio Lissner
@@ -38,27 +45,38 @@ public class QuestionAndAnswerService {
 
     public final QuestionAndAnswerTxService questionAndAnswerTxService;
     public final AnswerRepository answerRepository;
+    public final KbRepository kbRepository;
 
-    public static final List<QuestionData.QuestionWithAnswerToAsk> qqs = List.of(
-            new QuestionData.QuestionWithAnswerToAsk("1","answer 2+2 with digits only", "4"),
-            new QuestionData.QuestionWithAnswerToAsk("2","q2", "Good"),
-            new QuestionData.QuestionWithAnswerToAsk("3","q3", "Good"),
-            new QuestionData.QuestionWithAnswerToAsk("4","q4", "Bad"),
-            new QuestionData.QuestionWithAnswerToAsk("5","q5", "Good")
-    );
+    public Stream<QuestionWithAnswerToAsk> getQuestionToAsk(List<String> kbIds, int limit) {
 
-    public List<QuestionData.QuestionWithAnswerToAsk> getQuestionToAsk(String providerCode, int limit) {
+        Stream<QuestionWithAnswerToAsk> stream = kbIds.stream().map(Long::valueOf)
+                .map(id->kbRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .flatMap(QuestionAndAnswerService::getStreamOfPrompt);
+
         if (limit!=0) {
-            return getFirstQuestionWithAnswerToAsks();
+            stream = stream.limit(limit);
         }
-        return qqs;
+        return stream;
     }
 
-    public static List<QuestionData.QuestionWithAnswerToAsk> getFirstQuestionWithAnswerToAsks() {
-        return qqs.subList(0, 1);
+    private static Stream<QuestionWithAnswerToAsk> getStreamOfPrompt(Kb kb) {
+        KbParams kbParams = kb.getKbParams();
+
+        if (kbParams.kb.file!=null) {
+            return Stream.empty();
+        }
+        else if (kbParams.kb.git!=null) {
+            return Stream.empty();
+        }
+        else if (kbParams.getKb().inline!=null) {
+            return kbParams.getKb().inline.stream()
+                    .map(o->new QuestionWithAnswerToAsk(""+kb.id + ":" + kb.code, o.p, o.a));
+        }
+        throw new IllegalStateException();
     }
 
-    public void process(Session session, QuestionData.QuestionWithAnswerToAsk question, ProviderData.QuestionAndAnswer qaa) {
+    public void process(Session session, QuestionWithAnswerToAsk question, ProviderData.QuestionAndAnswer qaa) {
         questionAndAnswerTxService.process(session, question, qaa);
     }
 }

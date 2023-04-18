@@ -18,6 +18,7 @@
 package ai.metaheuristic.mhbp.kb;
 
 import ai.metaheuristic.mhbp.Consts;
+import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.data.KbData;
@@ -81,7 +82,7 @@ public class KbService {
         KbParams t = new KbParams();
         t.disabled = v1.disabled;
         t.kb.code = v1.code;
-        t.kb.type = v1.type;
+        t.kb.type = Enums.KbFileFormat.valueOf(v1.type);
         t.kb.git = toGit(v1.git);
         t.kb.file = toFile(v1.file);
 

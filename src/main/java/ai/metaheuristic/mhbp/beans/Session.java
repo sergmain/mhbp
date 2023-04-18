@@ -48,6 +48,15 @@ public class Session implements Serializable {
     @Version
     public Integer version;
 
+    @Column(name = "COMPANY_ID")
+    public long companyId;
+
+    @Column(name = "ACCOUNT_ID")
+    public long accountId;
+
+    @Column(name = "EVALUATION_ID")
+    public long evaluationId;
+
     public long startedOn;
 
     public String providerCode;

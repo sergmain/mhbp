@@ -17,19 +17,27 @@
 
 package ai.metaheuristic.mhbp.evaluation;
 
+import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.api.ApiService;
+import ai.metaheuristic.mhbp.beans.Api;
 import ai.metaheuristic.mhbp.beans.Evaluation;
+import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.data.EvaluationData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
 import ai.metaheuristic.mhbp.kb.KbService;
+import ai.metaheuristic.mhbp.repositories.ApiRepository;
 import ai.metaheuristic.mhbp.repositories.EvaluationRepository;
+import ai.metaheuristic.mhbp.repositories.KbRepository;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,6 +57,9 @@ public class EvaluationService {
     public final KbService kbService;
     public final EvaluationTxService evaluationTxService;
     public final EvaluationRepository evaluationRepository;
+    public final ApplicationEventPublisher eventPublisher;
+    public final ApiRepository apiRepository;
+    public final KbRepository kbRepository;
 
     public EvaluationData.Evaluations getEvaluations(Pageable pageable, RequestContext context) {
         pageable = ControllerUtils.fixPageSize(20, pageable);
@@ -77,4 +88,36 @@ public class EvaluationService {
         evaluationTxService.createEvaluation(code, apiId, kbIds, companyId, accountId);
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
+
+    public OperationStatusRest evaluate(@Nullable Long evaluationId, RequestContext context, int limit) {
+        if (evaluationId==null) {
+            return OperationStatusRest.OPERATION_STATUS_OK;
+        }
+        Evaluation evaluation = evaluationRepository.findById(evaluationId).orElse(null);
+        if (evaluation == null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "#565.150 Evaluation wasn't found, evaluationId: " + evaluationId, null);
+        }
+        if (evaluation.companyId!=context.getCompanyId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.200 evaluationId: " + evaluationId);
+        }
+        Api api = apiRepository.findById(evaluation.apiId).orElse(null);
+        if (api==null || api.companyId!=context.getCompanyId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.220 Reference to API is broken, evaluationId: " + evaluationId);
+        }
+        if (evaluation.kbIds.isEmpty()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.240 Reference to KB is empty, evaluationId: " + evaluationId);
+        }
+        for (String kbIdStr : evaluation.kbIds) {
+            long kbId = Long.parseLong(kbIdStr);
+            Kb kb = kbRepository.findById(kbId).orElse(null);
+            if (kb==null || kb.companyId!=context.getCompanyId()) {
+                return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.260 Reference to KB is broken, evaluationId: " + evaluationId);
+            }
+        }
+
+        eventPublisher.publishEvent(new EvaluateProviderEvent(evaluationId, limit, context.getAccountId()));
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
+
 }

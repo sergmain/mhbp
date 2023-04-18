@@ -20,12 +20,15 @@ package ai.metaheuristic.mhbp.provider;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import ai.metaheuristic.mhbp.beans.Api;
+import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.data.NluData;
 import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
 import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.questions.QuestionAndAnswerService;
 import ai.metaheuristic.mhbp.repositories.ApiRepository;
+import ai.metaheuristic.mhbp.repositories.EvaluationRepository;
+import ai.metaheuristic.mhbp.repositories.KbRepository;
 import ai.metaheuristic.mhbp.sec.UserContextService;
 import ai.metaheuristic.mhbp.session.SessionTxService;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
@@ -38,7 +41,9 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static ai.metaheuristic.mhbp.Enums.OperationStatus.ERROR;
 import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
@@ -56,33 +61,39 @@ public class ProviderQueryService {
 
     public final ProviderApiSchemeService providerService;
     public final UserContextService userContextService;
-    private final ApiRepository apiRepository;
+    public final EvaluationRepository evaluationRepository;
+    public final ApiRepository apiRepository;
+    public final KbRepository kbRepository;
 
     public final QuestionAndAnswerService questionAndAnswerService;
     public final SessionTxService sessionTxService;
 
     public void evaluateProvider(EvaluateProviderEvent event) {
-        Session s = null;
+        final AtomicReference<Session> s = new AtomicReference<>(null);
         try {
-            Api api = apiRepository.findById(event.apiId()).orElse(null);
+            Evaluation evaluation = evaluationRepository.findById(event.evaluationId()).orElse(null);
+            if (evaluation==null) {
+                return;
+            }
+            Api api = apiRepository.findById(evaluation.apiId).orElse(null);
             if (api==null) {
                 return;
             }
-            s = sessionTxService.create(api.code);
+            s.set(sessionTxService.create(evaluation, api, event.accountId()));
 
-            log.debug("call EvaluateProviderService.evaluateProvider({})", event.apiId());
-            List<QuestionData.QuestionWithAnswerToAsk> questions = questionAndAnswerService.getQuestionToAsk(api.code, event.limit());
+            log.debug("call EvaluateProviderService.evaluateProvider({})", event.evaluationId());
+            Stream<QuestionData.QuestionWithAnswerToAsk> questions = questionAndAnswerService.getQuestionToAsk(evaluation.kbIds, event.limit());
 
-            for (QuestionData.QuestionWithAnswerToAsk question : questions) {
+            questions.forEach(question-> {
                 ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.q(), null);
                 ProviderData.QuestionAndAnswer qaa = processQuery(api, queriedData, ProviderQueryService::asQueriedInfoWithError);
-                questionAndAnswerService.process(s, question, qaa);
-            }
-            sessionTxService.finish(s, Enums.SessionStatus.finished);
+                questionAndAnswerService.process(s.get(), question, qaa);
+            });
+            sessionTxService.finish(s.get(), Enums.SessionStatus.finished);
         } catch (Throwable th) {
             log.error("417.020 Error, need to investigate ", th);
-            if (s!=null) {
-                sessionTxService.finish(s, Enums.SessionStatus.finished_with_error);
+            if (s.get()!=null) {
+                sessionTxService.finish(s.get(), Enums.SessionStatus.finished_with_error);
             }
         }
     }

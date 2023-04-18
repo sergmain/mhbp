@@ -1,7 +1,7 @@
 version: 1
 kb:
   code: openai
-  type: openai-evals
+  type: openai
   git:
     repo: https://github.com/openai/evals.git
     branch: main
