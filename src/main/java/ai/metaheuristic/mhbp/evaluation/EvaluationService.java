@@ -53,8 +53,8 @@ public class EvaluationService {
     public EvaluationData.Evaluations getEvaluations(Pageable pageable, RequestContext context) {
         pageable = ControllerUtils.fixPageSize(20, pageable);
 
-        Page<Evaluation> auths = evaluationRepository.findAllByCompanyUniqueId(pageable, context.getCompanyId());
-        List<EvaluationData.SimpleEvaluation > list = auths.stream().map(EvaluationData.SimpleEvaluation ::new).toList();
+        Page<Evaluation> evaluations = evaluationRepository.findAllByCompanyUniqueId(pageable, context.getCompanyId());
+        List<EvaluationData.SimpleEvaluation > list = evaluations.stream().map(EvaluationData.SimpleEvaluation ::new).toList();
         var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.evaluationId, o1.evaluationId)).collect(Collectors.toList());
         return new EvaluationData.Evaluations(new PageImpl<>(sorted, pageable, list.size()));
     }

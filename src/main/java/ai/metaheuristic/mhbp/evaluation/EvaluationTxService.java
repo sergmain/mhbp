@@ -48,11 +48,13 @@ public class EvaluationTxService {
     public OperationStatusRest createEvaluation(String code, String apiId, String[] kbIds, long companyId, long accountId) {
         Evaluation eval = new Evaluation();
         eval.companyId = companyId;
-        eval.accountId = companyId;
+        eval.accountId = accountId;
         eval.createdOn = System.currentTimeMillis();
         eval.apiId = Long.parseLong(apiId);
         eval.kbIds = List.of(kbIds);
         eval.code = code;
+
+        evaluationRepository.save(eval);
 
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
