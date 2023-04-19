@@ -49,7 +49,8 @@ public class StubProviderRestController {
 
             "q2", List.of(new SimpleStubAnswer(100, "q2", "Good")),
             "q3", List.of(new SimpleStubAnswer(100, "q3", "Good")),
-            "q4", List.of(new SimpleStubAnswer(100, "q4", "Bad"))
+            "q4", List.of(new SimpleStubAnswer(100, "q4", "Bad")),
+            "answer square root of 9 with only digits", List.of(new SimpleStubAnswer(100, "q4", "3"))
     );
 
     List<SimpleStubAnswer> defAnswer = List.of(new SimpleStubAnswer(100, "", "Unknown context of question #5"));

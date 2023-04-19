@@ -87,7 +87,7 @@ public class Globals {
     }
 
     public Threads threads;
-    public RowsLimit rowsLimit;
+    public RowsLimit rowsLimit = new RowsLimit();
 
     public final List<String> corsAllowedOrigins = new ArrayList<>(List.of("*"));
 
