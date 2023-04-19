@@ -95,14 +95,12 @@ public class EvaluationsRestController {
     }
 */
 
-/*
-    @PostMapping("/evaluations-delete-commit")
+    @PostMapping("/evaluation-delete-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
     public OperationStatusRest deleteCommit(Long evaluationId, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return evaluationService.deleteSessionById(evaluationId, context);
+        return evaluationService.deleteEvaluationById(evaluationId, context);
     }
 
-*/
 
 }

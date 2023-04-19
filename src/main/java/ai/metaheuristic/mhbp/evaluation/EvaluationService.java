@@ -120,4 +120,15 @@ public class EvaluationService {
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 
+    public OperationStatusRest deleteEvaluationById(Long evaluationId, RequestContext context) {
+        Evaluation evaluation = evaluationRepository.findById(evaluationId).orElse(null);
+        if (evaluation == null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "#565.150 Evaluation wasn't found, evaluationId: " + evaluationId, null);
+        }
+        if (evaluation.companyId!=context.getCompanyId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.200 evaluationId: " + evaluationId);
+        }
+        return evaluationTxService.deleteEvaluationById(evaluationId);
+    }
 }

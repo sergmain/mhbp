@@ -173,7 +173,7 @@ public class ProviderApiSchemeService {
             log.error(msg);
             return new ApiData.SchemeAndParamResult(schemeAndParams, msg);
         }
-        return new ApiData.SchemeAndParamResult(schemeAndParams, null, OK, data, null);
+        return new ApiData.SchemeAndParamResult(schemeAndParams, data, OK, data, null);
     }
 
     @SuppressWarnings("ConstantValue")

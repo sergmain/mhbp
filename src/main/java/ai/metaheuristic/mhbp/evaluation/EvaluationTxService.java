@@ -20,6 +20,7 @@ package ai.metaheuristic.mhbp.evaluation;
 import ai.metaheuristic.mhbp.api.ApiService;
 import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
+import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.kb.KbService;
 import ai.metaheuristic.mhbp.repositories.EvaluationRepository;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,12 @@ public class EvaluationTxService {
 
         evaluationRepository.save(eval);
 
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
+
+    @Transactional
+    public OperationStatusRest deleteEvaluationById(Long evaluationId) {
+        evaluationRepository.deleteById(evaluationId);
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 }
