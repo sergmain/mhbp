@@ -21,8 +21,13 @@ import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.beans.Api;
 import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.beans.Session;
+import ai.metaheuristic.mhbp.data.AccountData;
+import ai.metaheuristic.mhbp.data.ErrorData;
+import ai.metaheuristic.mhbp.data.OperationStatusRest;
+import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.repositories.SessionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,4 +62,26 @@ public class SessionTxService {
         s.status = status.code;
         sessionRepository.save(s);
     }
+
+    @Transactional
+    public OperationStatusRest deleteSessionById(Long sessionId, RequestContext context) {
+        if (sessionId==null) {
+            return OperationStatusRest.OPERATION_STATUS_OK;
+        }
+        Session sourceCode = sessionRepository.findById(sessionId).orElse(null);
+        if (sourceCode == null) {
+            return new OperationStatusRest(Enums.OperationStatus.OK,
+                    "#565.250 session wasn't found, sessionId: " + sessionId, null);
+        }
+        sessionRepository.deleteById(sessionId);
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
+
+    @Transactional(readOnly = true)
+    public ErrorData.ErrorsResult getErrors(Pageable pageable, Long sessionId)  {
+        ErrorData.ErrorsResult result = new ErrorData.ErrorsResult();
+        result.errors = sessionRepository.findAllBySessionId(pageable, sessionId);
+        return result;
+    }
+
 }

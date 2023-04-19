@@ -19,7 +19,6 @@ package ai.metaheuristic.mhbp.account;
 
 import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.beans.Account;
 import ai.metaheuristic.mhbp.data.AccountData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;

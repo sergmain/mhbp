@@ -17,16 +17,11 @@
 
 package ai.metaheuristic.mhbp.yaml.answer;
 
-import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.data.BaseParams;
-import ai.metaheuristic.mhbp.exceptions.CheckIntegrityFailedException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings("FieldMayBeStatic")
 @Data
@@ -38,6 +33,17 @@ public class AnswerParamsV1 implements BaseParams  {
     public boolean checkIntegrity() {
         return true;
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ExpectedV1 {
+        public String prompt;
+        public String answer;
+    }
+
+    @Nullable
+    public ExpectedV1 expected;
 
     @Nullable
     public String raw;

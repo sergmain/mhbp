@@ -18,7 +18,9 @@
 package ai.metaheuristic.mhbp.repositories;
 
 import ai.metaheuristic.mhbp.beans.Session;
+import ai.metaheuristic.mhbp.data.ErrorData;
 import ai.metaheuristic.mhbp.data.EvalStatusGrouped;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.Query;
@@ -41,4 +43,7 @@ public interface SessionRepository extends CrudRepository<Session, Long> {
     @Query(value="select s from Session s order by s.id desc")
     List<Session> getSessions(Pageable pageable);
 
+    @Transactional(readOnly = true)
+    @Query(value="select s from Session s where s.id=:sessionId")
+    Page<ErrorData.ErrorResult> findAllBySessionId(Pageable pageable, Long sessionId);
 }

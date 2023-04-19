@@ -39,6 +39,17 @@ public class AnswerParams implements BaseParams {
         return true;
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Expected {
+        public String prompt;
+        public String answer;
+    }
+
+    @Nullable
+    public Expected expected;
+
     @Nullable
     public String raw;
 }

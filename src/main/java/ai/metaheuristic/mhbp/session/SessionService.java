@@ -19,6 +19,8 @@ package ai.metaheuristic.mhbp.session;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.beans.Session;
+import ai.metaheuristic.mhbp.data.AccountData;
+import ai.metaheuristic.mhbp.data.ErrorData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
@@ -49,6 +51,7 @@ import static ai.metaheuristic.mhbp.data.SessionData.SessionStatuses;
 @RequiredArgsConstructor
 public class SessionService {
 
+    public final SessionTxService sessionTxService;
     public final SessionRepository sessionRepository;
     public final AnswerRepository answerRepository;
 
@@ -87,19 +90,12 @@ public class SessionService {
         return new SessionStatuses(new PageImpl<>(sorted, pageable, list.size()));
     }
 
-    @Transactional
-    public OperationStatusRest deleteSessionById(Long sessionId, RequestContext context) {
-        if (sessionId==null) {
-            return OperationStatusRest.OPERATION_STATUS_OK;
+    public ErrorData.ErrorsResult getErrors(Pageable pageable, Long sessionId, RequestContext context) {
+        Session s = sessionRepository.findById(sessionId).orElse(null);
+        if (s==null) {
+            return new ErrorData.ErrorsResult();
         }
-        Session sourceCode = sessionRepository.findById(sessionId).orElse(null);
-        if (sourceCode == null) {
-            return new OperationStatusRest(Enums.OperationStatus.OK,
-                    "#565.250 session wasn't found, sessionId: " + sessionId, null);
-        }
-        sessionRepository.deleteById(sessionId);
-        return OperationStatusRest.OPERATION_STATUS_OK;
+        ErrorData.ErrorsResult result = sessionTxService.getErrors(pageable, sessionId);
+        return result;
     }
-
-
 }

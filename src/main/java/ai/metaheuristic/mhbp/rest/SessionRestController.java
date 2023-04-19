@@ -17,11 +17,10 @@
 
 package ai.metaheuristic.mhbp.rest;
 
-import ai.metaheuristic.mhbp.data.SessionData;
-import ai.metaheuristic.mhbp.data.OperationStatusRest;
-import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.data.*;
 import ai.metaheuristic.mhbp.session.SessionService;
 import ai.metaheuristic.mhbp.sec.UserContextService;
+import ai.metaheuristic.mhbp.session.SessionTxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +39,7 @@ import org.springframework.web.bind.annotation.*;
 public class SessionRestController {
 
     private final SessionService sessionService;
+    private final SessionTxService sessionTxService;
     private final UserContextService userContextService;
 
     @GetMapping("/sessions")
@@ -67,8 +67,14 @@ public class SessionRestController {
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
     public OperationStatusRest deleteCommit(Long sessionId, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return sessionService.deleteSessionById(sessionId, context);
+        return sessionTxService.deleteSessionById(sessionId, context);
     }
 
+    @GetMapping("/session-errors/{sessionId}")
+    public ErrorData.ErrorsResult errors(Pageable pageable, @PathVariable Long sessionId, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        final ErrorData.ErrorsResult errors = sessionService.getErrors(pageable, sessionId, context);
+        return errors;
+    }
 
 }

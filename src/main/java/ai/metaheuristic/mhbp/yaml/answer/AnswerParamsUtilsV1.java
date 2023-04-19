@@ -20,6 +20,7 @@ package ai.metaheuristic.mhbp.yaml.answer;
 import ai.metaheuristic.mhbp.utils.YamlUtils;
 import ai.metaheuristic.mhbp.utils.versioning.AbstractParamsUtils;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 public class AnswerParamsUtilsV1 extends
@@ -43,9 +44,19 @@ public class AnswerParamsUtilsV1 extends
 
         AnswerParams t = new AnswerParams();
         t.raw = v1.raw;
+        t.expected = toExpected(v1.expected);
 
         t.checkIntegrity();
         return t;
+    }
+
+    @Nullable
+    private static AnswerParams.Expected toExpected(@Nullable AnswerParamsV1.ExpectedV1 v1) {
+        if (v1==null) {
+            return null;
+        }
+        AnswerParams.Expected f = new AnswerParams.Expected(v1.prompt, v1.answer);
+        return f;
     }
 
     @NonNull
