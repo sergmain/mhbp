@@ -66,7 +66,7 @@ public class ApiAuthUtilsV1 extends
         if (v1==null) {
             return null;
         }
-        ApiAuth.TokenAuth ta = new ApiAuth.TokenAuth(v1.place, v1.token, v1.param);
+        ApiAuth.TokenAuth ta = new ApiAuth.TokenAuth(v1.place, v1.token, v1.param, v1.env);
         return ta;
     }
 

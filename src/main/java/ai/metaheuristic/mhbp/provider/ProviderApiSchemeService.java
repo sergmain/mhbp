@@ -18,6 +18,7 @@
 package ai.metaheuristic.mhbp.provider;
 
 import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.api.auth.ApiAuth;
 import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import ai.metaheuristic.mhbp.beans.Api;
 import ai.metaheuristic.mhbp.beans.Auth;
@@ -30,6 +31,7 @@ import ai.metaheuristic.mhbp.utils.S;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -152,7 +154,8 @@ public class ProviderApiSchemeService {
                 return new ApiData.SchemeAndParamResult(schemeAndParams, "(schemeAndParams.auth.auth.token==null)");
             }
             if (schemeAndParams.auth.auth.token.place==Enums.TokenPlace.header) {
-                request.addHeader("Authorization", "Bearer " + schemeAndParams.auth.auth.token.token);
+                String token = getActualToken(schemeAndParams.auth.auth.token);
+                request.addHeader("Authorization", "Bearer " + token);
             }
             executor = Executor.newInstance();
         }
@@ -174,6 +177,33 @@ public class ProviderApiSchemeService {
             return new ApiData.SchemeAndParamResult(schemeAndParams, msg);
         }
         return new ApiData.SchemeAndParamResult(schemeAndParams, data, OK, data, null);
+    }
+
+    public static String getActualToken(ApiAuth.TokenAuth tokenAuth) {
+        if (tokenAuth.token!=null) {
+            return tokenAuth.token;
+        }
+        String evnParam = getEnvParamName(tokenAuth.env);
+        final String value = System.getenv(evnParam);
+        if (S.b(value)) {
+            throw new RuntimeException("(S.b(value)) , evn param: " + evnParam);
+        }
+        return value;
+    }
+
+    public static String getEnvParamName(String env) {
+        if (S.b(env)) {
+            throw new IllegalStateException("(S.b(env))");
+        }
+        int start = 0;
+        int end = 0;
+        if (StringUtils.startsWithAny(env, "%", "$")) {
+            ++start;
+        }
+        if (StringUtils.endsWithAny(env, "%", "$")) {
+            ++end;
+        }
+        return env.substring(start, env.length()-end);
     }
 
     @SuppressWarnings("ConstantValue")

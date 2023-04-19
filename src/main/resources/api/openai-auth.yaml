@@ -4,4 +4,4 @@ auth:
   type: token
   token:
     place: header
-    token: xxxx
+    env: OPENAI_API_KEY

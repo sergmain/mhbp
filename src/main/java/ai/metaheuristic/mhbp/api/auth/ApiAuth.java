@@ -36,6 +36,9 @@ public class ApiAuth implements BaseParams {
         if (auth.basic==null && auth.token==null) {
             throw new CheckIntegrityFailedException("(api.basicAuth==null && api.tokenAuth==null)");
         }
+        if (auth.token!=null && auth.token.token==null && auth.token.env==null) {
+            throw new CheckIntegrityFailedException("(auth.token!=null && auth.token.token==null && auth.token.env==null)");
+        }
         return true;
     }
 
@@ -54,6 +57,7 @@ public class ApiAuth implements BaseParams {
         public Enums.TokenPlace place;
         public String token;
         public String param;
+        public String env;
     }
 
     @Data
