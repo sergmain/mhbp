@@ -71,7 +71,7 @@ public class QuestionAndAnswerService {
         }
         else if (kbParams.getKb().inline!=null) {
             return kbParams.getKb().inline.stream()
-                    .map(o->new QuestionWithAnswerToAsk(""+kb.id + ":" + kb.code, o.p, o.a));
+                    .map(o->new QuestionWithAnswerToAsk(kb.id, kb.code, o.p, o.a));
         }
         throw new IllegalStateException();
     }

@@ -15,14 +15,21 @@
  *
  */
 
-package ai.metaheuristic.mhbp.questions;
+package ai.metaheuristic.mhbp.yaml.answer;
 
-/**
- * @author Sergio Lissner
- * Date: 3/19/2023
- * Time: 11:01 PM
- */
-public class QuestionData {
+import ai.metaheuristic.mhbp.utils.versioning.BaseUtils;
 
-    public record QuestionWithAnswerToAsk(long kbId, String qCode, String q, String a) {}
+import java.util.Map;
+
+public class AnswerParamsUtils {
+
+    private static final AnswerParamsUtilsV1 UTILS_V_1 = new AnswerParamsUtilsV1();
+    private static final AnswerParamsUtilsV1 DEFAULT_UTILS = UTILS_V_1;
+
+    public static final BaseUtils<AnswerParams> UTILS = new BaseUtils<>(
+            Map.of(
+                    1, UTILS_V_1
+            ),
+            DEFAULT_UTILS
+    );
 }

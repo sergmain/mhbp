@@ -15,14 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.questions;
+@ParametersAreNonnullByDefault
+package ai.metaheuristic.mhbp.yaml.answer;
 
-/**
- * @author Sergio Lissner
- * Date: 3/19/2023
- * Time: 11:01 PM
- */
-public class QuestionData {
-
-    public record QuestionWithAnswerToAsk(long kbId, String qCode, String q, String a) {}
-}
+import javax.annotation.ParametersAreNonnullByDefault;

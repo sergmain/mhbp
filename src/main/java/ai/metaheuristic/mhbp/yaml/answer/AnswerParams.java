@@ -15,14 +15,30 @@
  *
  */
 
-package ai.metaheuristic.mhbp.questions;
+package ai.metaheuristic.mhbp.yaml.answer;
 
-/**
- * @author Sergio Lissner
- * Date: 3/19/2023
- * Time: 11:01 PM
- */
-public class QuestionData {
+import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.data.BaseParams;
+import ai.metaheuristic.mhbp.exceptions.CheckIntegrityFailedException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
-    public record QuestionWithAnswerToAsk(long kbId, String qCode, String q, String a) {}
+import java.util.ArrayList;
+import java.util.List;
+
+@SuppressWarnings("FieldMayBeStatic")
+@Data
+public class AnswerParams implements BaseParams {
+
+    public final int version=1;
+
+    @Override
+    public boolean checkIntegrity() {
+        return true;
+    }
+
+    @Nullable
+    public String raw;
 }

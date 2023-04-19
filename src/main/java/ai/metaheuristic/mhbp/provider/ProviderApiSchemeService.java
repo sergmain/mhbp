@@ -50,6 +50,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
+
 /**
  * @author Sergio Lissner
  * Date: 3/19/2023
@@ -62,7 +64,7 @@ public class ProviderApiSchemeService {
 
     private final AuthRepository authRepository;
 
-    public List<ApiData.SchemeAndParamResult> queryProviders(Api api, NluData.QueriedPrompt info) {
+    public ApiData.SchemeAndParamResult queryProviders(Api api, NluData.QueriedPrompt info) {
         ApiScheme scheme = api.getApiScheme();
         List<Auth> auths = authRepository.findAllByCompanyUniqueId(api.companyId);
         Auth auth = auths.stream().filter(o->o.getAuthParams().auth.code.equals(scheme.scheme.auth.code)).findFirst().orElse(null);
@@ -71,9 +73,7 @@ public class ProviderApiSchemeService {
         }
         ApiData.SchemeAndParams schemeAndParams = new ApiData.SchemeAndParams(scheme, auth.getAuthParams());
 
-        List<ApiData.SchemeAndParamResult> result = new ArrayList<>();
-        String data = queryProviderApi(schemeAndParams, info);
-        result.add(new ApiData.SchemeAndParamResult(schemeAndParams, data));
+        ApiData.SchemeAndParamResult result = queryProviderApi(schemeAndParams, info);
         return result;
     }
 
@@ -100,14 +100,14 @@ public class ProviderApiSchemeService {
     }
 
     @SneakyThrows
-    public static String queryProviderApi(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedPrompt info) {
+    public static ApiData.SchemeAndParamResult queryProviderApi(ApiData.SchemeAndParams schemeAndParams, NluData.QueriedPrompt info) {
         CommunicationData.Query query = buildApiQueryUri(schemeAndParams, info);
 
         if (query.url==null) {
-            throw new RuntimeException("url is null");
+            return new ApiData.SchemeAndParamResult(schemeAndParams, "url is null");
         }
         if (query.url.indexOf('?')!=-1) {
-            throw new RuntimeException("params of query must be set via nvps");
+            return new ApiData.SchemeAndParamResult(schemeAndParams, "params of query must be set via nvps");
         }
 
         final URIBuilder uriBuilder1 = new URIBuilder(query.url).setCharset(StandardCharsets.UTF_8);
@@ -129,27 +129,27 @@ public class ProviderApiSchemeService {
             request = Request.Get(uri).connectTimeout(5000).socketTimeout(20000);
         }
         else {
-            throw new RuntimeException();
+            return new ApiData.SchemeAndParamResult(schemeAndParams, "unknown type of request: " + schemeAndParams.scheme.scheme.request.type);
         }
 
-        String data = getData( schemeAndParams, request);
-        return data;
+        ApiData.SchemeAndParamResult result = getData( schemeAndParams, request);
+        return result;
     }
 
     @SneakyThrows
-    public static String getData(ApiData.SchemeAndParams schemeAndParams, final Request request) {
+    public static ApiData.SchemeAndParamResult getData(ApiData.SchemeAndParams schemeAndParams, final Request request) {
 
         RestUtils.addHeaders(request);
         final Executor executor;
         if (schemeAndParams.auth.auth.type==Enums.AuthType.basic) {
             if (schemeAndParams.auth.auth.basic==null) {
-                throw new IllegalStateException("(schemeAndParams.params.api.basicAuth==null)");
+                return new ApiData.SchemeAndParamResult(schemeAndParams, "(schemeAndParams.params.api.basicAuth==null)");
             }
             executor = getExecutor(schemeAndParams.scheme.scheme.request.uri, schemeAndParams.auth.auth.basic.username, schemeAndParams.auth.auth.basic.password);
         }
         else {
             if (schemeAndParams.auth.auth.token==null) {
-                throw new IllegalStateException("(schemeAndParams.auth.auth.token==null)");
+                return new ApiData.SchemeAndParamResult(schemeAndParams, "(schemeAndParams.auth.auth.token==null)");
             }
             if (schemeAndParams.auth.auth.token.place==Enums.TokenPlace.header) {
                 request.addHeader("Authorization", "Bearer " + schemeAndParams.auth.auth.token.token);
@@ -171,9 +171,9 @@ public class ProviderApiSchemeService {
         if (statusCode !=200) {
             final String msg = "Server response:\n'" + data +"'";
             log.error(msg);
-            throw new RuntimeException(msg);
+            return new ApiData.SchemeAndParamResult(schemeAndParams, msg);
         }
-        return data;
+        return new ApiData.SchemeAndParamResult(schemeAndParams, null, OK, data, null);
     }
 
     @SuppressWarnings("ConstantValue")

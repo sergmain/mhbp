@@ -44,13 +44,26 @@ public class ProviderData {
 
     public record QueriedData(String queryText, @Nullable RequestContext context){}
 
-    public record QuestionAndAnswer(@Nullable String q, @Nullable String a, Enums.OperationStatus status, @Nullable String error) {
+    public record QuestionAndAnswer(@Nullable String q, @Nullable String a, Enums.OperationStatus status, @Nullable String error,  @Nullable String raw) {
         public QuestionAndAnswer(Enums.OperationStatus status) {
-            this(null, null, status, null);
+            this(null, null, status, null, null);
         }
 
         public QuestionAndAnswer(Enums.OperationStatus status, String error) {
-            this(null, null, status, error);
+            this(null, null, status, error, null);
+        }
+
+        public QuestionAndAnswer(@Nullable String q, @Nullable String a, Enums.OperationStatus status, @Nullable String error, @Nullable String raw) {
+            if (status==Enums.OperationStatus.OK) {
+                if (raw==null || q==null || a==null) {
+                    throw new IllegalStateException("(raw==null || q==null || a==null)");
+                }
+            }
+            this.q = q;
+            this.a = a;
+            this.status = status;
+            this.error = error;
+            this.raw = raw;
         }
     }
 }

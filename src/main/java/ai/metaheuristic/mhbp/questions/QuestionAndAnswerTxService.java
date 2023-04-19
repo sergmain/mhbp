@@ -22,6 +22,7 @@ import ai.metaheuristic.mhbp.beans.Answer;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.provider.ProviderData;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
+import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,8 +55,11 @@ public class QuestionAndAnswerTxService {
         else {
             a.status = Enums.AnswerStatus.error.code;
         }
-        answerRepository.save(a);
+        AnswerParams ap = new AnswerParams();
+        ap.raw = qaa.raw();
+        a.updateParams(ap);
 
+        answerRepository.save(a);
     }
 
 }

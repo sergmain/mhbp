@@ -24,8 +24,8 @@ import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.data.NluData;
 import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
-import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.questions.QuestionAndAnswerService;
+import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.repositories.ApiRepository;
 import ai.metaheuristic.mhbp.repositories.EvaluationRepository;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
@@ -37,10 +37,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -113,10 +110,10 @@ public class ProviderQueryService {
             if (result.queryResult.error!=null ) {
                 return new ProviderData.QuestionAndAnswer(ERROR, result.queryResult.error.error);
             }
-            if (CollectionUtils.isEmpty(result.queryResult.answers) || S.b(result.queryResult.answers.get(0))) {
+            if (S.b(result.queryResult.answer)) {
                 return new ProviderData.QuestionAndAnswer(ERROR, "Answer is empty");
             }
-            return new ProviderData.QuestionAndAnswer(queriedData.queryText(), result.queryResult.answers.get(0), OK, null);
+            return new ProviderData.QuestionAndAnswer(queriedData.queryText(), result.queryResult.answer, OK, null, result.queryResult.raw);
         }
         catch (Throwable e) {
             log.error("Error", e);
@@ -143,22 +140,17 @@ public class ProviderQueryService {
         try {
             QueriedInfoWithError queriedInfoWithError = getQueriedInfoWithErrorFunc.apply(queriedData);
             if (queriedInfoWithError.error!=null) {
-                queryResult = new QueryResult(null, false, queriedInfoWithError.error);
+                queryResult = new QueryResult(null, false, queriedInfoWithError.error, null);
             }
             else if (queriedInfoWithError.queriedInfo!=null) {
-                List<SchemeAndParamResult> results = providerService.queryProviders(api, queriedInfoWithError.queriedInfo);
+                SchemeAndParamResult r = providerService.queryProviders(api, queriedInfoWithError.queriedInfo);
 
-                List<String> processedAnswers = new ArrayList<>();
-                for (SchemeAndParamResult r : results) {
-                    ApiScheme.Response response = api.getApiScheme().scheme.response;
-                    if (response==null) {
-                        continue;
-                    }
-                    String processedAnswer = ProviderQueryUtils.processAnswerFromApi(r.result, response);
-                    processedAnswers.add(processedAnswer);
+                ApiScheme.Response response = api.getApiScheme().scheme.response;
+                if (response==null) {
+                    throw new IllegalStateException();
                 }
-
-                queryResult = new QueryResult(processedAnswers, true);
+                String processedAnswer = ProviderQueryUtils.processAnswerFromApi(r.result, response);
+                queryResult = new QueryResult(processedAnswer, true, r.raw);
             }
             else {
                 throw new IllegalStateException();

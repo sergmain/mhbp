@@ -140,12 +140,12 @@ CREATE table mhbp_answer
     KB_ID           NUMERIC(10, 0)  NOT NULL,
     ANSWERED_ON     bigint          NOT NULL,
     Q_CODE          VARCHAR(50)     NOT NULL,
-    STATUS          tinyint      NOT NULL,
-    SAFE            BOOLEAN,
+    STATUS          tinyint         NOT NULL,
+    PARAMS          TEXT            not null,
     API_INFO        VARCHAR(20)
 );
 
-CREATE INDEX mhbp_api_company_id_idx
+CREATE INDEX mhbp_answer_company_id_idx
     ON mhbp_answer (SESSION_ID);
 
 CREATE table mhbp_session

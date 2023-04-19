@@ -17,6 +17,9 @@
 
 package ai.metaheuristic.mhbp.beans;
 
+import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
+import ai.metaheuristic.mhbp.yaml.answer.AnswerParamsUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -50,16 +53,57 @@ public class Answer implements Serializable {
 
     public Long sessionId;
 
+    @Column(name = "KB_ID")
+    public long kbId;
+
+    public long answeredOn;
+
     @Column(name = "Q_CODE")
     public String questionCode;
 
     public int status;
 
-    @Nullable
-    public Boolean safe;
-
     public String apiInfo;
 
-    public long answeredOn;
+    @Column(name = "PARAMS")
+    private String params;
 
+    public void setParams(String params) {
+        synchronized (this) {
+            this.params = params;
+            this.answerParams = null;
+        }
+    }
+
+    public String getParams() {
+        return params;
+    }
+
+    @Transient
+    @JsonIgnore
+    @Nullable
+    private AnswerParams answerParams = null;
+
+    @Transient
+    @JsonIgnore
+    private final Object syncParamsObj = new Object();
+
+    @JsonIgnore
+    public AnswerParams getAnswerParams() {
+        if (answerParams==null) {
+            synchronized (syncParamsObj) {
+                if (answerParams==null) {
+                    //noinspection UnnecessaryLocalVariable
+                    AnswerParams temp = AnswerParamsUtils.UTILS.to(params);
+                    answerParams = temp;
+                }
+            }
+        }
+        return answerParams;
+    }
+
+    @JsonIgnore
+    public void updateParams(AnswerParams apy) {
+        setParams(AnswerParamsUtils.UTILS.toString(apy));
+    }
 }

@@ -26,7 +26,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 
 import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Sergio Lissner
@@ -72,20 +71,22 @@ public class ApiData {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class QueryResult {
-        public List<String> answers;
+        public String answer;
         public boolean success;
 
         @Nullable
         @JsonInclude(value= JsonInclude.Include.NON_NULL)
         public Error error;
+        public String raw;
 
-        public QueryResult(List<String> answers, boolean success) {
-            this.answers = answers;
+        public QueryResult(String answer, boolean success, String raw) {
+            this.answer = answer;
             this.success = success;
+            this.raw = raw;
         }
 
         public static QueryResult asError(String error, Enums.QueryResultErrorType errorType) {
-            return new QueryResult(null, false, new Error(error, errorType));
+            return new QueryResult(null, false, new Error(error, errorType), null);
         }
     }
 
@@ -122,6 +123,15 @@ public class ApiData {
     public static class SchemeAndParamResult {
         public SchemeAndParams schemeAndParams;
         public String result;
+        public Enums.OperationStatus status;
+        public String raw;
+        public String errorText;
+
+        public SchemeAndParamResult(SchemeAndParams schemeAndParams, String errorText) {
+            this.schemeAndParams = schemeAndParams;
+            this.status = Enums.OperationStatus.ERROR;
+            this.errorText = errorText;
+        }
     }
 
     public static class SimpleApi {
