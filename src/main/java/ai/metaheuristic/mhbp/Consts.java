@@ -52,4 +52,6 @@ public class Consts {
 
     public static final String HTTP = "http://";
     public static final String HTTPS = "https://";
+
+    public static final String GIT_PATH = "git";
 }

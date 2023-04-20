@@ -21,14 +21,11 @@ import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.utils.NetUtils;
 import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
-import ai.metaheuristic.mhbp.utils.YamlUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -52,16 +49,21 @@ public class GitRepoService {
 
         String s = "";
         for (Globals.Kb kb : globals.kb) {
-            Globals.Git git = kb.git;
-            String code = NetUtils.asCode(git.repo);
-            Path p = gitPath.resolve(code);
-            if (Files.notExists(p)) {
-                Files.createDirectories(p);
+            if (kb.git!=null) {
+                Globals.Git git = kb.git;
+                String code = NetUtils.asCode(git.repo);
+                Path p = gitPath.resolve(code);
+                if (Files.notExists(p)) {
+                    Files.createDirectories(p);
+                }
+                SystemProcessLauncher.ExecResult execResult = gitSourcingService.prepareFunction(p.toFile(), git);
+                final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
+                s += ("\n" + asString);
+                System.out.println(asString);
             }
-            SystemProcessLauncher.ExecResult execResult = gitSourcingService.prepareFunction(p.toFile(), git);
-            final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
-            s += ("\n"+asString);
-            System.out.println(asString);
+            if (kb.file!=null) {
+
+            }
         }
 
         int i=0;

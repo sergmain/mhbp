@@ -17,6 +17,12 @@
 
 package ai.metaheuristic.mhbp.questions;
 
+import ai.metaheuristic.mhbp.Enums;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
 /**
  * @author Sergio Lissner
  * Date: 3/19/2023
@@ -25,4 +31,11 @@ package ai.metaheuristic.mhbp.questions;
 public class QuestionData {
 
     public record QuestionWithAnswerToAsk(long kbId, String qCode, String q, String a) {}
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class QuestionsWithAnswersAndStatus {
+        public List<QuestionWithAnswerToAsk> list;
+        public Enums.KbSourceInitStatus initStatus;
+    }
 }
