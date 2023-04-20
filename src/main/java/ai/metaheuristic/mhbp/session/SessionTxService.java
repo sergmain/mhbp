@@ -18,18 +18,19 @@
 package ai.metaheuristic.mhbp.session;
 
 import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.beans.Api;
-import ai.metaheuristic.mhbp.beans.Evaluation;
-import ai.metaheuristic.mhbp.beans.Session;
-import ai.metaheuristic.mhbp.data.AccountData;
-import ai.metaheuristic.mhbp.data.ErrorData;
-import ai.metaheuristic.mhbp.data.OperationStatusRest;
-import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.beans.*;
+import ai.metaheuristic.mhbp.data.*;
+import ai.metaheuristic.mhbp.repositories.AnswerRepository;
 import ai.metaheuristic.mhbp.repositories.SessionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Sergio Lissner
@@ -41,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SessionTxService {
 
     public final SessionRepository sessionRepository;
+    public final AnswerRepository answerRepository;
 
     @Transactional
     public Session create(Evaluation evaluation, Api api, Long accountId) {
@@ -79,9 +81,10 @@ public class SessionTxService {
 
     @Transactional(readOnly = true)
     public ErrorData.ErrorsResult getErrors(Pageable pageable, Long sessionId)  {
-        ErrorData.ErrorsResult result = new ErrorData.ErrorsResult();
-        result.errors = sessionRepository.findAllBySessionId(pageable, sessionId);
-        return result;
+        Page<Answer> answers = answerRepository.findAllBySessionId(pageable, sessionId);
+        List<ErrorData.SimpleError> list = answers.stream().map(ErrorData.SimpleError::new).toList();
+        var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.id, o1.id)).collect(Collectors.toList());
+        return new ErrorData.ErrorsResult(new PageImpl<>(sorted, pageable, list.size()));
     }
 
 }

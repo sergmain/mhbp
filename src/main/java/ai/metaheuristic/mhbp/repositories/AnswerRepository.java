@@ -18,7 +18,9 @@
 package ai.metaheuristic.mhbp.repositories;
 
 import ai.metaheuristic.mhbp.beans.Answer;
+import ai.metaheuristic.mhbp.data.ErrorData;
 import ai.metaheuristic.mhbp.data.EvalStatusGrouped;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.Query;
@@ -80,24 +82,9 @@ GROUP BY s.id
 """, nativeQuery = false)
     List<Object[]> getStatusesJpql(List<Long> sessionIds);
 
-/*    @Transactional(readOnly = true)
-    @Query(value=
-            """
-SELECT new ai.metaheuristic.mhbp.data.EvalStatusGrouped(z.id, z.total, z.normal, z.fail, z.error)
-FROM (
-    SELECT s.id,\s
-           COUNT(a.sessionId) AS total,\s
-           COUNT(CASE WHEN a.status = 0 THEN 1 ELSE NULL END) AS normal,\s
-           COUNT(CASE WHEN a.status = 1 THEN 1 ELSE NULL END) AS fail,\s
-           COUNT(CASE WHEN a.status = 2 THEN 1 ELSE NULL END) AS error
-    FROM ai.metaheuristic.mhbp.beans.Session s\s
-    LEFT OUTER JOIN ai.metaheuristic.mhbp.beans.Answer a ON s.id = a.sessionId\s
-    WHERE s.id in :sessionIds
-    GROUP BY s.id
-) z
-
-
-""", nativeQuery = false)
-    List<EvalStatusGrouped[]> getStatusesJpql1(List<Long> sessionIds);*/
+    // status - public enum AnswerStatus { normal(0), fail(1), error(2);
+    @Transactional(readOnly = true)
+    @Query(value="select s from Answer s where s.sessionId=:sessionId and s.status=1")
+    Page<Answer> findAllBySessionId(Pageable pageable, Long sessionId);
 
 }

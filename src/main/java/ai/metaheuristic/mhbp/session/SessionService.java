@@ -19,9 +19,7 @@ package ai.metaheuristic.mhbp.session;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.beans.Session;
-import ai.metaheuristic.mhbp.data.AccountData;
 import ai.metaheuristic.mhbp.data.ErrorData;
-import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
 import ai.metaheuristic.mhbp.repositories.SessionRepository;
@@ -32,7 +30,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +90,10 @@ public class SessionService {
     public ErrorData.ErrorsResult getErrors(Pageable pageable, Long sessionId, RequestContext context) {
         Session s = sessionRepository.findById(sessionId).orElse(null);
         if (s==null) {
-            return new ErrorData.ErrorsResult();
+            return new ErrorData.ErrorsResult("Session wasn't found");
+        }
+        if (s.companyId!=context.getCompanyId()) {
+            return new ErrorData.ErrorsResult("Wrong sessionId");
         }
         ErrorData.ErrorsResult result = sessionTxService.getErrors(pageable, sessionId);
         return result;

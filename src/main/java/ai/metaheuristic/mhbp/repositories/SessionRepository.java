@@ -43,7 +43,4 @@ public interface SessionRepository extends CrudRepository<Session, Long> {
     @Query(value="select s from Session s order by s.id desc")
     List<Session> getSessions(Pageable pageable);
 
-    @Transactional(readOnly = true)
-    @Query(value="select s from Session s where s.id=:sessionId")
-    Page<ErrorData.ErrorResult> findAllBySessionId(Pageable pageable, Long sessionId);
 }

@@ -17,6 +17,8 @@
 
 package ai.metaheuristic.mhbp.data;
 
+import ai.metaheuristic.mhbp.beans.Answer;
+import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,12 +39,19 @@ public class ErrorData {
     @AllArgsConstructor
     public static class SimpleError {
         public Long id;
-        public Long companyId;
-        public String username;
-        public String publicName;
-        public boolean enabled;
-        public long createdOn;
-        public long updatedOn;
+        public Long sessionId;
+        public String p;
+        public String a;
+        public String raw;
+
+        public SimpleError(Answer answer) {
+            this.id = answer.id;
+            this.sessionId = answer.sessionId;
+            AnswerParams answerParams = answer.getAnswerParams();
+            this.p = answerParams.expected!=null ? answerParams.expected.prompt : "<null>";
+            this.a = answerParams.expected!=null ? answerParams.expected.answer : "<null>";
+            this.raw = answerParams.raw;
+        }
     }
 
     @Data
@@ -70,6 +79,10 @@ public class ErrorData {
     @AllArgsConstructor
     @EqualsAndHashCode(callSuper = false)
     public static class ErrorsResult extends BaseDataClass {
-        public Page<ErrorResult> errors;
+        public Page<SimpleError> errors;
+
+        public ErrorsResult(String errorMessage) {
+            this.errorMessages = Collections.singletonList(errorMessage);
+        }
     }
 }
