@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.services;
 
+import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.data.ExecData;
@@ -120,7 +121,7 @@ public class GitSourcingService {
 
     public SystemProcessLauncher.ExecResult prepareFunction(final File resourceDir, Git git) {
 
-        File repoDir = new File(resourceDir, "repo");
+        File repoDir = new File(resourceDir, Consts.REPO);
         log.info("#027.070 Target dir: {}, exist: {}", repoDir.getAbsolutePath(), repoDir.exists() );
 
         if (!repoDir.exists()) {
