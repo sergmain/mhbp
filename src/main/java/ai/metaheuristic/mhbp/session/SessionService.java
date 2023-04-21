@@ -18,12 +18,15 @@
 package ai.metaheuristic.mhbp.session;
 
 import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.beans.Api;
+import ai.metaheuristic.mhbp.beans.Evaluation;
+import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.data.ErrorData;
 import ai.metaheuristic.mhbp.data.RequestContext;
-import ai.metaheuristic.mhbp.repositories.AnswerRepository;
-import ai.metaheuristic.mhbp.repositories.SessionRepository;
+import ai.metaheuristic.mhbp.repositories.*;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
+import ai.metaheuristic.mhbp.utils.S;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
@@ -32,7 +35,9 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ai.metaheuristic.mhbp.data.SessionData.SessionStatus;
@@ -51,6 +56,8 @@ public class SessionService {
     public final SessionTxService sessionTxService;
     public final SessionRepository sessionRepository;
     public final AnswerRepository answerRepository;
+    public final EvaluationRepository evaluationRepository;
+    public final ApiRepository apiRepository;
 
     public SessionStatuses getStatuses(Pageable pageable) {
         pageable = ControllerUtils.fixPageSize(10, pageable);
@@ -63,6 +70,7 @@ public class SessionService {
         final List<Long> sessionIds = sessions.stream().map(o -> o.id).collect(Collectors.toList());
         final List<Object[]> statuses = answerRepository.getStatusesJpql(sessionIds);
         List<SessionStatus> list = new ArrayList<>();
+        Map<Long, String> localCache = new HashMap<>();
         for (Object[] status : statuses) {
             long sessionId = (long)status[0];
             Session s = sessions.stream().filter(o->o.id==sessionId).findFirst().orElseThrow();
@@ -75,16 +83,33 @@ public class SessionService {
                 failPercent = (long) status[3] / total;
                 errorPercent = (long) status[4] / total;
             }
+            long evaluationId = (long)status[5];
+
+            String apiInfo = localCache.computeIfAbsent(evaluationId, this::getApiInfo);
 
             SessionStatus es = new SessionStatus(
                     s.id, s.startedOn, s.finishedOn, Enums.SessionStatus.to(s.status).toString(),
                     null,
-                    normalPercent, failPercent, errorPercent, s.providerCode, "n/a"
+                    normalPercent, failPercent, errorPercent, s.providerCode, apiInfo
             );
             list.add(es);
         }
         var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.sessionId(), o1.sessionId())).collect(Collectors.toList());
         return new SessionStatuses(new PageImpl<>(sorted, pageable, list.size()));
+    }
+
+    public static final String UNKNOWN = "<unknown>";
+
+    private String getApiInfo(Long evaluationId) {
+        Evaluation e = evaluationRepository.findById(evaluationId).orElse(null);
+        if (e==null) {
+            return UNKNOWN;
+        }
+        Api api = apiRepository.findById(e.apiId).orElse(null);
+        if (api==null) {
+            return UNKNOWN;
+        }
+        return  S.b(api.code) ? UNKNOWN : api.code;
     }
 
     public ErrorData.ErrorsResult getErrors(Pageable pageable, Long sessionId, RequestContext context) {

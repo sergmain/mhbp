@@ -17,8 +17,11 @@
 
 package ai.metaheuristic.mhbp.yaml.kb;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,6 +56,19 @@ public class KbParamsUtilsTest {
         assertEquals("4", in.get(0).a);
         assertEquals("answer square root of 9 with only digits", in.get(1).p);
         assertEquals("3", in.get(1).a);
+    }
+
+    @Test
+    public void test_KbParamsUtils_11() throws IOException {
+
+        String s = IOUtils.resourceToString("/kb/kb-inline-simple-chess.yaml", StandardCharsets.UTF_8);
+
+        KbParams kbp = KbParamsUtils.UTILS.to(s);
+        assertNotNull(kbp.kb.inline);
+        assertEquals(1, kbp.kb.inline.size());
+        List<KbParams.Inline> in = kbp.kb.inline;
+        assertEquals("A", in.get(0).a);
+        assertEquals("answer 2+2 with digits only", in.get(0).p);
     }
 
     @Test

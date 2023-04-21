@@ -61,6 +61,9 @@ public class QuestionAndAnswerTxService {
         if (a.status==Enums.AnswerStatus.fail.code) {
             ap.expected = new AnswerParams.Expected(question.q(), question.a());
         }
+        else if (a.status==Enums.AnswerStatus.error.code) {
+            ap.raw = qaa.error();
+        }
         a.updateParams(ap);
 
         answerRepository.save(a);

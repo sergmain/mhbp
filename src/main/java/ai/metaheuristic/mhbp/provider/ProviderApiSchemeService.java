@@ -28,6 +28,7 @@ import ai.metaheuristic.mhbp.data.NluData;
 import ai.metaheuristic.mhbp.repositories.AuthRepository;
 import ai.metaheuristic.mhbp.utils.RestUtils;
 import ai.metaheuristic.mhbp.utils.S;
+import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -119,10 +120,12 @@ public class ProviderApiSchemeService {
         final URI uri = uriBuilder1.build();
 
         final Request request;
+        JsonStringEncoder encoder = JsonStringEncoder.getInstance();
         if (schemeAndParams.scheme.scheme.request.type==Enums.HttpMethodType.post) {
             request = Request.Post(uri).connectTimeout(5000).socketTimeout(20000);
             if (schemeAndParams.scheme.scheme.request.prompt.place==Enums.PromptPlace.text) {
-                String json = schemeAndParams.scheme.scheme.request.prompt.text.replace(schemeAndParams.scheme.scheme.request.prompt.replace, info.text);
+                String encoded = new String(encoder.quoteAsString(info.text));
+                String json = schemeAndParams.scheme.scheme.request.prompt.text.replace(schemeAndParams.scheme.scheme.request.prompt.replace, encoded);
                 StringEntity entity = new StringEntity(json, StandardCharsets.UTF_8);
                 request.body(entity);
             }

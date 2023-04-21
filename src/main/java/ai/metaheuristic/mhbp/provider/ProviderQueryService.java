@@ -133,8 +133,8 @@ public class ProviderQueryService {
     private QueryResult processInternal(Api api, ProviderData.QueriedData queriedData,
                                                 Function<ProviderData.QueriedData, QueriedInfoWithError> getQueriedInfoWithErrorFunc) {
         QueryResult queryResult;
-        if (queriedData.queryText().length()>255) {
-            return QueryResult.asError("Query can't be processed, text of query is too long, max 255 chars. actual length" + queriedData.queryText().length(),
+        if (queriedData.queryText().length()>4096) {
+            return QueryResult.asError("Text of query is too long, max 4096 chars. actual length " + queriedData.queryText().length(),
                     Enums.QueryResultErrorType.query_too_long);
         }
         try {
