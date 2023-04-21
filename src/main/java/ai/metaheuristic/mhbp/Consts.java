@@ -55,4 +55,5 @@ public class Consts {
 
     public static final String GIT_PATH = "git";
     public static final String REPO = "repo";
+    public static final String JSONPATH_CONTENT = "$['input'][*]['content']";
 }

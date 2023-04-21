@@ -20,10 +20,11 @@ package ai.metaheuristic.mhbp.kb.reader.openai;
 import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.questions.QuestionData;
+import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.utils.NetUtils;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.SneakyThrows;
-import org.apache.commons.io.file.PathUtils;
 import org.springframework.lang.Nullable;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static ai.metaheuristic.mhbp.Enums.PromptResponseType.json;
 import static ai.metaheuristic.mhbp.questions.QuestionData.QuestionsWithAnswersAndStatus;
 
 /**
@@ -53,7 +55,7 @@ public class OpenaiJsonReader {
     public static final String MATCH = "evals.elsuite.basic.match:Match";
 
     @SneakyThrows
-    public static QuestionsWithAnswersAndStatus read(Path mhbpHome, @Nullable KbParams.Git git) {
+    public static QuestionsWithAnswersAndStatus read(long kbId, String qCode, Path mhbpHome, @Nullable KbParams.Git git) {
         if (git==null) {
             return NOT_YET;
         }
@@ -89,8 +91,18 @@ public class OpenaiJsonReader {
             for (String path : paths) {
                 Path jsonlPath = data.resolve(path);
                 if (Files.notExists(jsonlPath)) {
-                    System.out.println("Not exists: " + jsonlPath);
+                    System.out.println("\tNot exists: " + jsonlPath);
                     continue;
+                }
+                System.out.println("Exists: " + jsonlPath);
+                List<String> jsonls = Files.readAllLines(jsonlPath);
+                for (String jsonl : jsonls) {
+                    OpenaiInput input = toOpenaiInput(jsonl);
+                    StringBuilder sb = new StringBuilder();
+                    for (OpenaiInput.Input in : input.input) {
+                        sb.append(in.content).append('\n');
+                    }
+                    list.add(new QuestionData.QuestionWithAnswerToAsk(kbId, qCode, sb.toString(), input.getIdeal()));
                 }
             }
 
@@ -106,7 +118,7 @@ public class OpenaiJsonReader {
         Map map = (Map) yaml.load(s);
 
         final Map.Entry match = isMatch(map);
-        System.out.println(match);
+//        System.out.println(match);
         final String jsonlPath = getJsonlPath(match);
         return jsonlPath;
     }
@@ -140,5 +152,14 @@ public class OpenaiJsonReader {
 
         final Object o1 = argsMap.get(SAMPLES_JSONL);
         return o1 instanceof String ? (String)o1 : null;
+    }
+
+    static OpenaiInput toOpenaiInput(String json) throws JsonProcessingException {
+        try {
+            return JsonUtils.getMapper().readValue(json, OpenaiInput.class);
+        }
+        catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
