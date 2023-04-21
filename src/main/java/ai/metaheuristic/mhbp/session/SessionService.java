@@ -20,18 +20,20 @@ package ai.metaheuristic.mhbp.session;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.beans.Api;
 import ai.metaheuristic.mhbp.beans.Evaluation;
-import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.data.ErrorData;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.repositories.*;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import ai.metaheuristic.mhbp.utils.S;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -58,6 +60,15 @@ public class SessionService {
     public final AnswerRepository answerRepository;
     public final EvaluationRepository evaluationRepository;
     public final ApiRepository apiRepository;
+    public final KbRepository kbRepository;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EvalsDesc {
+        public long evaluationId;
+        public String apiInfo;
+        public List<String> kbs;
+    }
 
     public SessionStatuses getStatuses(Pageable pageable) {
         pageable = ControllerUtils.fixPageSize(10, pageable);
@@ -70,7 +81,7 @@ public class SessionService {
         final List<Long> sessionIds = sessions.stream().map(o -> o.id).collect(Collectors.toList());
         final List<Object[]> statuses = answerRepository.getStatusesJpql(sessionIds);
         List<SessionStatus> list = new ArrayList<>();
-        Map<Long, String> localCache = new HashMap<>();
+        Map<Long, EvalsDesc> localCache = new HashMap<>();
         for (Object[] status : statuses) {
             long sessionId = (long)status[0];
             Session s = sessions.stream().filter(o->o.id==sessionId).findFirst().orElseThrow();
@@ -85,12 +96,11 @@ public class SessionService {
             }
             long evaluationId = (long)status[5];
 
-            String apiInfo = localCache.computeIfAbsent(evaluationId, this::getApiInfo);
-
+            Evaluation e = evaluationRepository.findById(evaluationId).orElse(null);
+            EvalsDesc evalsDesc = localCache.computeIfAbsent(evaluationId, evaluationId1 -> getEvalsDesc(e));
             SessionStatus es = new SessionStatus(
-                    s.id, s.startedOn, s.finishedOn, Enums.SessionStatus.to(s.status).toString(),
-                    null,
-                    normalPercent, failPercent, errorPercent, s.providerCode, apiInfo
+                    s.id, s.startedOn, s.finishedOn, Enums.SessionStatus.to(s.status).toString(), null,
+                    normalPercent, failPercent, errorPercent, s.providerCode, evalsDesc.apiInfo,  evalsDesc.evaluationId, String.join(", ", evalsDesc.kbs)
             );
             list.add(es);
         }
@@ -100,16 +110,30 @@ public class SessionService {
 
     public static final String UNKNOWN = "<unknown>";
 
-    private String getApiInfo(Long evaluationId) {
-        Evaluation e = evaluationRepository.findById(evaluationId).orElse(null);
+    private EvalsDesc getEvalsDesc(@Nullable Evaluation e) {
         if (e==null) {
-            return UNKNOWN;
+            return new EvalsDesc(-1, UNKNOWN, List.of("<unknown>"));
         }
         Api api = apiRepository.findById(e.apiId).orElse(null);
         if (api==null) {
-            return UNKNOWN;
+            return new EvalsDesc(-1, UNKNOWN, List.of("<unknown>"));
         }
-        return  S.b(api.code) ? UNKNOWN : api.code;
+        if (S.b(api.code)) {
+            return new EvalsDesc(-1, UNKNOWN, List.of("<unknown>"));
+        }
+        EvalsDesc evalsDesc = new EvalsDesc(e.id, api.code, new ArrayList<>());
+
+
+        for (String kbId : e.kbIds) {
+            String kbCode = kbRepository.findById(Long.parseLong(kbId)).map(o->o.code).orElse(null);
+            if (!S.b(kbCode)) {
+                evalsDesc.kbs.add(kbCode);
+            }
+        }
+        if (evalsDesc.kbs.isEmpty()) {
+            evalsDesc.kbs.add("<Error retrieving KBs>");
+        }
+        return evalsDesc;
     }
 
     public ErrorData.ErrorsResult getErrors(Pageable pageable, Long sessionId, RequestContext context) {

@@ -66,6 +66,7 @@ public interface AnswerRepository extends CrudRepository<Answer, Long> {
               WHERE s.ID = 7;""", nativeQuery = true)
     List<Object[]> getStatuses(List<Long> sessionIds);
 
+
     @Transactional(readOnly = true)
     @Query(value=
             """

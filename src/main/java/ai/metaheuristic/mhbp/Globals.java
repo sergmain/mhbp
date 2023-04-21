@@ -37,11 +37,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class Globals {
 
+    @Getter
+    @Setter
     public static class Threads {
-        @Getter @Setter
-        private int scheduler = 10;
-        @Getter @Setter
-        private int event =  10;
+        public int scheduler = 10;
+        public int event =  10;
+        public int queryApi =  2;
     }
 
     @Getter
@@ -86,7 +87,7 @@ public class Globals {
         public File file;
     }
 
-    public Threads threads;
+    public final Threads threads = new Threads();
     public RowsLimit rowsLimit = new RowsLimit();
 
     public final List<String> corsAllowedOrigins = new ArrayList<>(List.of("*"));
