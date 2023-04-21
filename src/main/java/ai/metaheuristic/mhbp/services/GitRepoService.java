@@ -49,7 +49,7 @@ public class GitRepoService {
 
         String s = "";
         for (Globals.Kb kb : globals.kb) {
-            if (kb.git!=null) {
+            if (!kb.disabled && kb.git!=null) {
                 Globals.Git git = kb.git;
                 String code = NetUtils.asCode(git.repo);
                 Path p = gitPath.resolve(code);

@@ -296,7 +296,7 @@
     </dependencies>
 
     <build>
-        <finalName>metaheuristic</finalName>
+        <finalName>mhbp</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
