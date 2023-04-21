@@ -98,6 +98,7 @@ public class Globals {
 
     public boolean sslRequired = true;
     public boolean testing = false;
+    public int maxPromptLength = 4096;
 
     public Kb[] kb;
 

@@ -151,8 +151,8 @@ public class ProviderQueryService {
     private QueryResult processInternal(Api api, ProviderData.QueriedData queriedData,
                                                 Function<ProviderData.QueriedData, QueriedInfoWithError> getQueriedInfoWithErrorFunc) {
         QueryResult queryResult;
-        if (queriedData.queryText().length()>4096) {
-            return QueryResult.asError("Text of query is too long, max 4096 chars. actual length " + queriedData.queryText().length(),
+        if (queriedData.queryText().length()>globals.maxPromptLength) {
+            return QueryResult.asError("Text of prompt is too long, max "+globals.maxPromptLength+" chars. actual length is " + queriedData.queryText().length(),
                     Enums.QueryResultErrorType.query_too_long);
         }
         try {
