@@ -19,7 +19,7 @@
         }
       },
       "required": [],
-      "title": "Welcome2"
+      "title": "Root"
     },
     "Auth": {
       "type": "object",

@@ -22,7 +22,7 @@
         }
       },
       "required": ["version","code", "scheme"],
-      "title": "Welcome2"
+      "title": "Root"
     },
     "Scheme": {
       "type": "object",
