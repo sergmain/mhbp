@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp;
 
+import ai.metaheuristic.mhbp.kb.KbInitializingService;
 import ai.metaheuristic.mhbp.provider.ProcessSessionOfEvaluationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ public class Schedulers {
 
         private final Globals globals;
         private final ProcessSessionOfEvaluationService evaluateProviderService;
+        private final KbInitializingService kbInitializingService;
 
         @Scheduled(initialDelay = 15_000, fixedDelay = 5_000 )
         public void processEvaluateProviderService() {
@@ -46,6 +48,14 @@ public class Schedulers {
                 return;
             }
             evaluateProviderService.processSessionEvent();
+        }
+
+        @Scheduled(initialDelay = 15_000, fixedDelay = 5_000 )
+        public void processInitKb() {
+            if (globals.testing) {
+                return;
+            }
+            kbInitializingService.processEvent();
         }
     }
 }

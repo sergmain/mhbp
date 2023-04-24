@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class QuestionData {
 
-    public record QuestionWithAnswerToAsk(long kbId, String qCode, String q, String a) {}
+    public record QuestionWithAnswerToAsk(long kbId, Enums.KbFileFormat type, String q, String a) {}
 
     @NoArgsConstructor
     @AllArgsConstructor

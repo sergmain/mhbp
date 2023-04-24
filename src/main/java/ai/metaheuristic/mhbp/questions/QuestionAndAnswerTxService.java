@@ -45,7 +45,7 @@ public class QuestionAndAnswerTxService {
     @Transactional
     public void process(Session session, QuestionData.QuestionWithAnswerToAsk question, ProviderData.QuestionAndAnswer qaa) {
         Answer a = new Answer();
-        a.questionCode = question.qCode();
+        a.questionCode = question.type().toString();
         a.sessionId = session.id;
         a.kbId = question.kbId();
         a.apiInfo = "n/a";

@@ -19,6 +19,7 @@ package ai.metaheuristic.mhbp.questions;
 
 import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.beans.Session;
+import ai.metaheuristic.mhbp.kb.reader.openai.OpenaiJsonReader;
 import ai.metaheuristic.mhbp.provider.ProviderData;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -67,11 +69,13 @@ public class QuestionAndAnswerService {
             return Stream.empty();
         }
         else if (kbParams.kb.git!=null) {
-            return Stream.empty();
+            Path mhbpHome = Path.of(System.getenv("MHBP_HOME"));
+            QuestionData.QuestionsWithAnswersAndStatus qas = OpenaiJsonReader.read(kb.id, kbParams.kb.type, mhbpHome, kbParams.kb.git);
+            return qas.list.stream();
         }
         else if (kbParams.getKb().inline!=null) {
             return kbParams.getKb().inline.stream()
-                    .map(o->new QuestionWithAnswerToAsk(kb.id, kb.code, o.p, o.a));
+                    .map(o->new QuestionWithAnswerToAsk(kb.id, kbParams.getKb().type, o.p, o.a));
         }
         throw new IllegalStateException();
     }

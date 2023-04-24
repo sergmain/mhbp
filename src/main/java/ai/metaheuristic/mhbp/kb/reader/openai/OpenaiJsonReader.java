@@ -55,7 +55,7 @@ public class OpenaiJsonReader {
     public static final String MATCH = "evals.elsuite.basic.match:Match";
 
     @SneakyThrows
-    public static QuestionsWithAnswersAndStatus read(long kbId, String qCode, Path mhbpHome, @Nullable KbParams.Git git) {
+    public static QuestionsWithAnswersAndStatus read(long kbId, Enums.KbFileFormat type, Path mhbpHome, @Nullable KbParams.Git git) {
         if (git==null) {
             return NOT_YET;
         }
@@ -102,7 +102,7 @@ public class OpenaiJsonReader {
                     for (OpenaiInput.Input in : input.input) {
                         sb.append(in.content).append('\n');
                     }
-                    list.add(new QuestionData.QuestionWithAnswerToAsk(kbId, qCode, sb.toString(), input.getIdeal()));
+                    list.add(new QuestionData.QuestionWithAnswerToAsk(kbId, type, sb.toString(), input.getIdeal()));
                 }
             }
 

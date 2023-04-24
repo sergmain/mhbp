@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.data;
 
+import ai.metaheuristic.mhbp.Enums;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -43,12 +44,12 @@ public class KbData {
         public String code;
         public String params;
         public boolean editable;
-        public int status;
+        public String status;
 
         public SimpleKb(ai.metaheuristic.mhbp.beans.Kb kb) {
             this.id = kb.id;
             this.code = kb.code;
-            this.status = kb.status;
+            this.status = Enums.KbStatus.to(kb.status).toString();
             this.params = kb.getParams();
         }
 

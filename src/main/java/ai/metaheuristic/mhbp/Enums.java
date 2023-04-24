@@ -42,7 +42,7 @@ public class Enums {
 
     public enum GitStatus {unknown, installed, not_found, error }
     public enum DataType {variable, global_variable, function}
-    public enum KbFileFormat { openai, mhbp, coqa }
+    public enum KbFileFormat { openai, mhbp, coqa, inline }
 
     public enum KbSourceInitStatus { not_yet, ready }
 

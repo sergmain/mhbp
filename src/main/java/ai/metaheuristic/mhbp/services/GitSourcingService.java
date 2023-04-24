@@ -27,10 +27,12 @@ import ai.metaheuristic.mhbp.utils.asset.AssetFile;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.file.PathUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 
 import static ai.metaheuristic.mhbp.Globals.*;
@@ -120,16 +122,22 @@ public class GitSourcingService {
         return assetFile;
     }
 
+    @SneakyThrows
     public SystemProcessLauncher.ExecResult prepareRepo(final File resourceDir, KbData.KbGit git) {
 
-        File repoDir = new File(resourceDir, Consts.REPO);
+        File functionDir = resourceDir;
+        File repoDir = new File(functionDir, Consts.REPO);
         log.info("#027.070 Target dir: {}, exist: {}", repoDir.getAbsolutePath(), repoDir.exists() );
 
+        if (repoDir.exists() && PathUtils.isEmpty(repoDir.toPath())) {
+            Files.delete(repoDir.toPath());
+        }
+
         if (!repoDir.exists()) {
-            SystemProcessLauncher.ExecResult result = execClone(repoDir, git);
+            SystemProcessLauncher.ExecResult result = execClone(functionDir, git);
             log.info("#027.080 Result of cloning repo: {}", result.toString());
             if (!result.ok || !result.systemExecResult.isOk()) {
-                result = tryToRepairRepo(repoDir, git);
+                result = tryToRepairRepo(functionDir, git);
                 log.info("#027.090 Result of repairing of repo: {}", result.toString());
                 return result;
             }
@@ -194,7 +202,7 @@ public class GitSourcingService {
     }
 
     public SystemProcessLauncher.ExecResult tryToRepairRepo(File functionDir, KbData.KbGit git) {
-        File repoDir = new File(functionDir, "git");
+        File repoDir = new File(functionDir, Consts.REPO);
         SystemProcessLauncher.ExecResult result;
         FileUtils.deleteQuietly(repoDir);
         if (repoDir.exists()) {
@@ -255,9 +263,9 @@ public class GitSourcingService {
     }
 
     private SystemProcessLauncher.ExecResult execClone(File repoDir, KbData.KbGit git) {
-        // git -C <path> clone <git-repo-url> git
+        // git -C <path> clone <git-repo-url> repo
         String gitUrl = git.getRepo();
-        List<String> cmd = List.of("git", "-C", repoDir.getAbsolutePath(), "clone", gitUrl);
+        List<String> cmd = List.of("git", "-C", repoDir.getAbsolutePath(), "clone", gitUrl, Consts.REPO);
         log.info("exec {}", cmd);
         SystemProcessLauncher.ExecResult result = execGitCmd(cmd, 0L);
         return result;

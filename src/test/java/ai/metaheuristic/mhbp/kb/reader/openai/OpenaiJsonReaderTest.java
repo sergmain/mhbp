@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.kb.reader.openai;
 
+import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
@@ -72,7 +73,7 @@ public class OpenaiJsonReaderTest {
 
 
         Path mhbpHome = Path.of(System.getenv("MHBP_HOME"));
-        QuestionData.QuestionsWithAnswersAndStatus qas = OpenaiJsonReader.read(10L, "openai", mhbpHome, kbParams.kb.git);
+        QuestionData.QuestionsWithAnswersAndStatus qas = OpenaiJsonReader.read(10L, Enums.KbFileFormat.openai, mhbpHome, kbParams.kb.git);
 
         String jsonl = qas.list.stream().map(SimpleQA::to).map(SimpleQA::toJson).collect(Collectors.joining("\n"));
 
