@@ -46,6 +46,23 @@ public class Enums {
 
     public enum KbSourceInitStatus { not_yet, ready }
 
+    public enum KbStatus { none(0), initiating(1), ready(2);
+        public final int code;
+
+        KbStatus(int code) {
+            this.code = code;
+        }
+
+        public static KbStatus to(int code) {
+            return switch (code) {
+                case 0 -> none;
+                case 1 -> initiating;
+                case 2 -> ready;
+                default -> throw new IllegalStateException("Unexpected value: " + code);
+            };
+        }
+    }
+
     public enum SessionStatus { created(0), finished(1), finished_with_error(2);
         public final int code;
 

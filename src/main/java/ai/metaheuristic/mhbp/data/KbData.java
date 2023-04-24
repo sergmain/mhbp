@@ -32,15 +32,23 @@ import java.util.Collections;
  */
 public class KbData {
 
+    public interface KbGit {
+        String getRepo();
+        String getBranch();
+        String getCommit();
+    }
+
     public static class SimpleKb {
         public long id;
         public String code;
         public String params;
         public boolean editable;
+        public int status;
 
         public SimpleKb(ai.metaheuristic.mhbp.beans.Kb kb) {
             this.id = kb.id;
             this.code = kb.code;
+            this.status = kb.status;
             this.params = kb.getParams();
         }
 

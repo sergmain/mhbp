@@ -69,6 +69,8 @@ public class Kb implements Serializable {
     @Column(name = "PARAMS")
     private String params;
 
+    public int status;
+
     public void setParams(String params) {
         synchronized (this) {
             this.params = params;

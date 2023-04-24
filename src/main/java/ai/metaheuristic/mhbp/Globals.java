@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp;
 
+import ai.metaheuristic.mhbp.data.KbData;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -62,7 +63,7 @@ public class Globals {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Git {
+    public static class Git implements KbData.KbGit {
         public String repo;
         public String branch;
         public String commit;

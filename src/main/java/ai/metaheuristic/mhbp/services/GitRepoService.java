@@ -18,6 +18,7 @@
 package ai.metaheuristic.mhbp.services;
 
 import ai.metaheuristic.mhbp.Globals;
+import ai.metaheuristic.mhbp.data.KbData;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.utils.NetUtils;
 import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
@@ -26,6 +27,7 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -51,13 +53,7 @@ public class GitRepoService {
         for (Globals.Kb kb : globals.kb) {
             if (!kb.disabled && kb.git!=null) {
                 Globals.Git git = kb.git;
-                String code = NetUtils.asCode(git.repo);
-                Path p = gitPath.resolve(code);
-                if (Files.notExists(p)) {
-                    Files.createDirectories(p);
-                }
-                SystemProcessLauncher.ExecResult execResult = gitSourcingService.prepareFunction(p.toFile(), git);
-                final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
+                final String asString = initGitRepo(git);
                 s += ("\n" + asString);
                 System.out.println(asString);
             }
@@ -68,5 +64,16 @@ public class GitRepoService {
 
         int i=0;
         return s;
+    }
+
+    public String initGitRepo(KbData.KbGit git) throws IOException {
+        String code = NetUtils.asCode(git.getRepo());
+        Path p = gitPath.resolve(code);
+        if (Files.notExists(p)) {
+            Files.createDirectories(p);
+        }
+        SystemProcessLauncher.ExecResult execResult = gitSourcingService.prepareRepo(p.toFile(), git);
+        final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
+        return asString;
     }
 }

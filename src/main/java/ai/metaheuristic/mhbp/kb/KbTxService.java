@@ -88,7 +88,7 @@ public class KbTxService {
             return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.500 kbId: " + kbId);
         }
 
-        kbRepository.deleteById(kbId);
+        kbRepository.delete(kb);
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 
@@ -96,6 +96,7 @@ public class KbTxService {
     public OperationStatusRest createKb(String code, String params, RequestContext context) {
         Kb kb = new Kb();
         kb.code = code;
+        kb.status = Enums.KbStatus.none.code;
         kb.setParams(params);
         kb.companyId = context.getCompanyId();
         kb.accountId = context.getAccountId();
@@ -106,4 +107,16 @@ public class KbTxService {
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 
+    @Transactional
+    public void markAsReady(long kbId) {
+        Kb kb = kbRepository.findById(kbId).orElse(null);
+        if (kb == null) {
+            return;
+        }
+        if (kb.status==Enums.KbStatus.ready.code) {
+            return;
+        }
+        kb.status = Enums.KbStatus.ready.code;
+        kbRepository.save(kb);
+    }
 }

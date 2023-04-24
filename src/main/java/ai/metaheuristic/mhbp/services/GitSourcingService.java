@@ -21,6 +21,7 @@ import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.data.ExecData;
+import ai.metaheuristic.mhbp.data.KbData;
 import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
 import ai.metaheuristic.mhbp.utils.asset.AssetFile;
 import lombok.*;
@@ -119,7 +120,7 @@ public class GitSourcingService {
         return assetFile;
     }
 
-    public SystemProcessLauncher.ExecResult prepareFunction(final File resourceDir, Git git) {
+    public SystemProcessLauncher.ExecResult prepareRepo(final File resourceDir, KbData.KbGit git) {
 
         File repoDir = new File(resourceDir, Consts.REPO);
         log.info("#027.070 Target dir: {}, exist: {}", repoDir.getAbsolutePath(), repoDir.exists() );
@@ -192,7 +193,7 @@ public class GitSourcingService {
         return new SystemProcessLauncher.ExecResult(repoDir, new ExecData.SystemExecResult(null, true, 0, "" ), true, null);
     }
 
-    public SystemProcessLauncher.ExecResult tryToRepairRepo(File functionDir, Globals.Git git) {
+    public SystemProcessLauncher.ExecResult tryToRepairRepo(File functionDir, KbData.KbGit git) {
         File repoDir = new File(functionDir, "git");
         SystemProcessLauncher.ExecResult result;
         FileUtils.deleteQuietly(repoDir);
@@ -217,15 +218,15 @@ public class GitSourcingService {
         return result;
     }
 
-    private SystemProcessLauncher.ExecResult execCheckoutRevision(File repoDir, Globals.Git git) {
+    private SystemProcessLauncher.ExecResult execCheckoutRevision(File repoDir, KbData.KbGit git) {
         // git checkout sha1
-        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "checkout", git.commit),0L);
+        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "checkout", git.getCommit()),0L);
         return result;
     }
 
-    private SystemProcessLauncher.ExecResult execPullOrigin(File repoDir, Globals.Git git) {
+    private SystemProcessLauncher.ExecResult execPullOrigin(File repoDir, KbData.KbGit git) {
         // pull origin master
-        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "pull", "origin", git.branch),0L);
+        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "pull", "origin", git.getBranch()),0L);
         return result;
     }
 
@@ -253,9 +254,9 @@ public class GitSourcingService {
         return execGitCmd(cmd, timeout);
     }
 
-    private SystemProcessLauncher.ExecResult execClone(File repoDir, Globals.Git git) {
+    private SystemProcessLauncher.ExecResult execClone(File repoDir, KbData.KbGit git) {
         // git -C <path> clone <git-repo-url> git
-        String gitUrl = git.repo;
+        String gitUrl = git.getRepo();
         List<String> cmd = List.of("git", "-C", repoDir.getAbsolutePath(), "clone", gitUrl);
         log.info("exec {}", cmd);
         SystemProcessLauncher.ExecResult result = execGitCmd(cmd, 0L);

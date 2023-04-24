@@ -22,12 +22,18 @@ import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.data.KbData;
+import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.events.InitKbEvent;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
+import ai.metaheuristic.mhbp.services.GitRepoService;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +42,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,12 +57,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class KbService {
 
+    @Value("${MHBP_HOME}/git")
+    public Path gitPath;
+
     public final Globals globals;
     public final KbTxService kbTxService;
     public final KbRepository kbRepository;
+    public final GitRepoService gitRepoService;
+    public final ApplicationEventPublisher eventPublisher;
 
     @PostConstruct
-    public void inti() {
+    public void postConstruct() {
 
         List<Kb> kbs = kbTxService.findSystemKbs();
         for (Globals.Kb globalKb : globals.kb) {
@@ -152,4 +164,37 @@ public class KbService {
         return new KbData.Kb(new KbData.SimpleKb(kb));
     }
 
+    public OperationStatusRest initKb(Long kbId, RequestContext context) {
+        if (kbId==null) {
+            return OperationStatusRest.OPERATION_STATUS_OK;
+        }
+        Kb kb = kbRepository.findById(kbId).orElse(null);
+        if (kb == null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "#565.250 KB wasn't found, kbId: " + kbId, null);
+        }
+        if (kb.companyId!=context.getCompanyId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.500 Access denied, kbId: " + kbId);
+        }
+        eventPublisher.publishEvent(new InitKbEvent(kbId));
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
+
+    @SneakyThrows
+    public void processInitKbEvent(InitKbEvent event) {
+        Kb kb = kbRepository.findById(event.kbId()).orElse(null);
+        if (kb == null || kb.status==Enums.KbStatus.ready.code) {
+            return;
+        }
+        KbParams kbParams = kb.getKbParams();
+        if (kbParams.kb.git!=null) {
+            final String asString = gitRepoService.initGitRepo(kbParams.kb.git);
+        }
+        if (kbParams.kb.file!=null) {
+
+        }
+
+        kbTxService.markAsReady(event.kbId());
+
+    }
 }

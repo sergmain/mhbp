@@ -20,6 +20,7 @@ package ai.metaheuristic.mhbp.yaml.kb;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.data.BaseParams;
+import ai.metaheuristic.mhbp.data.KbData;
 import ai.metaheuristic.mhbp.exceptions.CheckIntegrityFailedException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,7 +55,7 @@ public class KbParams implements BaseParams {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Git {
+    public static class Git implements KbData.KbGit {
         public String repo;
         public String branch;
         public String commit;

@@ -126,7 +126,8 @@ CREATE table mhbp_kb
     CREATED_ON      bigint          NOT NULL,
     CODE            VARCHAR(50)     NOT NULL,
     DISABLED        BOOLEAN         not null default false,
-    PARAMS          TEXT            not null
+    PARAMS          TEXT            not null,
+    STATUS          tinyint         NOT NULL default 0
 );
 
 CREATE INDEX mhbp_kb_company_id_idx

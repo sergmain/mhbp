@@ -77,4 +77,11 @@ public class KbRestController {
         return kbTxService.deleteKbById(id, context);
     }
 
+    @PostMapping("/kb-init")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest initKb(Long id, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return kbService.initKb(id, context);
+    }
+
 }
