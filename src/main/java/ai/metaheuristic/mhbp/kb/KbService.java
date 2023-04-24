@@ -183,7 +183,8 @@ public class KbService {
     @SneakyThrows
     public void processInitKbEvent(InitKbEvent event) {
         Kb kb = kbRepository.findById(event.kbId()).orElse(null);
-        if (kb == null || kb.status==Enums.KbStatus.ready.code) {
+//        if (kb == null || kb.status==Enums.KbStatus.ready.code) {
+        if (kb == null) {
             return;
         }
         KbParams kbParams = kb.getKbParams();
