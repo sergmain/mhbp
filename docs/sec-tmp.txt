@@ -1,0 +1,15 @@
+[To table of content](table-of-content)
+
+## Security of Metaheuristic behavior platform
+
+MHBP is multi-tenant platform. Each tenant is Company. \
+You can register as many companies as you want. \
+Company can have an unlimited number of user accounts.
+
+For managing all companies, there is pre-defined company with Id==1
+
+Pre-defined company has a predefined user with role ROLE_MAIN_ADMIN with: \
+login: q \
+password: 123
+
+Login/password for this account can be changed in file application.properties (see [application.properties](application.properties))

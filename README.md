@@ -34,8 +34,9 @@ mvnw clean package -f pom.xml -Dmaven.test.skip=true
 java -jar target/mhbp.jar
 ```
 
-1. Access MHBP at https://amhbp8080.metaheuristic.ai
-   login - q, password - 123
+1. Access MHBP at https://amhbp8080.metaheuristic.ai \
+   login - q \
+   password - 123
 
 1. Press 'Dispatcher' at the top menu.  
 
@@ -47,7 +48,7 @@ java -jar target/mhbp.jar
 
 1. Re-log in with created account
 
-2. Explore the interface or continue with documentation at [TODO]
+2. Explore the interface or continue with documentation at https://github.com/sergmain/mhbp/wiki/Table-of-content
 
 
 
@@ -60,17 +61,17 @@ Innovation platforms LLC, San Francisco, US, 2023
 
 ## How to cite
 
-Please cite this repository if it was useful for your research:
+Please cite this repository if it was useful in your research:
 
-The bibtex entry for this is:
+The BibTeX entry for this is:
 ```text
-@misc{metaheuristic,
+@misc{Metaheuristic behavior platform,
   author = {Lissner, Sergio},
   title = {Metaheuristic behavior platform},
   year = {2023},
   publisher = {GitHub},
   journal = {GitHub repository},
-  howpublished = {\url{https://github.com/sergmain/metaheuristic-mhbp}},
+  howpublished = {\url{https://github.com/sergmain/mhbp}},
 }
 ```
 
