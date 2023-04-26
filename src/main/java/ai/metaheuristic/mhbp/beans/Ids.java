@@ -30,14 +30,14 @@ import java.io.Serializable;
  * Time: 6:16 PM
  */
 @Entity
-@Table(name = "MHBP_IDS")
+@Table(name = "MH_IDS")
 @Data
 @TableGenerator(
-        name="mhbp_ids",
-        table="mhbp_gen_ids",
+        name="mh_ids",
+        table="mh_gen_ids",
         pkColumnName = "sequence_name",
         valueColumnName = "sequence_next_value",
-        pkColumnValue = "mhbp_ids",
+        pkColumnValue = "mh_ids",
         allocationSize = 1,
         initialValue = 1
 )
@@ -47,7 +47,7 @@ public class Ids implements Serializable {
     private static final long serialVersionUID = 8697932300220763332L;
 
     @Id
-    @GeneratedValue(strategy= GenerationType.TABLE, generator = "mhbp_ids")
+    @GeneratedValue(strategy= GenerationType.TABLE, generator = "mh_ids")
     public Long id;
 
     public Integer stub;

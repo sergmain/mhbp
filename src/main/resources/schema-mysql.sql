@@ -17,45 +17,47 @@
 
 -- !!!!! names of tables must be in lower case !!!!!!
 
-create table mhbp_ids
+-- Common for Metaheuristic DDLs, must the same as for Metaheuristic
+
+create table mh_ids
 (
     ID int unsigned NOT NULL PRIMARY KEY,
     STUB varchar(1) null
 );
 
-create table mhbp_gen_ids
+create table mh_gen_ids
 (
     SEQUENCE_NAME       varchar(50) not null,
     SEQUENCE_NEXT_VALUE NUMERIC(10, 0)  NOT NULL
 );
 
-CREATE UNIQUE INDEX mhbp_gen_ids_sequence_name_unq_idx
-    ON mhbp_gen_ids (SEQUENCE_NAME);
+CREATE UNIQUE INDEX mh_gen_ids_sequence_name_unq_idx
+    ON mh_gen_ids (SEQUENCE_NAME);
 
-CREATE TABLE mhbp_company
+CREATE TABLE mh_company
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
     VERSION         INT UNSIGNED    NOT NULL,
     UNIQUE_ID       INT UNSIGNED    NOT NULL,
-    COMPANY_NAME    VARCHAR(50)   NOT NULL,
+    NAME            VARCHAR(50)   NOT NULL,
     PARAMS          MEDIUMTEXT null
 );
 
-CREATE UNIQUE INDEX mhbp_company_unique_id_unq_idx
-    ON mhbp_company (UNIQUE_ID);
+CREATE UNIQUE INDEX mh_company_unique_id_unq_idx
+    ON mh_company (UNIQUE_ID);
 
-insert into mhbp_company
-(id, version, UNIQUE_ID, COMPANY_NAME, params)
+insert into mh_company
+(id, version, UNIQUE_ID, NAME, params)
 VALUES
-(1, 0, 1, 'main company', '');
+(1, 0, 1, 'Main company', '');
 
 -- !!! this insert must be executed after creating 'main company' immediately;
 
-insert mhbp_gen_ids
+insert mh_gen_ids
 (SEQUENCE_NAME, SEQUENCE_NEXT_VALUE)
-select 'mhbp_ids', max(UNIQUE_ID) from mhbp_company;
+select 'mh_ids', max(UNIQUE_ID) from mh_company;
 
-create table mhbp_account
+create table mh_account
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
     VERSION         INT UNSIGNED    NOT NULL,
@@ -80,11 +82,13 @@ create table mhbp_account
     TWO_FA      BOOLEAN not null default false
 );
 
-CREATE INDEX mhbp_account_company_id_idx
-    ON mhbp_account (COMPANY_ID);
+CREATE INDEX mh_account_company_id_idx
+    ON mh_account (COMPANY_ID);
 
-CREATE UNIQUE INDEX mhbp_account_username_unq_idx
-    ON mhbp_account (USERNAME);
+CREATE UNIQUE INDEX mh_account_username_unq_idx
+    ON mh_account (USERNAME);
+
+-- Specific for MHPB DDLs
 
 CREATE table mhbp_auth
 (

@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * Time: 11:15 PM
  */
 @Entity
-@Table(name = "MHBP_ACCOUNT")
+@Table(name = "MH_ACCOUNT")
 @Data
 @EqualsAndHashCode(of = {"username", "password"})
 @NoArgsConstructor
@@ -81,6 +81,18 @@ public class Account implements UserDetails, Serializable, Cloneable {
     @Column(name="PUBLIC_NAME")
     public String publicName;
 
+    @Nullable
+    @Column(name="MAIL_ADDRESS")
+    public String mailAddress;
+
+    @Nullable
+    @Column(name="PHONE")
+    public String phone;
+
+    //TODO add checks on max length
+    @Nullable
+    private String phoneAsStr;
+
     @Column(name="CREATED_ON")
     public long createdOn;
 
@@ -89,6 +101,13 @@ public class Account implements UserDetails, Serializable, Cloneable {
 
     @Nullable
     public String roles;
+
+    @Nullable
+    @Column(name="SECRET_KEY")
+    public String secretKey;
+
+    @Column(name="TWO_FA")
+    public boolean twoFA;
 
     @Transient
     @JsonIgnore

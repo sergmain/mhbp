@@ -32,7 +32,7 @@ import java.io.Serializable;
  * Time: 5:02 PM
  */
 @Entity
-@Table(name = "MHBP_COMPANY")
+@Table(name = "MH_COMPANY")
 @Data
 @NoArgsConstructor
 @Cacheable
@@ -55,7 +55,6 @@ public class Company implements Serializable {
     @Column(name = "PARAMS")
     public String params;
 
-    @Column(name = "COMPANY_NAME")
     public String name;
 
     public Company(String companyName) {
