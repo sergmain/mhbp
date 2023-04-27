@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.questions;
 
+import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.kb.reader.openai.OpenaiJsonReader;
@@ -45,6 +46,7 @@ import static ai.metaheuristic.mhbp.questions.QuestionData.QuestionWithAnswerToA
 @RequiredArgsConstructor
 public class QuestionAndAnswerService {
 
+    public final Globals globals;
     public final QuestionAndAnswerTxService questionAndAnswerTxService;
     public final AnswerRepository answerRepository;
     public final KbRepository kbRepository;
@@ -54,7 +56,7 @@ public class QuestionAndAnswerService {
         Stream<QuestionWithAnswerToAsk> stream = kbIds.stream().map(Long::valueOf)
                 .map(id->kbRepository.findById(id).orElse(null))
                 .filter(Objects::nonNull)
-                .flatMap(QuestionAndAnswerService::getStreamOfPrompt);
+                .flatMap(kb -> getStreamOfPrompt(kb, globals.getHome()));
 
         if (limit!=0) {
             stream = stream.limit(limit);
@@ -62,14 +64,13 @@ public class QuestionAndAnswerService {
         return stream;
     }
 
-    private static Stream<QuestionWithAnswerToAsk> getStreamOfPrompt(Kb kb) {
+    private static Stream<QuestionWithAnswerToAsk> getStreamOfPrompt(Kb kb, Path mhbpHome) {
         KbParams kbParams = kb.getKbParams();
 
         if (kbParams.kb.file!=null) {
             return Stream.empty();
         }
         else if (kbParams.kb.git!=null) {
-            Path mhbpHome = Path.of(System.getenv("MHBP_HOME"));
             QuestionData.QuestionsWithAnswersAndStatus qas = OpenaiJsonReader.read(kb.id, kbParams.kb.type, mhbpHome, kbParams.kb.git);
             return qas.list.stream();
         }

@@ -21,8 +21,8 @@ import ai.metaheuristic.mhbp.data.KbData;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.lang.Nullable;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,6 +100,14 @@ public class Globals {
     public boolean sslRequired = true;
     public boolean testing = false;
     public int maxPromptLength = 4096;
+    public Path home;
+
+    public Path getHome() {
+        if (home==null) {
+            throw new IllegalArgumentException("mhbp.home is empty");
+        }
+        return home;
+    }
 
     public Kb[] kb;
 

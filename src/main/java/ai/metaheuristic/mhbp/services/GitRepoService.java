@@ -24,9 +24,9 @@ import ai.metaheuristic.mhbp.utils.NetUtils;
 import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,11 +40,15 @@ import java.nio.file.Path;
 @RequiredArgsConstructor
 public class GitRepoService {
 
-    @Value("${MHBP_HOME}/git")
-    public Path gitPath;
-
     public final Globals globals;
     public final GitSourcingService gitSourcingService;
+
+    private Path gitPath;
+
+    @PostConstruct
+    public void postConstruct() {
+        gitPath = globals.getHome().resolve("git");
+    }
 
     @SneakyThrows
     public String initRepo() {

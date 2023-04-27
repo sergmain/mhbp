@@ -32,7 +32,6 @@ import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -42,7 +41,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,9 +55,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class KbService {
 
-    @Value("${MHBP_HOME}/git")
-    public Path gitPath;
-
     public final Globals globals;
     public final KbTxService kbTxService;
     public final KbRepository kbRepository;
@@ -68,7 +63,6 @@ public class KbService {
 
     @PostConstruct
     public void postConstruct() {
-
         List<Kb> kbs = kbTxService.findSystemKbs();
         for (Globals.Kb globalKb : globals.kb) {
             boolean create = true;
