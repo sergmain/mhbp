@@ -28,7 +28,6 @@ import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,7 @@ import java.util.stream.Collectors;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Evaluation implements Serializable {
 
-    public static class KbIdsConverter implements AttributeConverter<List<String>, String> {
+    public static class ChapterIdsConverter implements AttributeConverter<List<String>, String> {
 
         @Override
         public String convertToDatabaseColumn(@Nullable List<String> extraFields) {
@@ -85,9 +84,9 @@ public class Evaluation implements Serializable {
     @Column(name = "API_ID")
     public long apiId;
 
-    @Column(name = "KB_IDS")
-    @Convert(converter = KbIdsConverter.class)
-    public List<String> kbIds;
+    @Column(name = "CHAPTER_IDS")
+    @Convert(converter = ChapterIdsConverter.class)
+    public List<String> chapterIds;
 
     public long createdOn;
 

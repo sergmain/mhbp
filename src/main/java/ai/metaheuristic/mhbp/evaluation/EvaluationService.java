@@ -105,10 +105,10 @@ public class EvaluationService {
         if (api==null || api.companyId!=context.getCompanyId()) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.220 Reference to API is broken, evaluationId: " + evaluationId);
         }
-        if (evaluation.kbIds.isEmpty()) {
+        if (evaluation.chapterIds.isEmpty()) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.240 Reference to KB is empty, evaluationId: " + evaluationId);
         }
-        for (String kbIdStr : evaluation.kbIds) {
+        for (String kbIdStr : evaluation.chapterIds) {
             long kbId = Long.parseLong(kbIdStr);
             Kb kb = kbRepository.findById(kbId).orElse(null);
             if (kb==null || kb.companyId!=context.getCompanyId()) {

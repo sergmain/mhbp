@@ -47,7 +47,7 @@ public class QuestionAndAnswerTxService {
         Answer a = new Answer();
         a.questionCode = question.type().toString();
         a.sessionId = session.id;
-        a.kbId = question.kbId();
+        a.chapterId = question.kbId();
         a.apiInfo = "n/a";
         a.answeredOn = System.currentTimeMillis();
         if (qaa.status()==OK) {

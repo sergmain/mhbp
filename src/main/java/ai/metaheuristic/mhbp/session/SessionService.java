@@ -124,7 +124,7 @@ public class SessionService {
         EvalsDesc evalsDesc = new EvalsDesc(e.id, api.code, new ArrayList<>());
 
 
-        for (String kbId : e.kbIds) {
+        for (String kbId : e.chapterIds) {
             String kbCode = kbRepository.findById(Long.parseLong(kbId)).map(o->o.code).orElse(null);
             if (!S.b(kbCode)) {
                 evalsDesc.kbs.add(kbCode);

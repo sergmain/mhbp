@@ -33,7 +33,7 @@ public class EvaluationTest {
 
     @Test
     public void test_KbIdsConverter() {
-        Evaluation.KbIdsConverter converter = new Evaluation.KbIdsConverter();
+        Evaluation.ChapterIdsConverter converter = new Evaluation.ChapterIdsConverter();
 
         List<String> list = converter.convertToEntityAttribute("11");
         assertNotNull(list);

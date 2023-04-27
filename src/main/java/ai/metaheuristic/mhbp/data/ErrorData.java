@@ -26,6 +26,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Sergio Lissner
@@ -37,20 +39,31 @@ public class ErrorData {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class Result {
+        // prompt
+        public String p;
+        // answer
+        public String a;
+        // raw
+        public String r;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SimpleError {
         public Long id;
         public Long sessionId;
-        public String p;
-        public String a;
-        public String raw;
+        public List<Result> results;
 
         public SimpleError(Answer answer) {
             this.id = answer.id;
             this.sessionId = answer.sessionId;
             AnswerParams answerParams = answer.getAnswerParams();
-            this.p = answerParams.expected!=null ? answerParams.expected.prompt : "<null>";
-            this.a = answerParams.expected!=null ? answerParams.expected.answer : "<null>";
-            this.raw = answerParams.raw;
+            results = answerParams.results.stream().map(o-> new Result(
+                    o.p!=null ? o.p : "<null>",
+                    o.a!=null ? o.a : "<null>",
+                    o.r)).collect(Collectors.toList());
         }
     }
 

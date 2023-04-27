@@ -20,7 +20,6 @@ package ai.metaheuristic.mhbp.evaluation;
 import ai.metaheuristic.mhbp.api.ApiService;
 import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
-import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.kb.KbService;
 import ai.metaheuristic.mhbp.repositories.EvaluationRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +51,7 @@ public class EvaluationTxService {
         eval.accountId = accountId;
         eval.createdOn = System.currentTimeMillis();
         eval.apiId = Long.parseLong(apiId);
-        eval.kbIds = List.of(kbIds);
+        eval.chapterIds = List.of(kbIds);
         eval.code = code;
 
         evaluationRepository.save(eval);

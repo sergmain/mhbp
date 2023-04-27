@@ -53,8 +53,8 @@ public class Answer implements Serializable {
 
     public Long sessionId;
 
-    @Column(name = "KB_ID")
-    public long kbId;
+    @Column(name = "CHAPTER_ID")
+    public long chapterId;
 
     public long answeredOn;
 

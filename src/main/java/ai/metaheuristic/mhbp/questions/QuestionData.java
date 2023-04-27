@@ -33,7 +33,6 @@ import java.util.List;
 public class QuestionData {
 
     public record QuestionWithAnswerToAsk(String q, String a) {
-
         public ChapterParams.Prompt toPrompt() {
             return new ChapterParams.Prompt(q, a);
         }

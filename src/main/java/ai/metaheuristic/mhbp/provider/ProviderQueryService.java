@@ -84,7 +84,7 @@ public class ProviderQueryService {
             s.set(sessionTxService.create(evaluation, api, event.accountId()));
 
             log.debug("call EvaluateProviderService.evaluateProvider({})", event.evaluationId());
-            Stream<QuestionData.QuestionWithAnswerToAsk> questions = questionAndAnswerService.getQuestionToAsk(evaluation.kbIds, event.limit());
+            Stream<QuestionData.QuestionWithAnswerToAsk> questions = questionAndAnswerService.getQuestionToAsk(evaluation.chapterIds, event.limit());
 
             askQuestions(s, api, questions);
             sessionTxService.finish(s.get(), Enums.SessionStatus.finished);
