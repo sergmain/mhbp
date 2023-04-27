@@ -20,14 +20,22 @@ package ai.metaheuristic.mhbp.kb;
 import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
+import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Kb;
+import ai.metaheuristic.mhbp.chapter.ChapterTxService;
 import ai.metaheuristic.mhbp.data.KbData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.events.InitKbEvent;
+import ai.metaheuristic.mhbp.kb.reader.openai.OpenaiJsonReader;
+import ai.metaheuristic.mhbp.questions.QuestionData;
+import ai.metaheuristic.mhbp.repositories.ChapterRepository;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
 import ai.metaheuristic.mhbp.services.GitRepoService;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
+import ai.metaheuristic.mhbp.utils.JsonUtils;
+import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
+import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -41,9 +49,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static ai.metaheuristic.mhbp.questions.QuestionData.*;
 
 /**
  * @author Sergio Lissner
@@ -60,6 +72,8 @@ public class KbService {
     public final KbRepository kbRepository;
     public final GitRepoService gitRepoService;
     public final ApplicationEventPublisher eventPublisher;
+    public final ChapterTxService chapterTxService;
+    public final ChapterRepository chapterRepository;
 
     @PostConstruct
     public void postConstruct() {
@@ -183,7 +197,14 @@ public class KbService {
         }
         KbParams kbParams = kb.getKbParams();
         if (kbParams.kb.git!=null) {
-            final String asString = gitRepoService.initGitRepo(kbParams.kb.git);
+            final SystemProcessLauncher.ExecResult execResult = gitRepoService.initGitRepo(kbParams.kb.git);
+            if (execResult.ok) {
+                if (execResult.repoDir==null) {
+                    throw new IllegalStateException();
+                }
+                final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
+                loadPromptFromGit(kb, execResult.repoDir, kbParams.kb.git);
+            }
         }
         if (kbParams.kb.file!=null) {
 
@@ -192,4 +213,24 @@ public class KbService {
         kbTxService.markAsReady(event.kbId());
 
     }
+
+    public void loadPromptFromGit(Kb kb, File repoDir, KbParams.Git git) {
+        Chapters chapters = OpenaiJsonReader.read(kb.id, repoDir.toPath(), git);
+        log.info("Status of loading kb: " + chapters.initStatus);
+        if (chapters.initStatus!=Enums.KbSourceInitStatus.ready) {
+            return;
+        }
+
+        for (ChapterWithPrompts chapter : chapters.chapters) {
+            ChapterParams params = new ChapterParams();
+            chapter.list().stream().map(QuestionWithAnswerToAsk::toPrompt).collect(Collectors.toCollection(()->params.prompts));
+
+            Chapter c = chapterRepository.findByKbIdAndCode();
+
+        }
+
+
+    }
+
+
 }

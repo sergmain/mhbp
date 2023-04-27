@@ -50,34 +50,13 @@ public class GitRepoService {
         gitPath = globals.getHome().resolve("git");
     }
 
-    @SneakyThrows
-    public String initRepo() {
-
-        String s = "";
-        for (Globals.Kb kb : globals.kb) {
-            if (!kb.disabled && kb.git!=null) {
-                Globals.Git git = kb.git;
-                final String asString = initGitRepo(git);
-                s += ("\n" + asString);
-                System.out.println(asString);
-            }
-            if (kb.file!=null) {
-
-            }
-        }
-
-        int i=0;
-        return s;
-    }
-
-    public String initGitRepo(KbData.KbGit git) throws IOException {
+    public SystemProcessLauncher.ExecResult initGitRepo(KbData.KbGit git) throws IOException {
         String code = NetUtils.asCode(git.getRepo());
         Path p = gitPath.resolve(code);
         if (Files.notExists(p)) {
             Files.createDirectories(p);
         }
         SystemProcessLauncher.ExecResult execResult = gitSourcingService.prepareRepo(p.toFile(), git);
-        final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
-        return asString;
+        return execResult;
     }
 }

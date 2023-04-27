@@ -15,7 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.yaml.answer;
+package ai.metaheuristic.mhbp.yaml.chapter;
 
 import ai.metaheuristic.mhbp.data.BaseParams;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ import java.util.List;
 
 @SuppressWarnings("FieldMayBeStatic")
 @Data
-public class AnswerParams implements BaseParams {
+public class ChapterParamsV1 implements BaseParams  {
 
     public final int version=1;
 
@@ -39,15 +39,12 @@ public class AnswerParams implements BaseParams {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class Result {
+    public static class PromptV1 {
         // prompt
         public String p;
         // answer
         public String a;
-        // raw
-        public String r;
     }
 
-    public List<Result> results = new ArrayList<>();
-    public long processingMills;
+    public List<PromptV1> results = new ArrayList<>();
 }

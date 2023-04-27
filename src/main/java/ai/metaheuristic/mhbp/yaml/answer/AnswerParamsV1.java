@@ -21,7 +21,9 @@ import ai.metaheuristic.mhbp.data.BaseParams;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("FieldMayBeStatic")
 @Data
@@ -37,14 +39,15 @@ public class AnswerParamsV1 implements BaseParams  {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ExpectedV1 {
-        public String prompt;
-        public String answer;
+    public static class ResultV1 {
+        // prompt
+        public String p;
+        // answer
+        public String a;
+        // raw
+        public String r;
     }
 
-    @Nullable
-    public ExpectedV1 expected;
-
-    @Nullable
-    public String raw;
+    public List<ResultV1> results = new ArrayList<>();
+    public long processingMills;
 }

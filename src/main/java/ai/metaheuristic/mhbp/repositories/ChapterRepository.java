@@ -15,15 +15,23 @@
  *
  */
 
-package ai.metaheuristic.mhbp.data.provider;
+package ai.metaheuristic.mhbp.repositories;
+
+import ai.metaheuristic.mhbp.beans.Answer;
+import ai.metaheuristic.mhbp.beans.Chapter;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Sergio Lissner
- * Date: 3/5/2023
- * Time: 1:38 AM
+ * Date: 4/27/2023
+ * Time: 3:19 AM
  */
-public class QuestionToProvider {
-    public long id;
-    public long policyId;
-    public String question;
+@Repository
+@Transactional
+public interface ChapterRepository extends CrudRepository<Chapter, Long> {
+
+    Chapter findByKbIdAndCode();
+
 }

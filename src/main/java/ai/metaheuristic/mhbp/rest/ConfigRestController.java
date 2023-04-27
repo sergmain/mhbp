@@ -51,9 +51,4 @@ public class ConfigRestController {
         return ""+gitSourcingService.getGitStatus();
     }
 
-    @PreAuthorize("hasAnyRole('MAIN_ADMIN', 'MAIN_OPERATOR', 'MAIN_SUPPORT', 'MANAGER')")
-    @GetMapping("/init-kb")
-    public String initKb() {
-        return gitRepoService.initRepo();
-    }
 }

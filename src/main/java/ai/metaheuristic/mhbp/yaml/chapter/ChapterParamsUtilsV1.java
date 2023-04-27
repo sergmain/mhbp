@@ -15,7 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.yaml.answer;
+package ai.metaheuristic.mhbp.yaml.chapter;
 
 import ai.metaheuristic.mhbp.utils.YamlUtils;
 import ai.metaheuristic.mhbp.utils.versioning.AbstractParamsUtils;
@@ -25,8 +25,8 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.util.stream.Collectors;
 
-public class AnswerParamsUtilsV1 extends
-        AbstractParamsUtils<AnswerParamsV1, AnswerParams, Void, Void, Void, Void> {
+public class ChapterParamsUtilsV1 extends
+        AbstractParamsUtils<ChapterParamsV1, ChapterParams, Void, Void, Void, Void> {
 
     @Override
     public int getVersion() {
@@ -36,24 +36,23 @@ public class AnswerParamsUtilsV1 extends
     @NonNull
     @Override
     public Yaml getYaml() {
-        return YamlUtils.init(AnswerParamsV1.class);
+        return YamlUtils.init(ChapterParamsV1.class);
     }
 
     @NonNull
     @Override
-    public AnswerParams upgradeTo(@NonNull AnswerParamsV1 v1) {
+    public ChapterParams upgradeTo(@NonNull ChapterParamsV1 v1) {
         v1.checkIntegrity();
 
-        AnswerParams t = new AnswerParams();
-        t.results = v1.results.stream().map(AnswerParamsUtilsV1::toResult).collect(Collectors.toList());
-        t.processingMills = v1.processingMills;
+        ChapterParams t = new ChapterParams();
+        t.prompts = v1.results.stream().map(ChapterParamsUtilsV1::toPrompt).collect(Collectors.toList());
         t.checkIntegrity();
         return t;
     }
 
     @Nullable
-    private static AnswerParams.Result toResult(AnswerParamsV1.ResultV1 v1) {
-        AnswerParams.Result f = new AnswerParams.Result(v1.p, v1.a, v1.r);
+    private static ChapterParams.Prompt toPrompt(ChapterParamsV1.PromptV1 v1) {
+        ChapterParams.Prompt f = new ChapterParams.Prompt(v1.p, v1.a);
         return f;
     }
 
@@ -74,7 +73,7 @@ public class AnswerParamsUtilsV1 extends
     }
 
     @Override
-    public String toString(@NonNull AnswerParamsV1 yaml) {
+    public String toString(@NonNull ChapterParamsV1 yaml) {
         yaml.checkIntegrity();
 
         return getYaml().dump(yaml);
@@ -82,8 +81,8 @@ public class AnswerParamsUtilsV1 extends
 
     @NonNull
     @Override
-    public AnswerParamsV1 to(@NonNull String s) {
-        final AnswerParamsV1 p = getYaml().load(s);
+    public ChapterParamsV1 to(@NonNull String s) {
+        final ChapterParamsV1 p = getYaml().load(s);
         return p;
     }
 

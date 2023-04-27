@@ -35,8 +35,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 
-import static ai.metaheuristic.mhbp.Globals.*;
-
 /**
  * @author Sergio Lissner
  * Date: 4/14/2023
@@ -83,7 +81,7 @@ public class GitSourcingService {
             log.warn("#027.010 Error of getting git status");
             log.warn("\tresult.ok: {}",  result.ok);
             log.warn("\tresult.error: {}",  result.error);
-            log.warn("\tresult.functionDir: {}",  result.functionDir !=null ? result.functionDir.getPath() : null);
+            log.warn("\tresult.functionDir: {}", result.repoDir!=null ? result.repoDir.getPath() : null);
             log.warn("\tresult.systemExecResult: {}",  result.systemExecResult);
             return new GitStatusInfo(Enums.GitStatus.error, null, "#027.010 Error: " + result.error);
         }

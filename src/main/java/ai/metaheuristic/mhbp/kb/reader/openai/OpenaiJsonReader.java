@@ -39,8 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static ai.metaheuristic.mhbp.Enums.PromptResponseType.json;
-import static ai.metaheuristic.mhbp.questions.QuestionData.QuestionsWithAnswersAndStatus;
+import static ai.metaheuristic.mhbp.questions.QuestionData.Chapters;
 
 /**
  * @author Sergio Lissner
@@ -50,29 +49,18 @@ import static ai.metaheuristic.mhbp.questions.QuestionData.QuestionsWithAnswersA
 public class OpenaiJsonReader {
 
 
-    public static final QuestionsWithAnswersAndStatus NOT_YET = new QuestionsWithAnswersAndStatus(List.of(), Enums.KbSourceInitStatus.not_yet);
+    public static final Chapters NOT_YET = new Chapters(Enums.KbSourceInitStatus.not_yet);
     public static final String SAMPLES_JSONL = "samples_jsonl";
     public static final String MATCH = "evals.elsuite.basic.match:Match";
 
     @SneakyThrows
-    public static QuestionsWithAnswersAndStatus read(long kbId, Enums.KbFileFormat type, Path mhbpHome, @Nullable KbParams.Git git) {
+    public static Chapters read(long kbId, Path repoDir, @Nullable KbParams.Git git) {
         if (git==null) {
             return NOT_YET;
         }
-        Path gitPath = mhbpHome.resolve(Consts.GIT_PATH);
-        String code = NetUtils.asCode(git.repo);
-        Path p = gitPath.resolve(code);
-        if (Files.notExists(p)) {
-            return NOT_YET;
-        }
-        Path repo = p.resolve(Consts.REPO);
-        if (Files.notExists(repo)) {
-            return NOT_YET;
-        }
-
-        List<QuestionData.QuestionWithAnswerToAsk> list = new ArrayList<>(100000);
+        Chapters chapters = new Chapters(kbId);
         for (KbParams.KbPath kbPath : git.kbPaths) {
-            Path evals = repo.resolve(kbPath.evals);
+            Path evals = repoDir.resolve(kbPath.evals);
 
             final List<String> paths = new ArrayList<>();
             Files.walkFileTree(evals, new SimpleFileVisitor<>() {
@@ -87,8 +75,10 @@ public class OpenaiJsonReader {
                 }
             });
 
-            Path data = repo.resolve(kbPath.data);
+            Path data = repoDir.resolve(kbPath.data);
             for (String path : paths) {
+                QuestionData.ChapterWithPrompts chapter = new QuestionData.ChapterWithPrompts(path, new ArrayList<>(1000));
+                chapters.chapters.add(chapter);
                 Path jsonlPath = data.resolve(path);
                 if (Files.notExists(jsonlPath)) {
                     System.out.println("\tNot exists: " + jsonlPath);
@@ -102,12 +92,13 @@ public class OpenaiJsonReader {
                     for (OpenaiInput.Input in : input.input) {
                         sb.append(in.content).append('\n');
                     }
-                    list.add(new QuestionData.QuestionWithAnswerToAsk(kbId, type, sb.toString(), input.getIdeal()));
+                    chapter.list().add(new QuestionData.QuestionWithAnswerToAsk(sb.toString(), input.getIdeal()));
                 }
             }
 
         }
-        return new QuestionsWithAnswersAndStatus(list, Enums.KbSourceInitStatus.ready);
+        chapters.initStatus = Enums.KbSourceInitStatus.ready;
+        return chapters;
     }
 
     @Nullable

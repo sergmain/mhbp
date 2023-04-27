@@ -17,9 +17,10 @@
 
 package ai.metaheuristic.mhbp.kb.reader.openai;
 
-import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
+import ai.metaheuristic.mhbp.utils.NetUtils;
 import ai.metaheuristic.mhbp.utils.S;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import ai.metaheuristic.mhbp.yaml.kb.KbParamsUtils;
@@ -30,6 +31,7 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,11 @@ import static org.junit.jupiter.api.Assertions.*;
  * Time: 11:52 PM
  */
 public class OpenaiJsonReaderTest {
+
+    @SneakyThrows
+    private static String jsonAsString(QuestionData.QuestionWithAnswerToAsk o) {
+        return JsonUtils.getMapper().writeValueAsString(o);
+    }
 
     @Test
     public void test_read() {
@@ -68,38 +75,31 @@ public class OpenaiJsonReaderTest {
         assertNotNull(kbParams.kb.git);
         assertEquals(1, kbParams.kb.git.kbPaths.size());
 
-        KbParams.KbPath git = kbParams.kb.git.kbPaths.get(0);
+        KbParams.KbPath kbPath = kbParams.kb.git.kbPaths.get(0);
 
 
         final String mhbpHomeEnv = System.getenv("MHBP_HOME");
         assertFalse(S.b(mhbpHomeEnv));
 
         Path mhbpHome = Path.of(mhbpHomeEnv);
-        QuestionData.QuestionsWithAnswersAndStatus qas = OpenaiJsonReader.read(10L, Enums.KbFileFormat.openai, mhbpHome, kbParams.kb.git);
+        Path gitPath = mhbpHome.resolve(Consts.GIT_PATH);
 
-        String jsonl = qas.list.stream().map(SimpleQA::to).map(SimpleQA::toJson).collect(Collectors.joining("\n"));
+        String code = NetUtils.asCode(kbParams.kb.git.repo);
 
-        System.out.println("Total inputs: " + qas.list.size());
+        Path p = gitPath.resolve(code);
+        assertFalse(Files.notExists(p));
+
+        Path repo = p.resolve(Consts.REPO);
+        assertFalse(Files.notExists(repo));
+
+        QuestionData.Chapters qas = OpenaiJsonReader.read(10L, mhbpHome, kbParams.kb.git);
+
+        String jsonl = qas.chapters.stream().flatMap(o->o.list().stream()).map(OpenaiJsonReaderTest::jsonAsString).collect(Collectors.joining("\n"));
+
+        System.out.println("Total inputs: " + qas.chapters.stream().mapToLong(o->o.list().size()).sum());
         System.out.println("Final size: " + jsonl.length());
 
         int i = 0;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SimpleQA {
-        public String q;
-        public String a;
-
-        public static SimpleQA to(QuestionData.QuestionWithAnswerToAsk bean) {
-            return new SimpleQA(bean.q(), bean.a());
-        }
-
-        @SneakyThrows
-        public String toJson() {
-            return JsonUtils.getMapper().writeValueAsString(this);
-        }
     }
 
     @Test

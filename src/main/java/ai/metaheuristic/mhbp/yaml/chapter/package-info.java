@@ -15,18 +15,7 @@
  *
  */
 
-package ai.metaheuristic.mhbp.data;
+@ParametersAreNonnullByDefault
+package ai.metaheuristic.mhbp.yaml.chapter;
 
-import ai.metaheuristic.mhbp.Enums;
-
-/**
- * @author Sergio Lissner
- * Date: 3/19/2023
- * Time: 3:08 PM
- */
-public class SimplePolicy {
-    public long id;
-    public String question;
-    public String expectedAnswer;
-    public Enums.RequestCategory category;
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -18,12 +18,13 @@
 package ai.metaheuristic.mhbp.questions;
 
 import ai.metaheuristic.mhbp.Globals;
-import ai.metaheuristic.mhbp.beans.Kb;
+import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.kb.reader.openai.OpenaiJsonReader;
 import ai.metaheuristic.mhbp.provider.ProviderData;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
+import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,19 +65,19 @@ public class QuestionAndAnswerService {
         return stream;
     }
 
-    private static Stream<QuestionWithAnswerToAsk> getStreamOfPrompt(Kb kb, Path mhbpHome) {
-        KbParams kbParams = kb.getKbParams();
+    private static Stream<QuestionWithAnswerToAsk> getStreamOfPrompt(Chapter chapter, Path mhbpHome) {
+        ChapterParams chapterParams = chapter.getChapterParams();
 
-        if (kbParams.kb.file!=null) {
+        if (chapterParams.kb.file!=null) {
             return Stream.empty();
         }
-        else if (kbParams.kb.git!=null) {
-            QuestionData.QuestionsWithAnswersAndStatus qas = OpenaiJsonReader.read(kb.id, kbParams.kb.type, mhbpHome, kbParams.kb.git);
+        else if (chapterParams.kb.git!=null) {
+            QuestionData.Chapters qas = OpenaiJsonReader.read(chapter.id, mhbpHome, chapterParams.kb.git);
             return qas.list.stream();
         }
-        else if (kbParams.getKb().inline!=null) {
-            return kbParams.getKb().inline.stream()
-                    .map(o->new QuestionWithAnswerToAsk(kb.id, kbParams.getKb().type, o.p, o.a));
+        else if (chapterParams.getKb().inline!=null) {
+            return chapterParams.getKb().inline.stream()
+                    .map(o->new QuestionWithAnswerToAsk(chapter.id, chapterParams.getKb().type, o.p, o.a));
         }
         throw new IllegalStateException();
     }

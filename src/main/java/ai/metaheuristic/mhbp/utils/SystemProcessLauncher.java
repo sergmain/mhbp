@@ -56,7 +56,7 @@ public class SystemProcessLauncher {
     @ToString
     public static class ExecResult {
         @Nullable
-        public final File functionDir;
+        public final File repoDir;
         @Nullable
         public final ExecData.SystemExecResult systemExecResult;
         public final boolean ok;
@@ -66,8 +66,8 @@ public class SystemProcessLauncher {
             this(null, systemExecResult, ok, error);
         }
 
-        public ExecResult(@Nullable File functionDir, @Nullable ExecData.SystemExecResult systemExecResult, boolean ok, String error) {
-            this.functionDir = functionDir;
+        public ExecResult(@Nullable File repoDir, @Nullable ExecData.SystemExecResult systemExecResult, boolean ok, String error) {
+            this.repoDir = repoDir;
             this.systemExecResult = systemExecResult;
             this.ok = ok;
             this.error = error;

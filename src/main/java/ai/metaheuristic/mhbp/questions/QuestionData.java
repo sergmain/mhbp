@@ -18,9 +18,11 @@
 package ai.metaheuristic.mhbp.questions;
 
 import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,12 +32,28 @@ import java.util.List;
  */
 public class QuestionData {
 
-    public record QuestionWithAnswerToAsk(long kbId, Enums.KbFileFormat type, String q, String a) {}
+    public record QuestionWithAnswerToAsk(String q, String a) {
+
+        public ChapterParams.Prompt toPrompt() {
+            return new ChapterParams.Prompt(q, a);
+        }
+    }
+
+    public record ChapterWithPrompts(String chapterCode, List<QuestionWithAnswerToAsk> list) {}
 
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class QuestionsWithAnswersAndStatus {
-        public List<QuestionWithAnswerToAsk> list;
+    public static class Chapters {
+        public List<ChapterWithPrompts> chapters = new ArrayList<>();
+        public long kbId;
         public Enums.KbSourceInitStatus initStatus;
+
+        public Chapters(Enums.KbSourceInitStatus initStatus) {
+            this.initStatus = initStatus;
+        }
+
+        public Chapters(long kbId) {
+            this.kbId = kbId;
+        }
     }
 }
