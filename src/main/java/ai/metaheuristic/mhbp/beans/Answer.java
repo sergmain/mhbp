@@ -63,10 +63,14 @@ public class Answer implements Serializable {
 
     public int status;
 
-    public String apiInfo;
-
     @Column(name = "PARAMS")
     private String params;
+
+    public int total;
+    public int failed;
+
+    @Column(name = "SYSTEM_ERROR")
+    public int systemError;
 
     public void setParams(String params) {
         synchronized (this) {

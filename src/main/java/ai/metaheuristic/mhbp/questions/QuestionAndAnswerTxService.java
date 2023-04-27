@@ -17,10 +17,9 @@
 
 package ai.metaheuristic.mhbp.questions;
 
-import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.beans.Answer;
+import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Session;
-import ai.metaheuristic.mhbp.provider.ProviderData;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
 import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static ai.metaheuristic.mhbp.Enums.OperationStatus.OK;
+import static ai.metaheuristic.mhbp.Enums.AnswerStatus;
 
 /**
  * @author Sergio Lissner
@@ -43,27 +42,18 @@ public class QuestionAndAnswerTxService {
     public final AnswerRepository answerRepository;
 
     @Transactional
-    public void process(Session session, QuestionData.QuestionWithAnswerToAsk question, ProviderData.QuestionAndAnswer qaa) {
+    public void process(Session session, Chapter chapter, AnswerParams ap) {
         Answer a = new Answer();
-        a.questionCode = question.type().toString();
+        // not user which values to use for questionCode
+        a.questionCode = "q code";
+
         a.sessionId = session.id;
-        a.chapterId = question.kbId();
-        a.apiInfo = "n/a";
+        a.chapterId = chapter.id;
         a.answeredOn = System.currentTimeMillis();
-        if (qaa.status()==OK) {
-            a.status = qaa.a()!=null && question.a().equals(qaa.a().strip()) ? Enums.AnswerStatus.normal.code : Enums.AnswerStatus.fail.code;
-        }
-        else {
-            a.status = Enums.AnswerStatus.error.code;
-        }
-        AnswerParams ap = new AnswerParams();
-        ap.raw = qaa.raw();
-        if (a.status==Enums.AnswerStatus.fail.code) {
-            ap.expected = new AnswerParams.Expected(question.q(), question.a());
-        }
-        else if (a.status==Enums.AnswerStatus.error.code) {
-            ap.raw = qaa.error();
-        }
+        a.total = ap.total;
+        a.failed = (int)ap.results.stream().filter(o-> o.status==AnswerStatus.fail).count();
+        a.systemError = (int)ap.results.stream().filter(o-> o.status==AnswerStatus.error).count();
+
         a.updateParams(ap);
 
         answerRepository.save(a);

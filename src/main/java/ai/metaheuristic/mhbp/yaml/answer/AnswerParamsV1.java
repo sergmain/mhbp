@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.yaml.answer;
 
+import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.data.BaseParams;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -46,6 +47,8 @@ public class AnswerParamsV1 implements BaseParams  {
         public String a;
         // raw
         public String r;
+        // status
+        public Enums.AnswerStatus s;
     }
 
     public List<ResultV1> results = new ArrayList<>();

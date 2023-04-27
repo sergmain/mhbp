@@ -53,7 +53,7 @@ public class AnswerParamsUtilsV1 extends
 
     @Nullable
     private static AnswerParams.Result toResult(AnswerParamsV1.ResultV1 v1) {
-        AnswerParams.Result f = new AnswerParams.Result(v1.p, v1.a, v1.r);
+        AnswerParams.Result f = new AnswerParams.Result(v1.p, v1.a, v1.r, v1.s);
         return f;
     }
 

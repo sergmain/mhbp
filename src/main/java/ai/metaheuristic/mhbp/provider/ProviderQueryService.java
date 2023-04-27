@@ -21,6 +21,7 @@ import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.api.scheme.ApiScheme;
 import ai.metaheuristic.mhbp.beans.Api;
+import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.data.NluData;
@@ -28,6 +29,7 @@ import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
 import ai.metaheuristic.mhbp.questions.QuestionAndAnswerService;
 import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.repositories.ApiRepository;
+import ai.metaheuristic.mhbp.repositories.ChapterRepository;
 import ai.metaheuristic.mhbp.repositories.EvaluationRepository;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
 import ai.metaheuristic.mhbp.sec.UserContextService;
@@ -35,11 +37,14 @@ import ai.metaheuristic.mhbp.session.SessionTxService;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.utils.S;
 import ai.metaheuristic.mhbp.utils.ThreadUtils;
+import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -66,6 +71,7 @@ public class ProviderQueryService {
     public final EvaluationRepository evaluationRepository;
     public final ApiRepository apiRepository;
     public final KbRepository kbRepository;
+    public final ChapterRepository chapterRepository;
 
     public final QuestionAndAnswerService questionAndAnswerService;
     public final SessionTxService sessionTxService;
@@ -84,7 +90,7 @@ public class ProviderQueryService {
             s.set(sessionTxService.create(evaluation, api, event.accountId()));
 
             log.debug("call EvaluateProviderService.evaluateProvider({})", event.evaluationId());
-            Stream<QuestionData.QuestionWithAnswerToAsk> questions = questionAndAnswerService.getQuestionToAsk(evaluation.chapterIds, event.limit());
+            Stream<QuestionData.PromptWithAnswerWithChapterId> questions = questionAndAnswerService.getQuestionToAsk(evaluation.chapterIds, event.limit());
 
             askQuestions(s, api, questions);
             sessionTxService.finish(s.get(), Enums.SessionStatus.finished);
@@ -96,15 +102,21 @@ public class ProviderQueryService {
         }
     }
 
-    private void askQuestions(AtomicReference<Session> s, Api api, Stream<QuestionData.QuestionWithAnswerToAsk> questions) throws InterruptedException {
+    private void askQuestions(AtomicReference<Session> s, Api api, Stream<QuestionData.PromptWithAnswerWithChapterId> questions) throws InterruptedException {
         long mills = System.currentTimeMillis();
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(globals.threads.getQueryApi());
 
+        Map<Long, Chapter> chapterCache = new HashMap<>();
         questions.forEach(question -> {
             executor.submit(() -> {
-                ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.q(), null);
+                ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.prompt().q(), null);
                 ProviderData.QuestionAndAnswer qaa = processQuery(api, queriedData, ProviderQueryService::asQueriedInfoWithError);
-                questionAndAnswerService.process(s.get(), question, qaa);
+                Chapter c = chapterCache.computeIfAbsent(question.chapterId(), (chapterId)->chapterRepository.findById(chapterId).orElse(null));
+                if (c==null) {
+                    return;
+                }
+                AnswerParams ap = new AnswerParams();
+                questionAndAnswerService.process(s.get(), c, ap);
             });
         });
 

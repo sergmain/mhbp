@@ -20,6 +20,7 @@ package ai.metaheuristic.mhbp.evaluation;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.api.ApiService;
 import ai.metaheuristic.mhbp.beans.Api;
+import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.data.EvaluationData;
@@ -28,6 +29,7 @@ import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.events.EvaluateProviderEvent;
 import ai.metaheuristic.mhbp.kb.KbService;
 import ai.metaheuristic.mhbp.repositories.ApiRepository;
+import ai.metaheuristic.mhbp.repositories.ChapterRepository;
 import ai.metaheuristic.mhbp.repositories.EvaluationRepository;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
@@ -60,6 +62,7 @@ public class EvaluationService {
     public final ApplicationEventPublisher eventPublisher;
     public final ApiRepository apiRepository;
     public final KbRepository kbRepository;
+    public final ChapterRepository chapterRepository;
 
     public EvaluationData.Evaluations getEvaluations(Pageable pageable, RequestContext context) {
         pageable = ControllerUtils.fixPageSize(20, pageable);
@@ -108,11 +111,11 @@ public class EvaluationService {
         if (evaluation.chapterIds.isEmpty()) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.240 Reference to KB is empty, evaluationId: " + evaluationId);
         }
-        for (String kbIdStr : evaluation.chapterIds) {
-            long kbId = Long.parseLong(kbIdStr);
-            Kb kb = kbRepository.findById(kbId).orElse(null);
-            if (kb==null || kb.companyId!=context.getCompanyId()) {
-                return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.260 Reference to KB is broken, evaluationId: " + evaluationId);
+        for (String chapterIdStr : evaluation.chapterIds) {
+            long chapterId = Long.parseLong(chapterIdStr);
+            Chapter chapter = chapterRepository.findById(chapterId).orElse(null);
+            if (chapter==null || chapter.companyId!=context.getCompanyId()) {
+                return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.260 Reference to Chapter is broken, evaluationId: " + evaluationId);
             }
         }
 

@@ -17,25 +17,17 @@
 
 package ai.metaheuristic.mhbp.questions;
 
-import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Session;
-import ai.metaheuristic.mhbp.kb.reader.openai.OpenaiJsonReader;
-import ai.metaheuristic.mhbp.provider.ProviderData;
-import ai.metaheuristic.mhbp.repositories.AnswerRepository;
-import ai.metaheuristic.mhbp.repositories.KbRepository;
-import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
-import ai.metaheuristic.mhbp.yaml.kb.KbParams;
+import ai.metaheuristic.mhbp.repositories.ChapterRepository;
+import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-
-import static ai.metaheuristic.mhbp.questions.QuestionData.QuestionWithAnswerToAsk;
 
 /**
  * @author Sergio Lissner
@@ -47,17 +39,15 @@ import static ai.metaheuristic.mhbp.questions.QuestionData.QuestionWithAnswerToA
 @RequiredArgsConstructor
 public class QuestionAndAnswerService {
 
-    public final Globals globals;
-    public final QuestionAndAnswerTxService questionAndAnswerTxService;
-    public final AnswerRepository answerRepository;
-    public final KbRepository kbRepository;
+    private final QuestionAndAnswerTxService questionAndAnswerTxService;
+    private final ChapterRepository chapterRepository;
 
-    public Stream<QuestionWithAnswerToAsk> getQuestionToAsk(List<String> kbIds, int limit) {
+    public Stream<QuestionData.PromptWithAnswerWithChapterId> getQuestionToAsk(List<String> chapterIds, int limit) {
 
-        Stream<QuestionWithAnswerToAsk> stream = kbIds.stream().map(Long::valueOf)
-                .map(id->kbRepository.findById(id).orElse(null))
+        Stream<QuestionData.PromptWithAnswerWithChapterId> stream = chapterIds.stream().map(Long::valueOf)
+                .map(id->chapterRepository.findById(id).orElse(null))
                 .filter(Objects::nonNull)
-                .flatMap(kb -> getStreamOfPrompt(kb, globals.getHome()));
+                .flatMap(chapter -> chapter.getChapterParams().prompts.stream().map(p -> QuestionData.PromptWithAnswerWithChapterId.fromPrompt(chapter.id, p)));
 
         if (limit!=0) {
             stream = stream.limit(limit);
@@ -65,8 +55,9 @@ public class QuestionAndAnswerService {
         return stream;
     }
 
-    private static Stream<QuestionWithAnswerToAsk> getStreamOfPrompt(Chapter chapter, Path mhbpHome) {
-        ChapterParams chapterParams = chapter.getChapterParams();
+/*
+    private static Stream<QuestionWithAnswerToAsk> getStreamOfPrompt(Chapter chapter) {
+        return chapter.getChapterParams().prompts.stream().map(QuestionWithAnswerToAsk::fromPrompt);
 
         if (chapterParams.kb.file!=null) {
             return Stream.empty();
@@ -81,8 +72,9 @@ public class QuestionAndAnswerService {
         }
         throw new IllegalStateException();
     }
+*/
 
-    public void process(Session session, QuestionWithAnswerToAsk question, ProviderData.QuestionAndAnswer qaa) {
-        questionAndAnswerTxService.process(session, question, qaa);
+    public void process(Session session, Chapter chapter, AnswerParams ap) {
+        questionAndAnswerTxService.process(session, chapter, ap);
     }
 }

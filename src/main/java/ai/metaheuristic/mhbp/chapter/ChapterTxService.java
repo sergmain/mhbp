@@ -18,8 +18,9 @@
 package ai.metaheuristic.mhbp.chapter;
 
 import ai.metaheuristic.mhbp.Consts;
-import ai.metaheuristic.mhbp.beans.Kb;
-import ai.metaheuristic.mhbp.yaml.kb.KbParams;
+import ai.metaheuristic.mhbp.beans.Chapter;
+import ai.metaheuristic.mhbp.repositories.ChapterRepository;
+import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,19 +36,20 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ChapterTxService {
 
+    public final ChapterRepository chapterRepository;
 
     @Transactional
-    public void saveSystemKb(KbParams kbParams) {
-        Kb kb = new Kb();
-        kb.code = kbParams.kb.code;
-        kb.createdOn = System.currentTimeMillis();
-        kb.disabled = kbParams.disabled;
-        kb.companyId = Consts.ID_1;
+    public void saveSystemChapter(String kbCode, ChapterParams chapterParams) {
+        Chapter chapter = new Chapter();
+        chapter.code = kbCode;
+        chapter.createdOn = System.currentTimeMillis();
+        chapter.disabled = false;
+        chapter.companyId = Consts.ID_1;
         // for companyId==1L it doesn't matter which accountId will be
-        kb.accountId = 0;
-        kb.updateParams(kbParams);
+        chapter.accountId = 0;
+        chapter.updateParams(chapterParams);
 
-        kbRepository.save(kb);
+        chapterRepository.save(chapter);
     }
 
 
