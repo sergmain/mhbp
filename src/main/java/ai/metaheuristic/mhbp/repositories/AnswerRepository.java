@@ -48,7 +48,7 @@ public interface AnswerRepository extends CrudRepository<Answer, Long> {
 
     // status - public enum AnswerStatus { normal(0), fail(1), error(2);
     @Transactional(readOnly = true)
-    @Query(value="select s from Answer s where s.sessionId=:sessionId and s.status!=0")
+    @Query(value="select s from Answer s where s.sessionId=:sessionId")
     Page<Answer> findAllBySessionId(Pageable pageable, Long sessionId);
 
 }

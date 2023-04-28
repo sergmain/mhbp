@@ -17,8 +17,6 @@
 
 package ai.metaheuristic.mhbp.data;
 
-import ai.metaheuristic.mhbp.beans.Answer;
-import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,8 +24,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Sergio Lissner
@@ -42,6 +38,8 @@ public class ErrorData {
     public static class Result {
         // prompt
         public String p;
+        // expected
+        public String e;
         // answer
         public String a;
         // raw
@@ -54,17 +52,14 @@ public class ErrorData {
     public static class SimpleError {
         public Long id;
         public Long sessionId;
-        public List<Result> results;
-
-        public SimpleError(Answer answer) {
-            this.id = answer.id;
-            this.sessionId = answer.sessionId;
-            AnswerParams answerParams = answer.getAnswerParams();
-            results = answerParams.results.stream().map(o-> new Result(
-                    o.p!=null ? o.p : "<null>",
-                    o.a!=null ? o.a : "<null>",
-                    o.r)).collect(Collectors.toList());
-        }
+        // prompt
+        public String p;
+        // expected
+        public String e;
+        // answer
+        public String a;
+        // raw
+        public String r;
     }
 
     @Data

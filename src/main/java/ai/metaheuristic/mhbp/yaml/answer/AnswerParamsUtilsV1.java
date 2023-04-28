@@ -46,6 +46,7 @@ public class AnswerParamsUtilsV1 extends
 
         AnswerParams t = new AnswerParams();
         t.results = v1.results.stream().map(AnswerParamsUtilsV1::toResult).collect(Collectors.toList());
+        t.total = v1.total;
         t.processingMills = v1.processingMills;
         t.checkIntegrity();
         return t;

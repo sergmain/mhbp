@@ -24,6 +24,7 @@ import ai.metaheuristic.mhbp.session.SessionTxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,7 +66,7 @@ public class SessionRestController {
 
     @PostMapping("/session-delete-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
-    public OperationStatusRest deleteCommit(Long sessionId, Authentication authentication) {
+    public OperationStatusRest deleteCommit(@Nullable Long sessionId, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
         return sessionTxService.deleteSessionById(sessionId, context);
     }

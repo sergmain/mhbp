@@ -22,10 +22,12 @@ import ai.metaheuristic.mhbp.beans.*;
 import ai.metaheuristic.mhbp.data.*;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
 import ai.metaheuristic.mhbp.repositories.SessionRepository;
+import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +68,7 @@ public class SessionTxService {
     }
 
     @Transactional
-    public OperationStatusRest deleteSessionById(Long sessionId, RequestContext context) {
+    public OperationStatusRest deleteSessionById(@Nullable Long sessionId, RequestContext context) {
         if (sessionId==null) {
             return OperationStatusRest.OPERATION_STATUS_OK;
         }
@@ -82,7 +84,12 @@ public class SessionTxService {
     @Transactional(readOnly = true)
     public ErrorData.ErrorsResult getErrors(Pageable pageable, Long sessionId)  {
         Page<Answer> answers = answerRepository.findAllBySessionId(pageable, sessionId);
-        List<ErrorData.SimpleError> list = answers.stream().map(ErrorData.SimpleError::new).toList();
+        List<ErrorData.SimpleError> list = answers.stream().flatMap(answer -> {
+            AnswerParams ap = answer.getAnswerParams();
+            return ap.getResults().stream()
+                    .map(o->new ErrorData.SimpleError(answer.id, answer.sessionId, o.p, o.e, o.a, o.r));
+        })
+        .toList();
         var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.id, o1.id)).collect(Collectors.toList());
         return new ErrorData.ErrorsResult(new PageImpl<>(sorted, pageable, list.size()));
     }

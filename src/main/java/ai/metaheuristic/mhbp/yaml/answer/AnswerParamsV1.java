@@ -44,7 +44,7 @@ public class AnswerParamsV1 implements BaseParams  {
     public static class ResultV1 {
         // prompt
         public String p;
-        // answer
+        // answer, can be the same as a raw
         public String a;
         // expected
         public String e;
@@ -56,5 +56,6 @@ public class AnswerParamsV1 implements BaseParams  {
     }
 
     public List<ResultV1> results = new ArrayList<>();
+    public int total;
     public long processingMills;
 }
