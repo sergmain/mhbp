@@ -75,8 +75,12 @@ public class KbService {
     public final ChapterTxService chapterTxService;
     public final ChapterRepository chapterRepository;
 
+    private Path gitPath;
+
     @PostConstruct
     public void postConstruct() {
+        gitPath = globals.getHome().resolve("git");
+
         List<Kb> kbs = kbTxService.findSystemKbs();
         for (Globals.Kb globalKb : globals.kb) {
             boolean create = true;
@@ -203,7 +207,8 @@ public class KbService {
                     throw new IllegalStateException();
                 }
                 final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
-                loadPromptFromGit(kb, execResult.repoDir, kbParams.kb.git);
+                Chapters chapters = OpenaiJsonReader.read(kb.id, execResult.repoDir.toPath(), kbParams.kb.git);
+                loadPromptFromGit(chapters);
             }
         }
         if (kbParams.kb.file!=null) {
@@ -214,8 +219,7 @@ public class KbService {
 
     }
 
-    public void loadPromptFromGit(Kb kb, File repoDir, KbParams.Git git) {
-        Chapters chapters = OpenaiJsonReader.read(kb.id, repoDir.toPath(), git);
+    public void loadPromptFromGit(Chapters chapters) {
         log.info("Status of loading kb: " + chapters.initStatus);
         if (chapters.initStatus!=Enums.KbSourceInitStatus.ready) {
             return;

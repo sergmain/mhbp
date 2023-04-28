@@ -89,8 +89,15 @@ public class OpenaiJsonReader {
                 for (String jsonl : jsonls) {
                     OpenaiInput input = toOpenaiInput(jsonl);
                     StringBuilder sb = new StringBuilder();
+                    boolean isFirst = true;
                     for (OpenaiInput.Input in : input.input) {
-                        sb.append(in.content).append('\n');
+                        if (isFirst) {
+                            isFirst = false;
+                        }
+                        else {
+                            sb.append('\n');
+                        }
+                        sb.append(in.content);
                     }
                     chapter.list().add(new QuestionData.QuestionWithAnswerToAsk(sb.toString(), input.getIdeal()));
                 }

@@ -22,7 +22,6 @@ import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.data.ExecData;
 import ai.metaheuristic.mhbp.data.KbData;
-import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
 import ai.metaheuristic.mhbp.utils.asset.AssetFile;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +33,9 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
+
+import static ai.metaheuristic.mhbp.utils.SystemProcessLauncher.ExecResult;
+import static ai.metaheuristic.mhbp.utils.SystemProcessLauncher.execCmd;
 
 /**
  * @author Sergio Lissner
@@ -51,6 +53,11 @@ public class GitSourcingService {
     private final Globals globals;
 
     public final GitStatusInfo gitStatusInfo;
+
+    public record GitContext(long timeout, int consoleOutputMaxLines) {
+        public GitContext withTimeout(long newTimeout) {
+            return new GitContext(newTimeout, this.consoleOutputMaxLines);}
+    }
 
     public GitSourcingService(Globals globals) {
         this.globals = globals;
@@ -76,7 +83,11 @@ public class GitSourcingService {
     }
 
     public GitStatusInfo getGitStatus() {
-        SystemProcessLauncher.ExecResult result = execGitCmd(GIT_VERSION_CMD, 30L);
+        return getGitStatus(new GitContext(30L, globals.consoleOutputMaxLines));
+    }
+
+    public static GitStatusInfo getGitStatus(GitContext gitContext) {
+        ExecResult result = execGitCmd(GIT_VERSION_CMD, gitContext);
         if (!result.ok) {
             log.warn("#027.010 Error of getting git status");
             log.warn("\tresult.ok: {}",  result.ok);
@@ -95,8 +106,8 @@ public class GitSourcingService {
         return new GitStatusInfo(Enums.GitStatus.installed, getGitVersion(result.systemExecResult.console.toLowerCase()), null);
     }
 
-    public SystemProcessLauncher.ExecResult execGitCmd(List<String> gitVersionCmd, long timeout) {
-        return SystemProcessLauncher.execCmd(gitVersionCmd, timeout, globals.consoleOutputMaxLines);
+    public static ExecResult execGitCmd(List<String> gitVersionCmd, GitContext gitContext) {
+        return execCmd(gitVersionCmd, gitContext.timeout, gitContext.consoleOutputMaxLines);
     }
 
     private static AssetFile prepareFunctionDir(final File resourceDir, String functionCode) {
@@ -121,7 +132,7 @@ public class GitSourcingService {
     }
 
     @SneakyThrows
-    public SystemProcessLauncher.ExecResult prepareRepo(final File resourceDir, KbData.KbGit git) {
+    public static ExecResult prepareRepo(final File resourceDir, KbData.KbGit git, GitContext gitContext) {
 
         File functionDir = resourceDir;
         File repoDir = new File(functionDir, Consts.REPO);
@@ -132,87 +143,87 @@ public class GitSourcingService {
         }
 
         if (!repoDir.exists()) {
-            SystemProcessLauncher.ExecResult result = execClone(functionDir, git);
+            ExecResult result = execClone(functionDir, git, gitContext);
             log.info("#027.080 Result of cloning repo: {}", result.toString());
             if (!result.ok || !result.systemExecResult.isOk()) {
-                result = tryToRepairRepo(functionDir, git);
+                result = tryToRepairRepo(functionDir, git, gitContext);
                 log.info("#027.090 Result of repairing of repo: {}", result.toString());
                 return result;
             }
         }
-        SystemProcessLauncher.ExecResult result = execRevParse(repoDir);
+        ExecResult result = execRevParse(repoDir, gitContext);
         log.info("#027.100 Result of execRevParse: {}", result.toString());
         if (!result.ok) {
             return result;
         }
         if (!result.systemExecResult.isOk) {
-            return new SystemProcessLauncher.ExecResult(null,false, result.systemExecResult.console);
+            return new ExecResult(null,false, result.systemExecResult.console);
         }
         if (!"true".equals(result.systemExecResult.console.strip())) {
-            result = tryToRepairRepo(repoDir, git);
+            result = tryToRepairRepo(repoDir, git, gitContext);
             log.info("#027.110 Result of tryToRepairRepo: {}", result.toString());
             if (!result.ok) {
                 return result;
             }
             if (!result.systemExecResult.isOk) {
-                return new SystemProcessLauncher.ExecResult(null,false, result.systemExecResult.console);
+                return new ExecResult(null,false, result.systemExecResult.console);
             }
         }
 
-        result = execResetHardHead(repoDir);
+        result = execResetHardHead(repoDir, gitContext);
         log.info("#027.120 Result of execResetHardHead: {}", result.toString());
         if (!result.ok) {
             return result;
         }
         if (!result.systemExecResult.isOk) {
-            return new SystemProcessLauncher.ExecResult(null,false, result.systemExecResult.console);
+            return new ExecResult(null,false, result.systemExecResult.console);
         }
 
-        result = execCleanDF(repoDir);
+        result = execCleanDF(repoDir, gitContext);
         log.info("#027.130 Result of execCleanDF: {}", result.toString());
         if (!result.ok) {
             return result;
         }
         if (!result.systemExecResult.isOk) {
-            return new SystemProcessLauncher.ExecResult(null,false, result.systemExecResult.console);
+            return new ExecResult(null,false, result.systemExecResult.console);
         }
 
-        result = execPullOrigin(repoDir, git);
+        result = execPullOrigin(repoDir, git, gitContext);
         log.info("#027.140 Result of execPullOrigin: {}", result.toString());
         if (!result.ok) {
             return result;
         }
         if (!result.systemExecResult.isOk) {
-            return new SystemProcessLauncher.ExecResult(null,false, result.systemExecResult.console);
+            return new ExecResult(null,false, result.systemExecResult.console);
         }
 
-        result = execCheckoutRevision(repoDir, git);
+        result = execCheckoutRevision(repoDir, git, gitContext);
         log.info("#027.150 Result of execCheckoutRevision: {}", result.toString());
         if (!result.ok) {
             return result;
         }
         if (!result.systemExecResult.isOk) {
-            return new SystemProcessLauncher.ExecResult(null,false, result.systemExecResult.console);
+            return new ExecResult(null,false, result.systemExecResult.console);
         }
         log.info("#027.160 repoDir: {}, exist: {}", repoDir.getAbsolutePath(), repoDir.exists());
 
-        return new SystemProcessLauncher.ExecResult(repoDir, new ExecData.SystemExecResult(null, true, 0, "" ), true, null);
+        return new ExecResult(repoDir, new ExecData.SystemExecResult(null, true, 0, "" ), true, null);
     }
 
-    public SystemProcessLauncher.ExecResult tryToRepairRepo(File functionDir, KbData.KbGit git) {
+    public static ExecResult tryToRepairRepo(File functionDir, KbData.KbGit git, GitContext gitContext) {
         File repoDir = new File(functionDir, Consts.REPO);
-        SystemProcessLauncher.ExecResult result;
+        ExecResult result;
         FileUtils.deleteQuietly(repoDir);
         if (repoDir.exists()) {
-            return new SystemProcessLauncher.ExecResult(null,
+            return new ExecResult(null,
                     false,
                     "#027.170 can't prepare repo dir for function: " + repoDir.getAbsolutePath());
         }
-        result = execClone(functionDir, git);
+        result = execClone(functionDir, git, gitContext);
         return result;
     }
 
-    private SystemProcessLauncher.ExecResult execFileSystemCheck(File repoDir, Globals.Git git) {
+    private static ExecResult execFileSystemCheck(File repoDir, Globals.Git git, GitContext gitContext) {
 //git>git fsck --full
 //Checking object directories: 100% (256/256), done.
 //Checking objects: 100% (10432/10432), done.
@@ -220,52 +231,52 @@ public class GitSourcingService {
 //fatal: index file corrupt
 
         // git fsck --full
-        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "checkout", git.commit),0L);
+        ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "checkout", git.commit), gitContext.withTimeout(0L));
         return result;
     }
 
-    private SystemProcessLauncher.ExecResult execCheckoutRevision(File repoDir, KbData.KbGit git) {
+    private static ExecResult execCheckoutRevision(File repoDir, KbData.KbGit git, GitContext gitContext) {
         // git checkout sha1
-        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "checkout", git.getCommit()),0L);
+        ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "checkout", git.getCommit()), gitContext.withTimeout(0L));
         return result;
     }
 
-    private SystemProcessLauncher.ExecResult execPullOrigin(File repoDir, KbData.KbGit git) {
+    private static ExecResult execPullOrigin(File repoDir, KbData.KbGit git, GitContext gitContext) {
         // pull origin master
-        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "pull", "origin", git.getBranch()),0L);
+        ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "pull", "origin", git.getBranch()), gitContext.withTimeout(0L));
         return result;
     }
 
-    private SystemProcessLauncher.ExecResult execCleanDF(File repoDir) {
+    private static ExecResult execCleanDF(File repoDir, GitContext gitContext) {
         // git clean -df
-        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "clean", "-df"),120L);
+        ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "clean", "-df"), gitContext.withTimeout(120L));
         return result;
     }
 
-    private SystemProcessLauncher.ExecResult execRevParse(File repoDir) {
+    private static ExecResult execRevParse(File repoDir, GitContext gitContext) {
         // git rev-parse --is-inside-work-tree
-        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "rev-parse", "--is-inside-work-tree"),60L);
+        ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "rev-parse", "--is-inside-work-tree"), gitContext.withTimeout(60L));
         return result;
     }
 
     // TODO 2019-05-11 add this before checkout for new changes
-    private SystemProcessLauncher.ExecResult execResetHardHead(File repoDir) {
+    private static ExecResult execResetHardHead(File repoDir, GitContext gitContext) {
         // git reset --hard HEAD
-        SystemProcessLauncher.ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "reset", "--hard", "HEAD"),120L);
+        ExecResult result = execCommonCmd(List.of("git", "-C", repoDir.getAbsolutePath(), "reset", "--hard", "HEAD"), gitContext.withTimeout(120L));
         return result;
     }
 
-    private SystemProcessLauncher.ExecResult execCommonCmd(List<String> cmd, long timeout) {
+    private static ExecResult execCommonCmd(List<String> cmd, GitContext gitContext) {
         log.info("exec {}", cmd);
-        return execGitCmd(cmd, timeout);
+        return execGitCmd(cmd, gitContext);
     }
 
-    private SystemProcessLauncher.ExecResult execClone(File repoDir, KbData.KbGit git) {
+    private static ExecResult execClone(File repoDir, KbData.KbGit git, GitContext gitContext) {
         // git -C <path> clone <git-repo-url> repo
         String gitUrl = git.getRepo();
         List<String> cmd = List.of("git", "-C", repoDir.getAbsolutePath(), "clone", gitUrl, Consts.REPO);
         log.info("exec {}", cmd);
-        SystemProcessLauncher.ExecResult result = execGitCmd(cmd, 0L);
+        ExecResult result = execGitCmd(cmd, gitContext.withTimeout(0L));
         return result;
     }
 

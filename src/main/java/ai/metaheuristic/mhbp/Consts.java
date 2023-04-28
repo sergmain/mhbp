@@ -55,5 +55,8 @@ public class Consts {
 
     public static final String GIT_PATH = "git";
     public static final String REPO = "repo";
+    public static final String BRANCH_MAIN = "main";
+    public static final String COMMIT_ORIGIN = "origin";
+
     public static final String JSONPATH_CONTENT = "$['input'][*]['content']";
 }

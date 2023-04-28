@@ -19,7 +19,6 @@ package ai.metaheuristic.mhbp.services;
 
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.data.KbData;
-import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.utils.NetUtils;
 import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +29,8 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static ai.metaheuristic.mhbp.services.GitSourcingService.*;
 
 /**
  * @author Sergio Lissner
@@ -50,13 +51,18 @@ public class GitRepoService {
         gitPath = globals.getHome().resolve("git");
     }
 
-    public SystemProcessLauncher.ExecResult initGitRepo(KbData.KbGit git) throws IOException {
+    public SystemProcessLauncher.ExecResult initGitRepo(KbData.KbGit git) {
+        return initGitRepo(git, gitPath, new GitContext(60L, globals.consoleOutputMaxLines));
+    }
+
+    @SneakyThrows
+    public static SystemProcessLauncher.ExecResult initGitRepo(KbData.KbGit git, Path gitPath, GitContext gitContext) {
         String code = NetUtils.asCode(git.getRepo());
         Path p = gitPath.resolve(code);
         if (Files.notExists(p)) {
             Files.createDirectories(p);
         }
-        SystemProcessLauncher.ExecResult execResult = gitSourcingService.prepareRepo(p.toFile(), git);
+        SystemProcessLauncher.ExecResult execResult = prepareRepo(p.toFile(), git, gitContext);
         return execResult;
     }
 }
