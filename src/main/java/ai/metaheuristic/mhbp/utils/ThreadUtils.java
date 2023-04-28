@@ -138,13 +138,17 @@ public class ThreadUtils {
     }
 
 
-    public static void execStat(long mills, ThreadPoolExecutor executor) {
-        final int sec = (int) ((System.currentTimeMillis() - mills) / 1000);
-        String s = S.f("\nprocessed %d tasks for %d seconds", executor.getTaskCount(), sec);
-        if (sec != 0) {
-            s += (", " + (((int) executor.getTaskCount() / sec)) + " tasks/sec");
+    public static long execStat(long mills, ThreadPoolExecutor executor) {
+        final long curr = System.currentTimeMillis();
+        if (log.isInfoEnabled()) {
+            final int sec = (int) ((curr - mills) / 1000);
+            String s = S.f("\nprocessed %d tasks for %d seconds", executor.getTaskCount(), sec);
+            if (sec!=0) {
+                s += (", " + (((int) executor.getTaskCount() / sec)) + " tasks/sec");
+            }
+            log.info(s);
         }
-        log.info(s);
+        return curr;
     }
 
     @SneakyThrows

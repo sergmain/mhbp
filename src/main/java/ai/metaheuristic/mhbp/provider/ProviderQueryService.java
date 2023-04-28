@@ -39,12 +39,13 @@ import ai.metaheuristic.mhbp.utils.S;
 import ai.metaheuristic.mhbp.utils.ThreadUtils;
 import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -102,26 +103,68 @@ public class ProviderQueryService {
         }
     }
 
+    public record PromptWithAnswer(QuestionData.QuestionWithAnswerToAsk prompt, ProviderData.QuestionAndAnswer answer) {}
+
+    @AllArgsConstructor
+    public static class ChapterWithResults {
+        public Chapter c;
+        public final List<PromptWithAnswer> answers = Collections.synchronizedList(new ArrayList<>());
+    }
+
     private void askQuestions(AtomicReference<Session> s, Api api, Stream<QuestionData.PromptWithAnswerWithChapterId> questions) throws InterruptedException {
         long mills = System.currentTimeMillis();
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(globals.threads.getQueryApi());
 
-        Map<Long, Chapter> chapterCache = new HashMap<>();
+        ConcurrentHashMap<Long, ChapterWithResults> chapterCache = new ConcurrentHashMap<>();
         questions.forEach(question -> {
             executor.submit(() -> {
-                ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.prompt().q(), null);
-                ProviderData.QuestionAndAnswer qaa = processQuery(api, queriedData, ProviderQueryService::asQueriedInfoWithError);
-                Chapter c = chapterCache.computeIfAbsent(question.chapterId(), (chapterId)->chapterRepository.findById(chapterId).orElse(null));
-                if (c==null) {
+                ChapterWithResults withResults = chapterCache.computeIfAbsent(question.chapterId(),
+                        (chapterId)->chapterRepository.findById(chapterId).map(ChapterWithResults::new).orElse(null));
+
+                if (withResults==null) {
                     return;
                 }
-                AnswerParams ap = new AnswerParams();
-                questionAndAnswerService.process(s.get(), c, ap);
+                ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.prompt().q(), null);
+                ProviderData.QuestionAndAnswer qaa = processQuery(api, queriedData, ProviderQueryService::asQueriedInfoWithError);
+                withResults.answers.add(new PromptWithAnswer(question.prompt(), qaa));
             });
         });
 
         ThreadUtils.waitTaskCompleted(executor);
-        ThreadUtils.execStat(mills, executor);
+        long endMills = ThreadUtils.execStat(mills, executor);
+
+        for (ChapterWithResults withResults : chapterCache.values()) {
+            AnswerParams ap = new AnswerParams();
+            ap.total = withResults.answers.size();
+            ap.processingMills = endMills - mills;
+            for (PromptWithAnswer  qaa : withResults.answers) {
+                Enums.AnswerStatus status;
+                if (qaa.answer.status()==OK) {
+                    status = qaa.answer.a()!=null && qaa.prompt.a().equals(qaa.answer.a().strip()) ? Enums.AnswerStatus.normal : Enums.AnswerStatus.fail;
+                }
+                else {
+                    status = Enums.AnswerStatus.error;
+                }
+                if (status==Enums.AnswerStatus.normal) {
+                    continue;
+                }
+                AnswerParams.Result r = new AnswerParams.Result();
+                r.p = qaa.answer.q();
+                r.a = qaa.answer.a();
+                r.e = qaa.prompt.a();
+                r.s = status;
+
+                r.r = qaa.answer.raw();
+                if (r.s==Enums.AnswerStatus.fail) {
+                    r.e = qaa.prompt.a();
+                }
+                else if (r.s==Enums.AnswerStatus.error) {
+                    r.r = qaa.answer.error();
+                }
+                ap.results.add(r);
+            }
+            questionAndAnswerService.process(s.get(), withResults.c, ap);
+        }
     }
 
 

@@ -15,36 +15,23 @@
  *
  */
 
-package ai.metaheuristic.mhbp.yaml.chapter;
+package ai.metaheuristic.mhbp.data;
 
-import ai.metaheuristic.mhbp.data.BaseParams;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.Column;
 
-@SuppressWarnings("FieldMayBeStatic")
-@Data
-public class ChapterParamsV1 implements BaseParams  {
-
-    public final int version=1;
-
-    @Override
-    public boolean checkIntegrity() {
-        return true;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class PromptV1 {
-        // prompt
-        public String p;
-        // answer
-        public String a;
-    }
-
-    public List<PromptV1> prompts = new ArrayList<>();
+/**
+ * @author Sergio Lissner
+ * Date: 4/28/2023
+ * Time: 2:49 PM
+ */
+@AllArgsConstructor
+public class SimpleAnswerStats {
+    public long id;
+    public long sessionId;
+    public long chapterId;
+    public int total;
+    public int failed;
+    public int systemError;
 }

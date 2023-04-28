@@ -22,6 +22,7 @@ import ai.metaheuristic.mhbp.data.BaseParams;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,10 @@ public class AnswerParamsV1 implements BaseParams  {
         public String p;
         // answer
         public String a;
+        // expected
+        public String e;
         // raw
+        @Nullable
         public String r;
         // status
         public Enums.AnswerStatus s;

@@ -23,6 +23,7 @@ import ai.metaheuristic.mhbp.beans.Evaluation;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.data.ErrorData;
 import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.data.SimpleAnswerStats;
 import ai.metaheuristic.mhbp.repositories.*;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import ai.metaheuristic.mhbp.utils.S;
@@ -30,16 +31,14 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static ai.metaheuristic.mhbp.data.SessionData.SessionStatus;
@@ -61,51 +60,57 @@ public class SessionService {
     public final EvaluationRepository evaluationRepository;
     public final ApiRepository apiRepository;
     public final KbRepository kbRepository;
+    public final ChapterRepository chapterRepository;
 
     @AllArgsConstructor
     @NoArgsConstructor
     public static class EvalsDesc {
         public long evaluationId;
         public String apiInfo;
-        public List<String> kbs;
+        public List<String> chapters;
     }
 
     public SessionStatuses getStatuses(Pageable pageable) {
         pageable = ControllerUtils.fixPageSize(10, pageable);
 
-        List<Session> sessions = sessionRepository.getSessions(pageable);
+        Map<Long, Session> sessions = sessionRepository.getSessions(pageable).stream()
+                .collect(Collectors.toMap(Session::getId, Function.identity()));
+
         if (sessions.isEmpty()) {
-            return new SessionStatuses(new SliceImpl<>(List.of(), pageable, false));
+            return new SessionStatuses(Page.empty(pageable));
         }
 
-        final List<Long> sessionIds = sessions.stream().map(o -> o.id).collect(Collectors.toList());
-        final List<Object[]> statuses = answerRepository.getStatusesJpql(sessionIds);
+        final List<Long> sessionIds = sessions.keySet().stream().sorted(Comparator.reverseOrder()).toList();
+        final List<SimpleAnswerStats> statuses = answerRepository.getStatusesJpql(sessionIds);
         List<SessionStatus> list = new ArrayList<>();
         Map<Long, EvalsDesc> localCache = new HashMap<>();
-        for (Object[] status : statuses) {
-            long sessionId = (long)status[0];
-            Session s = sessions.stream().filter(o->o.id==sessionId).findFirst().orElseThrow();
+        for (Long sessionId : sessionIds) {
+            Session s = sessions.get(sessionId);
+            List<SimpleAnswerStats> sessionStats = statuses.stream().filter(o->o.sessionId==sessionId).toList();
+            long total = sessionStats.stream().mapToLong(o->o.total).sum();
+            long failed = sessionStats.stream().mapToLong(o->o.failed).sum();
+            long error = sessionStats.stream().mapToLong(o->o.systemError).sum();
+
             float normalPercent = 0;
             float failPercent = 0;
             float errorPercent = 0;
-            float total = (long) status[1];
             if (total!=0) {
-                normalPercent = (long) status[2] / total;
-                failPercent = (long) status[3] / total;
-                errorPercent = (long) status[4] / total;
+                normalPercent = ((float)(total-failed - error)) / total;
+                failPercent = (float)failed / total;
+                errorPercent = (float)error / total;
             }
-            long evaluationId = (long)status[5];
+            long evaluationId = s.evaluationId;
 
             Evaluation e = evaluationRepository.findById(evaluationId).orElse(null);
             EvalsDesc evalsDesc = localCache.computeIfAbsent(evaluationId, evaluationId1 -> getEvalsDesc(e));
             SessionStatus es = new SessionStatus(
                     s.id, s.startedOn, s.finishedOn, Enums.SessionStatus.to(s.status).toString(), null,
-                    normalPercent, failPercent, errorPercent, s.providerCode, evalsDesc.apiInfo,  evalsDesc.evaluationId, String.join(", ", evalsDesc.kbs)
+                    normalPercent, failPercent, errorPercent, s.providerCode, evalsDesc.apiInfo,  evalsDesc.evaluationId, String.join(", ", evalsDesc.chapters)
             );
             list.add(es);
         }
-        var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.sessionId(), o1.sessionId())).collect(Collectors.toList());
-        return new SessionStatuses(new PageImpl<>(sorted, pageable, list.size()));
+//        var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.sessionId(), o1.sessionId())).collect(Collectors.toList());
+        return new SessionStatuses(new PageImpl<>(list, pageable, list.size()));
     }
 
     public static final String UNKNOWN = "<unknown>";
@@ -123,15 +128,14 @@ public class SessionService {
         }
         EvalsDesc evalsDesc = new EvalsDesc(e.id, api.code, new ArrayList<>());
 
-
-        for (String kbId : e.chapterIds) {
-            String kbCode = kbRepository.findById(Long.parseLong(kbId)).map(o->o.code).orElse(null);
-            if (!S.b(kbCode)) {
-                evalsDesc.kbs.add(kbCode);
+        for (String chapterId : e.chapterIds) {
+            String chapterCode = chapterRepository.findById(Long.parseLong(chapterId)).map(o->o.code).orElse(null);
+            if (!S.b(chapterCode)) {
+                evalsDesc.chapters.add(chapterCode);
             }
         }
-        if (evalsDesc.kbs.isEmpty()) {
-            evalsDesc.kbs.add("<Error retrieving KBs>");
+        if (evalsDesc.chapters.isEmpty()) {
+            evalsDesc.chapters.add("<Error retrieving KBs' chapters >");
         }
         return evalsDesc;
     }

@@ -45,7 +45,7 @@ public class ChapterParamsUtilsV1 extends
         v1.checkIntegrity();
 
         ChapterParams t = new ChapterParams();
-        t.prompts = v1.results.stream().map(ChapterParamsUtilsV1::toPrompt).collect(Collectors.toList());
+        t.prompts = v1.prompts.stream().map(ChapterParamsUtilsV1::toPrompt).collect(Collectors.toList());
         t.checkIntegrity();
         return t;
     }

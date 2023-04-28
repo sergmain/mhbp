@@ -51,8 +51,8 @@ public class QuestionAndAnswerTxService {
         a.chapterId = chapter.id;
         a.answeredOn = System.currentTimeMillis();
         a.total = ap.total;
-        a.failed = (int)ap.results.stream().filter(o-> o.status==AnswerStatus.fail).count();
-        a.systemError = (int)ap.results.stream().filter(o-> o.status==AnswerStatus.error).count();
+        a.failed = (int)ap.results.stream().filter(o-> o.s==AnswerStatus.fail).count();
+        a.systemError = (int)ap.results.stream().filter(o-> o.s==AnswerStatus.error).count();
 
         a.updateParams(ap);
 

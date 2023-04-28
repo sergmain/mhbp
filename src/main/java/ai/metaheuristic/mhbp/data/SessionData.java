@@ -21,8 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.lang.Nullable;
 
-import java.util.List;
-
 /**
  * @author Sergio Lissner
  * Date: 3/26/2023
@@ -34,7 +32,7 @@ public class SessionData {
             long sessionId, long startedOn, @Nullable Long finishedOn, String sessionStatus,
             @Nullable String safe,
             float normalPercent, float failPercent, float errorPercent,
-            String providerCode, String apiInfo, long evaluationId, String kbs) {
+            String providerCode, String apiInfo, long evaluationId, String chapters) {
     }
 
     @RequiredArgsConstructor

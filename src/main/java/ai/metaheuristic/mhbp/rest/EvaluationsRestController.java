@@ -82,9 +82,9 @@ public class EvaluationsRestController {
     public OperationStatusRest addFormCommit(
             @RequestParam(name = "code") String code,
             @RequestParam(name = "apiId") String apiId,
-            @RequestParam(name = "kbIds") String[] kbIds, Authentication authentication) {
+            @RequestParam(name = "chapterIds") String[] chapterIds, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return evaluationService.createEvaluation(code, apiId, kbIds, context.getCompanyId(), context.getAccountId());
+        return evaluationService.createEvaluation(code, apiId, chapterIds, context.getCompanyId(), context.getAccountId());
     }
 
 /*

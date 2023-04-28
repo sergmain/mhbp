@@ -65,6 +65,7 @@ public class KbService {
     private final KbRepository kbRepository;
     private final GitRepoService gitRepoService;
     private final ApplicationEventPublisher eventPublisher;
+
     @PostConstruct
     public void postConstruct() {
         List<Kb> kbs = kbTxService.findSystemKbs();
@@ -137,15 +138,6 @@ public class KbService {
 
         var sorted = simpleKbs.stream().sorted((o1, o2)->Long.compare(o2.id, o1.id)).collect(Collectors.toList());
         return new KbData.Kbs(new PageImpl<>(sorted, pageable, simpleKbs.size()));
-    }
-
-    public List<Kb> getKbsAllowedForCompany(RequestContext context) {
-        List<Kb> result = new ArrayList<>(50);
-        List<Kb> kbs = kbRepository.findAllByCompanyUniqueId(Consts.ID_1);
-        result.addAll(kbs);
-        kbs = kbRepository.findAllByCompanyUniqueId(context.getCompanyId());
-        result.addAll(kbs);
-        return result;
     }
 
     public KbData.Kb getKb(@Nullable Long kbId, RequestContext context) {

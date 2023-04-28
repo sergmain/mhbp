@@ -43,4 +43,8 @@ public interface KbRepository extends CrudRepository<Kb, Long> {
     @Transactional(readOnly = true)
     @Query(value= "select a from Kb a where a.companyId=:companyUniqueId")
     List<Kb> findAllByCompanyUniqueId(Long companyUniqueId);
+
+    @Transactional(readOnly = true)
+    @Query(value= "select a.id from Kb a where a.companyId=:companyUniqueId")
+    List<Long> findAllIdsByCompanyUniqueId(Long companyUniqueId);
 }
