@@ -20,22 +20,17 @@ package ai.metaheuristic.mhbp.kb;
 import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
-import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Kb;
-import ai.metaheuristic.mhbp.chapter.ChapterTxService;
 import ai.metaheuristic.mhbp.data.KbData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.events.InitKbEvent;
 import ai.metaheuristic.mhbp.kb.reader.openai.OpenaiJsonReader;
-import ai.metaheuristic.mhbp.questions.QuestionData;
-import ai.metaheuristic.mhbp.repositories.ChapterRepository;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
 import ai.metaheuristic.mhbp.services.GitRepoService;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
-import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -49,13 +44,11 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ai.metaheuristic.mhbp.questions.QuestionData.*;
+import static ai.metaheuristic.mhbp.questions.QuestionData.Chapters;
 
 /**
  * @author Sergio Lissner
@@ -67,20 +60,13 @@ import static ai.metaheuristic.mhbp.questions.QuestionData.*;
 @RequiredArgsConstructor
 public class KbService {
 
-    public final Globals globals;
-    public final KbTxService kbTxService;
-    public final KbRepository kbRepository;
-    public final GitRepoService gitRepoService;
-    public final ApplicationEventPublisher eventPublisher;
-    public final ChapterTxService chapterTxService;
-    public final ChapterRepository chapterRepository;
-
-    private Path gitPath;
-
+    private final Globals globals;
+    private final KbTxService kbTxService;
+    private final KbRepository kbRepository;
+    private final GitRepoService gitRepoService;
+    private final ApplicationEventPublisher eventPublisher;
     @PostConstruct
     public void postConstruct() {
-        gitPath = globals.getHome().resolve("git");
-
         List<Kb> kbs = kbTxService.findSystemKbs();
         for (Globals.Kb globalKb : globals.kb) {
             boolean create = true;
@@ -144,7 +130,7 @@ public class KbService {
 
         List<KbData.SimpleKb> simpleKbs = new ArrayList<>(50);
         Page<Kb> kbs = kbRepository.findAllByCompanyUniqueId(pageable, Consts.ID_1);
-        kbs.stream().map(KbData.SimpleKb::new).collect(Collectors.toCollection(()->simpleKbs));
+        kbs.stream().map(KbData.SimpleKb::editableSimpleKb).collect(Collectors.toCollection(()->simpleKbs));
 
         kbs = kbRepository.findAllByCompanyUniqueId(pageable, context.getCompanyId());
         kbs.stream().map(KbData.SimpleKb::editableSimpleKb).collect(Collectors.toCollection(()->simpleKbs));
@@ -164,14 +150,14 @@ public class KbService {
 
     public KbData.Kb getKb(@Nullable Long kbId, RequestContext context) {
         if (kbId==null) {
-            return new KbData.Kb("Not found");
+            return new KbData.Kb("261.040 Not found");
         }
         Kb kb = kbRepository.findById(kbId).orElse(null);
         if (kb == null) {
-            return new KbData.Kb("Not found");
+            return new KbData.Kb("261.080 Not found");
         }
         if (kb.companyId!=context.getCompanyId()) {
-            return new KbData.Kb("Illegal access");
+            return new KbData.Kb("261.120 Illegal access");
         }
         return new KbData.Kb(new KbData.SimpleKb(kb));
     }
@@ -183,12 +169,14 @@ public class KbService {
         Kb kb = kbRepository.findById(kbId).orElse(null);
         if (kb == null) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR,
-                    "#565.250 KB wasn't found, kbId: " + kbId, null);
+                    "261.160  KB wasn't found, kbId: " + kbId, null);
         }
+/*
         if (kb.companyId!=context.getCompanyId()) {
-            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.500 Access denied, kbId: " + kbId);
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "261.200 Access denied, kbId: " + kbId);
         }
-        eventPublisher.publishEvent(new InitKbEvent(kbId));
+*/
+        eventPublisher.publishEvent(new InitKbEvent(kbId, kb.companyId, context.getAccountId()));
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 
@@ -208,7 +196,7 @@ public class KbService {
                 }
                 final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
                 Chapters chapters = OpenaiJsonReader.read(kb.id, execResult.repoDir.toPath(), kbParams.kb.git);
-                loadPromptFromGit(chapters);
+                kbTxService.storePrompts(chapters, event.companyId(), event.accountId());
             }
         }
         if (kbParams.kb.file!=null) {
@@ -218,23 +206,4 @@ public class KbService {
         kbTxService.markAsReady(event.kbId());
 
     }
-
-    public void loadPromptFromGit(Chapters chapters) {
-        log.info("Status of loading kb: " + chapters.initStatus);
-        if (chapters.initStatus!=Enums.KbSourceInitStatus.ready) {
-            return;
-        }
-
-        for (ChapterWithPrompts chapter : chapters.chapters) {
-            ChapterParams params = new ChapterParams();
-            chapter.list().stream().map(QuestionWithAnswerToAsk::toPrompt).collect(Collectors.toCollection(()->params.prompts));
-
-            Chapter c = chapterRepository.findByKbIdAndCode();
-
-        }
-
-
-    }
-
-
 }

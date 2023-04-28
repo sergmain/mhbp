@@ -18,23 +18,31 @@
 package ai.metaheuristic.mhbp.kb.reader.openai;
 
 import ai.metaheuristic.mhbp.Consts;
+import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.data.KbData;
 import ai.metaheuristic.mhbp.questions.QuestionData;
+import ai.metaheuristic.mhbp.services.GitRepoService;
+import ai.metaheuristic.mhbp.services.GitSourcingService;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.utils.NetUtils;
 import ai.metaheuristic.mhbp.utils.S;
+import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import ai.metaheuristic.mhbp.yaml.kb.KbParamsUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
+import static ai.metaheuristic.mhbp.services.GitSourcingService.getGitStatus;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -225,6 +233,43 @@ public class OpenaiJsonReaderTest {
         assertEquals("Hyllo! How zry you?", openaiInput.getIdeal());
 
         System.out.println(openaiInput);
+    }
+
+    @Test
+    public void test_OpenaiJsonReader_read(@TempDir Path temp) throws IOException {
+        String yaml = IOUtils.resourceToString("/kb/openai-format-math/kb-openai-format-math.yaml", StandardCharsets.UTF_8);
+
+        KbParams kbParams = KbParamsUtils.UTILS.to(yaml);
+        assertNotNull(kbParams.kb.git);
+
+        GitSourcingService.GitStatusInfo statusInfo =  getGitStatus(new GitSourcingService.GitContext(30L, 100));
+        assertEquals(Enums.GitStatus.installed, statusInfo.status);
+
+        KbData.KbGit git = new KbParams.Git(kbParams.kb.git.repo, kbParams.kb.git.branch, kbParams.kb.git.commit);
+        Path gitPath = temp.resolve("git");
+        GitSourcingService.GitContext gitContext = new GitSourcingService.GitContext(60L, 100);
+
+        SystemProcessLauncher.ExecResult result = GitRepoService.initGitRepo(git, gitPath, gitContext);
+        assertNotNull(result.systemExecResult);
+        assertTrue(result.systemExecResult.isOk);
+        assertNotNull(result.repoDir);
+        assertTrue(result.repoDir.exists());
+
+        File f = new File(result.repoDir, "pom.xml");
+        assertTrue(f.exists());
+        assertTrue(f.isFile());
+
+        QuestionData.Chapters chapters = OpenaiJsonReader.read(10L, result.repoDir.toPath(), kbParams.kb.git);
+
+        assertEquals(1, chapters.chapters.size());
+        assertEquals("math/simple-math.jsonl", chapters.chapters.get(0).chapterCode());
+        assertEquals(2, chapters.chapters.get(0).list().size());
+        assertEquals("answer 2+2 with digits only", chapters.chapters.get(0).list().get(0).q());
+        assertEquals("4", chapters.chapters.get(0).list().get(0).a());
+        assertEquals("answer square root of 9 with only digits", chapters.chapters.get(0).list().get(1).q());
+        assertEquals("3", chapters.chapters.get(0).list().get(1).a());
+
+        int i=0;
     }
 
 }

@@ -21,6 +21,7 @@ import ai.metaheuristic.mhbp.events.InitKbEvent;
 import ai.metaheuristic.mhbp.provider.ProviderQueryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.context.event.EventListener;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
@@ -73,7 +74,12 @@ public class KbInitializingService {
         executor.submit(() -> {
             InitKbEvent event;
             while ((event = pullFromQueue())!=null) {
-                kbService.processInitKbEvent(event);
+                try {
+                    kbService.processInitKbEvent(event);
+                }
+                catch (Throwable th) {
+                    log.error("Error while initialization of KB #"+event.kbId());
+                }
             }
         });
     }

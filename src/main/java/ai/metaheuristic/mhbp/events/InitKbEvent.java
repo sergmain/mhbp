@@ -22,4 +22,4 @@ package ai.metaheuristic.mhbp.events;
  * Date: 4/23/2023
  * Time: 11:54 PM
  */
-public record InitKbEvent(long kbId) {}
+public record InitKbEvent(long kbId, long companyId, long accountId) {}

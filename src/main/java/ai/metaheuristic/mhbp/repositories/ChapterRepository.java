@@ -20,6 +20,7 @@ package ai.metaheuristic.mhbp.repositories;
 import ai.metaheuristic.mhbp.beans.Answer;
 import ai.metaheuristic.mhbp.beans.Chapter;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface ChapterRepository extends CrudRepository<Chapter, Long> {
 
-    Chapter findByKbIdAndCode();
+    @Nullable
+    Chapter findByKbIdAndCode(long kbId, String code);
 
 }

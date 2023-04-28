@@ -72,10 +72,10 @@ public class ApiService {
         Api api = apiRepository.findById(apiId).orElse(null);
         if (api == null) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR,
-                    "#565.250 API wasn't found, apiId: " + apiId, null);
+                    "217.050 API wasn't found, apiId: " + apiId, null);
         }
         if (api.companyId!=context.getCompanyId()) {
-            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.500 apiId: " + apiId);
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "217.100  apiId: " + apiId);
         }
 
         apiRepository.deleteById(apiId);
@@ -98,11 +98,11 @@ public class ApiService {
 
     public ApiData.Api getApi(Long apiId, RequestContext context) {
         if (apiId==null) {
-            return new ApiData.Api("Not found");
+            return new ApiData.Api("217.150 Not found");
         }
         Api api = apiRepository.findById(apiId).orElse(null);
         if (api == null) {
-            return new ApiData.Api("Not found");
+            return new ApiData.Api("217.200 Not found");
         }
         return new ApiData.Api(new ApiData.SimpleApi(api));
     }

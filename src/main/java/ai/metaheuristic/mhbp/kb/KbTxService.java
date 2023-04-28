@@ -19,17 +19,26 @@ package ai.metaheuristic.mhbp.kb;
 
 import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
+import ai.metaheuristic.mhbp.Globals;
+import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Kb;
+import ai.metaheuristic.mhbp.chapter.ChapterTxService;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.questions.QuestionData;
+import ai.metaheuristic.mhbp.repositories.ChapterRepository;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
+import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.transaction.annotation.Propagation.*;
 
@@ -43,7 +52,18 @@ import static org.springframework.transaction.annotation.Propagation.*;
 @RequiredArgsConstructor
 public class KbTxService {
 
+    public final Globals globals;
     public final KbRepository kbRepository;
+    private final ChapterRepository chapterRepository;
+
+/*
+    private Path gitPath;
+
+    @PostConstruct
+    public void postConstruct() {
+        gitPath = globals.getHome().resolve("git");
+    }
+*/
 
     @Transactional(propagation= SUPPORTS)
     public List<Kb> findSystemKbs() {
@@ -82,10 +102,10 @@ public class KbTxService {
         Kb kb = kbRepository.findById(kbId).orElse(null);
         if (kb == null) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR,
-                    "#565.250 KB wasn't found, kbId: " + kbId, null);
+                    "209.040 KB wasn't found, kbId: " + kbId, null);
         }
         if (kb.companyId!=context.getCompanyId()) {
-            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.500 kbId: " + kbId);
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "209.080 kbId: " + kbId);
         }
 
         kbRepository.delete(kb);
@@ -119,4 +139,34 @@ public class KbTxService {
         kb.status = Enums.KbStatus.ready.code;
         kbRepository.save(kb);
     }
+
+    @Transactional
+    public void storePrompts(QuestionData.Chapters chapters, long companyId, long accountId) {
+        log.info("Status of loading kb: " + chapters.initStatus);
+        if (chapters.initStatus!=Enums.KbSourceInitStatus.ready) {
+            return;
+        }
+
+        for (QuestionData.ChapterWithPrompts chapter : chapters.chapters) {
+            Chapter c = chapterRepository.findByKbIdAndCode(chapters.kbId, chapter.chapterCode());
+            if (c==null) {
+                c = new Chapter();
+                c.kbId = chapters.kbId;
+                c.code = chapter.chapterCode();
+                c.companyId = companyId;
+                c.accountId = accountId;
+                c.createdOn = System.currentTimeMillis();
+                c.disabled = false;
+                // for what this status?
+                c.status = 0;
+            }
+
+            ChapterParams params = new ChapterParams();
+            chapter.list().stream().map(QuestionData.QuestionWithAnswerToAsk::toPrompt).collect(Collectors.toCollection(()->params.prompts));
+            c.updateParams(params);
+
+            chapterRepository.save(c);
+        }
+    }
+
 }

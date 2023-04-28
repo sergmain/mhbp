@@ -17,11 +17,9 @@
 
 package ai.metaheuristic.mhbp.kb.reader.openai;
 
-import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
-import ai.metaheuristic.mhbp.utils.NetUtils;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.SneakyThrows;

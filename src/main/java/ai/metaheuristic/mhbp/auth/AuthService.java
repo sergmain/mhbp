@@ -67,10 +67,10 @@ public class AuthService {
         Auth auth = authRepository.findById(authId).orElse(null);
         if (auth == null) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR,
-                    "#565.250 API wasn't found, authId: " + authId, null);
+                    "247.040 API wasn't found, authId: " + authId, null);
         }
         if (auth.companyId!=context.getCompanyId()) {
-            return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.500 authId: " + authId);
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "247.080 authId: " + authId);
         }
 
         authRepository.deleteById(authId);
@@ -93,14 +93,14 @@ public class AuthService {
 
     public AuthData.Auth getAuth(@Nullable Long authId, RequestContext context) {
         if (authId==null) {
-            return new AuthData.Auth("Not found");
+            return new AuthData.Auth("247.120 Not found");
         }
         Auth auth = authRepository.findById(authId).orElse(null);
         if (auth == null) {
-            return new AuthData.Auth("Not found");
+            return new AuthData.Auth("247.160 Not found");
         }
         if (auth.companyId!=context.getCompanyId()) {
-            return new AuthData.Auth("Illegal access");
+            return new AuthData.Auth("247.200 Illegal access");
         }
         return new AuthData.Auth(new AuthData.SimpleAuth(auth));
     }
