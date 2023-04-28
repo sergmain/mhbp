@@ -93,9 +93,9 @@ CREATE UNIQUE INDEX mh_account_username_unq_idx
 CREATE table mhbp_auth
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
-    VERSION         NUMERIC(10, 0)  NOT NULL,
-    COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
-    ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
+    VERSION         INT UNSIGNED    NOT NULL,
+    COMPANY_ID      INT UNSIGNED    NOT NULL,
+    ACCOUNT_ID      INT UNSIGNED    NOT NULL,
     CREATED_ON      bigint          NOT NULL,
     CODE            VARCHAR(50)     NOT NULL,
     DISABLED        BOOLEAN         not null default false,
@@ -108,9 +108,9 @@ CREATE INDEX mhbp_auth_company_id_idx
 CREATE table mhbp_api
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
-    VERSION         NUMERIC(10, 0)  NOT NULL,
-    COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
-    ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
+    VERSION         INT UNSIGNED    NOT NULL,
+    COMPANY_ID      INT UNSIGNED    NOT NULL,
+    ACCOUNT_ID      INT UNSIGNED    NOT NULL,
     CREATED_ON      bigint          NOT NULL,
     NAME            VARCHAR(250)    NOT NULL,
     CODE            VARCHAR(50)     NOT NULL,
@@ -124,29 +124,49 @@ CREATE INDEX mhbp_api_company_id_idx
 CREATE table mhbp_kb
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
-    VERSION         NUMERIC(10, 0)  NOT NULL,
-    COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
-    ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
+    VERSION         INT UNSIGNED    NOT NULL,
+    COMPANY_ID      INT UNSIGNED    NOT NULL,
+    ACCOUNT_ID      INT UNSIGNED    NOT NULL,
     CREATED_ON      bigint          NOT NULL,
     CODE            VARCHAR(50)     NOT NULL,
     DISABLED        BOOLEAN         not null default false,
-    PARAMS          TEXT            not null
+    PARAMS          TEXT            not null,
+    STATUS          tinyint(1)      NOT NULL default 0
 );
 
 CREATE INDEX mhbp_kb_company_id_idx
     ON mhbp_kb (COMPANY_ID);
 
+CREATE table mhbp_chapter
+(
+    ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
+    VERSION         INT UNSIGNED    NOT NULL,
+    COMPANY_ID      INT UNSIGNED    NOT NULL,
+    ACCOUNT_ID      INT UNSIGNED    NOT NULL,
+    KB_ID           INT UNSIGNED    NOT NULL,
+    CREATED_ON      bigint          NOT NULL,
+    CODE            VARCHAR(100)    NOT NULL,
+    DISABLED        BOOLEAN         not null default false,
+    PARAMS          TEXT            not null,
+    STATUS          tinyint(1)      NOT NULL default 0
+);
+
+CREATE UNIQUE INDEX mhbp_chapter_kb_id_code_idx
+    ON mhbp_chapter (KB_ID, CODE);
+
 CREATE table mhbp_answer
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
-    VERSION         NUMERIC(10, 0)  NOT NULL,
-    SESSION_ID      NUMERIC(10, 0)  NOT NULL,
-    KB_ID           NUMERIC(10, 0)  NOT NULL,
+    VERSION         INT UNSIGNED    NOT NULL,
+    SESSION_ID      INT UNSIGNED  NOT NULL,
+    CHAPTER_ID      INT UNSIGNED  NOT NULL,
     ANSWERED_ON     bigint          NOT NULL,
     Q_CODE          VARCHAR(50)     NOT NULL,
     STATUS          tinyint(1)      NOT NULL,
     PARAMS          TEXT            not null,
-    API_INFO        VARCHAR(20)
+    TOTAL           int             not null,
+    FAILED          int             not null,
+    SYSTEM_ERROR    int             not null
 );
 
 CREATE INDEX mhbp_answer_company_id_idx
@@ -155,24 +175,27 @@ CREATE INDEX mhbp_answer_company_id_idx
 CREATE table mhbp_session
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
-    VERSION         NUMERIC(10, 0)  NOT NULL,
-    COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
-    ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
-    EVALUATION_ID   NUMERIC(10, 0)  NOT NULL,
+    VERSION         INT UNSIGNED    NOT NULL,
+    COMPANY_ID      INT UNSIGNED    NOT NULL,
+    ACCOUNT_ID      INT UNSIGNED    NOT NULL,
+    EVALUATION_ID   INT UNSIGNED    NOT NULL,
     STARTED_ON      bigint          NOT NULL,
     PROVIDER_CODE   VARCHAR(50)     NOT NULL,
     FINISHED_ON     bigint,
     STATUS          tinyint         NOT NULL
 );
 
+CREATE INDEX mhbp_session_company_id_idx
+    ON mhbp_session (COMPANY_ID);
+
 CREATE table mhbp_evaluation
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
-    VERSION         NUMERIC(10, 0)  NOT NULL,
-    COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
-    ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
-    API_ID          NUMERIC(10, 0)  NOT NULL,
-    KB_IDS          VARCHAR(2048)   NOT NULL,
+    VERSION         INT UNSIGNED    NOT NULL,
+    COMPANY_ID      INT UNSIGNED    NOT NULL,
+    ACCOUNT_ID      INT UNSIGNED    NOT NULL,
+    API_ID          INT UNSIGNED    NOT NULL,
+    CHAPTERS_IDS    VARCHAR(2048)   NOT NULL,
     CREATED_ON      bigint          NOT NULL,
     CODE            VARCHAR(50)     NOT NULL
 );
