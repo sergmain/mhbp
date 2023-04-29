@@ -39,8 +39,8 @@ CREATE TABLE mh_company
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
     VERSION         INT UNSIGNED    NOT NULL,
     UNIQUE_ID       INT UNSIGNED    NOT NULL,
-    NAME            VARCHAR(50)   NOT NULL,
-    PARAMS          MEDIUMTEXT null
+    NAME            VARCHAR(50)     NOT NULL,
+    PARAMS          TEXT            null
 );
 
 CREATE UNIQUE INDEX mh_company_unique_id_unq_idx
@@ -147,7 +147,7 @@ CREATE table mhbp_chapter
     CREATED_ON      bigint          NOT NULL,
     CODE            VARCHAR(100)    NOT NULL,
     DISABLED        BOOLEAN         not null default false,
-    PARAMS          TEXT            not null,
+    PARAMS          LONGTEXT      not null,
     STATUS          tinyint(1)      NOT NULL default 0
 );
 

@@ -141,32 +141,22 @@ public class KbTxService {
     }
 
     @Transactional
-    public void storePrompts(QuestionData.Chapters chapters, long companyId, long accountId) {
-        log.info("Status of loading kb: " + chapters.initStatus);
-        if (chapters.initStatus!=Enums.KbSourceInitStatus.ready) {
-            return;
+    public void storePrompts(QuestionData.ChapterWithPrompts chapter, ChapterParams params, long kbId, long companyId, long accountId) {
+        Chapter c = chapterRepository.findByKbIdAndCode(kbId, chapter.chapterCode());
+        if (c==null) {
+            c = new Chapter();
+            c.kbId = kbId;
+            c.code = chapter.chapterCode();
+            c.companyId = companyId;
+            c.accountId = accountId;
+            c.createdOn = System.currentTimeMillis();
+            c.disabled = false;
+            // for what this status?
+            c.status = 0;
         }
+        c.updateParams(params);
 
-        for (QuestionData.ChapterWithPrompts chapter : chapters.chapters) {
-            Chapter c = chapterRepository.findByKbIdAndCode(chapters.kbId, chapter.chapterCode());
-            if (c==null) {
-                c = new Chapter();
-                c.kbId = chapters.kbId;
-                c.code = chapter.chapterCode();
-                c.companyId = companyId;
-                c.accountId = accountId;
-                c.createdOn = System.currentTimeMillis();
-                c.disabled = false;
-                // for what this status?
-                c.status = 0;
-            }
-
-            ChapterParams params = new ChapterParams();
-            chapter.list().stream().map(QuestionData.QuestionWithAnswerToAsk::toPrompt).collect(Collectors.toCollection(()->params.prompts));
-            c.updateParams(params);
-
-            chapterRepository.save(c);
-        }
+        chapterRepository.save(c);
     }
 
 }

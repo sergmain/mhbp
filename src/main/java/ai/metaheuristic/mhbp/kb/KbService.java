@@ -26,11 +26,14 @@ import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.events.InitKbEvent;
 import ai.metaheuristic.mhbp.kb.reader.openai.OpenaiJsonReader;
+import ai.metaheuristic.mhbp.questions.QuestionData;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
 import ai.metaheuristic.mhbp.services.GitRepoService;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import ai.metaheuristic.mhbp.utils.JsonUtils;
 import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
+import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
+import ai.metaheuristic.mhbp.yaml.chapter.ChapterParamsUtils;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -188,7 +191,7 @@ public class KbService {
                 }
                 final String asString = JsonUtils.getMapper().writeValueAsString(execResult);
                 Chapters chapters = OpenaiJsonReader.read(kb.id, execResult.repoDir.toPath(), kbParams.kb.git);
-                kbTxService.storePrompts(chapters, event.companyId(), event.accountId());
+                storePrompts(chapters, event.companyId(), event.accountId());
             }
         }
         if (kbParams.kb.file!=null) {
@@ -198,4 +201,27 @@ public class KbService {
         kbTxService.markAsReady(event.kbId());
 
     }
+
+    public void storePrompts(QuestionData.Chapters chapters, long companyId, long accountId) {
+        log.info("Status of chapters: " + chapters.initStatus);
+        if (chapters.initStatus!=Enums.KbSourceInitStatus.ready) {
+            return;
+        }
+
+        long mills = System.currentTimeMillis();
+        log.info("Start saving chapters");
+        for (QuestionData.ChapterWithPrompts chapter : chapters.chapters) {
+            ChapterParams params = new ChapterParams();
+            chapter.list().stream().map(QuestionData.QuestionWithAnswerToAsk::toPrompt).collect(Collectors.toCollection(()->params.prompts));
+            if (log.isInfoEnabled()) {
+                String s = ChapterParamsUtils.UTILS.toString(params);
+                log.info("chapter {}, prompts:{}, len: {}", chapter.chapterCode(), chapter.list().size(), s.length());
+            }
+            kbTxService.storePrompts(chapter, params, chapters.kbId, companyId, accountId);
+            log.info("'\tchapter {} is stored", chapter.chapterCode());
+        }
+        log.info("All chapters are saved in {} seconds.", (System.currentTimeMillis()-mills)/1000);
+    }
+
+
 }
