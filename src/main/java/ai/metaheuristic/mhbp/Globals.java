@@ -95,7 +95,8 @@ public class Globals {
     public static class Max {
         public int consoleOutputLines = 1000;
         public int promptLength = 4096;
-        public int errorsPerChapter = 5;
+        public int errorsPerChapter = 1;
+        public int errorsPerEvaluation = 5;
     }
 
     public final Threads threads = new Threads();

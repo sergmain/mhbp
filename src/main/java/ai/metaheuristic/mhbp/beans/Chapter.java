@@ -76,6 +76,9 @@ public class Chapter implements Serializable {
 
     public int status;
 
+    @Column(name = "PROMPT_COUNT")
+    public int promptCount;
+
     public void setParams(String params) {
         synchronized (this) {
             this.params = params;

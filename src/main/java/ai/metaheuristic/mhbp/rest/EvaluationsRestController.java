@@ -75,10 +75,8 @@ public class EvaluationsRestController {
         return result;
     }
 
-
     @PostMapping("/evaluation-add-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
-    // apiId, kbIds
     public OperationStatusRest addFormCommit(
             @RequestParam(name = "code") String code,
             @RequestParam(name = "apiId") String apiId,

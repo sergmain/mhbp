@@ -148,7 +148,8 @@ CREATE table mhbp_chapter
     CODE            VARCHAR(100)    NOT NULL,
     DISABLED        BOOLEAN         not null default false,
     PARAMS          VARCHAR(100000) not null,
-    STATUS          tinyint         NOT NULL default 0
+    STATUS          tinyint         NOT NULL default 0,
+    PROMPT_COUNT    int             not null
 );
 
 CREATE UNIQUE INDEX mhbp_chapter_kb_id_code_idx

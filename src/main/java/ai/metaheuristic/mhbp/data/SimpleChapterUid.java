@@ -28,4 +28,5 @@ import lombok.AllArgsConstructor;
 public class SimpleChapterUid {
     public Long id;
     public String uid;
+    public int promptCount;
 }

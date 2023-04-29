@@ -22,7 +22,6 @@ import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Kb;
-import ai.metaheuristic.mhbp.chapter.ChapterTxService;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.questions.QuestionData;
@@ -35,12 +34,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.springframework.transaction.annotation.Propagation.*;
+import static org.springframework.transaction.annotation.Propagation.SUPPORTS;
 
 /**
  * @author Sergio Lissner
@@ -151,9 +147,10 @@ public class KbTxService {
             c.accountId = accountId;
             c.createdOn = System.currentTimeMillis();
             c.disabled = false;
-            // for what this status?
+            // for what is this status?
             c.status = 0;
         }
+        c.promptCount = params.prompts.size();
         c.updateParams(params);
 
         chapterRepository.save(c);

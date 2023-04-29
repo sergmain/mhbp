@@ -17,7 +17,6 @@
 
 package ai.metaheuristic.mhbp.repositories;
 
-import ai.metaheuristic.mhbp.beans.Answer;
 import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.data.SimpleChapterUid;
 import org.springframework.data.jpa.repository.Query;
@@ -41,7 +40,7 @@ public interface ChapterRepository extends CrudRepository<Chapter, Long> {
     Chapter findByKbIdAndCode(long kbId, String code);
 
     @Transactional(readOnly = true)
-    @Query(value= "select new ai.metaheuristic.mhbp.data.SimpleChapterUid(a.id, a.code) " +
+    @Query(value= "select new ai.metaheuristic.mhbp.data.SimpleChapterUid(a.id, a.code, a.promptCount) " +
                   " from Chapter a where a.kbId in(:kbIds)")
     List<SimpleChapterUid> findAllByKbIds(List<Long> kbIds);
 }

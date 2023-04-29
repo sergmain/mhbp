@@ -48,6 +48,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -103,12 +104,14 @@ public class ProviderQueryService {
         }
     }
 
-    public record PromptWithAnswer(QuestionData.QuestionWithAnswerToAsk prompt, ProviderData.QuestionAndAnswer answer) {}
+    public record PromptWithAnswer(QuestionData.QuestionWithAnswerToAsk prompt, ProviderData.QuestionAndAnswer answer, Enums.AnswerStatus status) {}
 
     @AllArgsConstructor
     public static class ChapterWithResults {
         public Chapter c;
         public final List<PromptWithAnswer> answers = Collections.synchronizedList(new ArrayList<>());
+        public final AtomicInteger currErrors = new AtomicInteger();
+
     }
 
     private void askQuestions(AtomicReference<Session> s, Api api, Stream<QuestionData.PromptWithAnswerWithChapterId> questions) throws InterruptedException {
@@ -116,17 +119,37 @@ public class ProviderQueryService {
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(globals.threads.getQueryApi());
 
         ConcurrentHashMap<Long, ChapterWithResults> chapterCache = new ConcurrentHashMap<>();
+        AtomicInteger currTotalErrors = new AtomicInteger();
         questions.forEach(question -> {
             executor.submit(() -> {
+                if (currTotalErrors.get() >= globals.max.errorsPerEvaluation) {
+                    return;
+                }
                 ChapterWithResults withResults = chapterCache.computeIfAbsent(question.chapterId(),
                         (chapterId)->chapterRepository.findById(chapterId).map(ChapterWithResults::new).orElse(null));
 
                 if (withResults==null) {
                     return;
                 }
+                if (withResults.currErrors.get() >= globals.max.errorsPerChapter) {
+                    return;
+                }
+
                 ProviderData.QueriedData queriedData = new ProviderData.QueriedData(question.prompt().q(), null);
-                ProviderData.QuestionAndAnswer qaa = processQuery(api, queriedData, ProviderQueryService::asQueriedInfoWithError);
-                withResults.answers.add(new PromptWithAnswer(question.prompt(), qaa));
+                ProviderData.QuestionAndAnswer answer = processQuery(api, queriedData, ProviderQueryService::asQueriedInfoWithError);
+
+                Enums.AnswerStatus status;
+                if (answer.status()==OK) {
+                    status = answer.a()!=null && question.prompt().a().equals(answer.a().strip()) ? Enums.AnswerStatus.normal : Enums.AnswerStatus.fail;
+                }
+                else {
+                    status = Enums.AnswerStatus.error;
+                }
+                if (status!=Enums.AnswerStatus.error) {
+                    currTotalErrors.incrementAndGet();
+                    withResults.currErrors.incrementAndGet();
+                }
+                withResults.answers.add(new PromptWithAnswer(question.prompt(), answer, status));
             });
         });
 
@@ -137,22 +160,15 @@ public class ProviderQueryService {
             AnswerParams ap = new AnswerParams();
             ap.total = withResults.answers.size();
             ap.processingMills = endMills - mills;
-            for (PromptWithAnswer  qaa : withResults.answers) {
-                Enums.AnswerStatus status;
-                if (qaa.answer.status()==OK) {
-                    status = qaa.answer.a()!=null && qaa.prompt.a().equals(qaa.answer.a().strip()) ? Enums.AnswerStatus.normal : Enums.AnswerStatus.fail;
-                }
-                else {
-                    status = Enums.AnswerStatus.error;
-                }
-                if (status==Enums.AnswerStatus.normal) {
+            for (PromptWithAnswer qaa : withResults.answers) {
+                if (qaa.status==Enums.AnswerStatus.normal) {
                     continue;
                 }
                 AnswerParams.Result r = new AnswerParams.Result();
                 r.p = qaa.answer.q();
                 r.a = qaa.answer.a();
                 r.e = qaa.prompt.a();
-                r.s = status;
+                r.s = qaa.status;
 
                 r.r = qaa.answer.raw();
                 if (r.s==Enums.AnswerStatus.error) {

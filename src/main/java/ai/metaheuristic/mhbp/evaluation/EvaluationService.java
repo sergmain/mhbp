@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.evaluation;
 
+import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.api.ApiService;
 import ai.metaheuristic.mhbp.beans.Api;
@@ -111,7 +112,7 @@ public class EvaluationService {
         for (String chapterIdStr : evaluation.chapterIds) {
             long chapterId = Long.parseLong(chapterIdStr);
             Chapter chapter = chapterRepository.findById(chapterId).orElse(null);
-            if (chapter==null || chapter.companyId!=context.getCompanyId()) {
+            if (chapter==null || (chapter.companyId!=context.getCompanyId() && chapter.companyId!=Consts.ID_1)) {
                 return new OperationStatusRest(Enums.OperationStatus.ERROR, "#565.260 Reference to Chapter is broken, evaluationId: " + evaluationId);
             }
         }
