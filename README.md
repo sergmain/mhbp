@@ -12,26 +12,21 @@ Metaheuristic behavior platform (MHBP) is an application for continuous evaluati
 
 ## Quick start
 
-##### Quick start for evaluating UI only
+##### Quick start
 
 1. Create a temporary dir for MHBP, i.e. /mhbp-home
    It'll be /mhbp-home in following text.
 
-1. Set system environment variable MHBP_HOME to full path of /mhbp-home, i.e. $MHBP_HOME or %MHBP_HOME% depending on your OS
-
-1. Clone git repository:
 ```text
 git clone https://github.com/sergmain/mhbp.git
 ```
 
-1. run command:
 ```text
 mvnw clean package -f pom.xml -Dmaven.test.skip=true
 ```
 
-1. run command:
 ```text
-java -jar target/mhbp.jar
+java -jar -Dmhbp.home=/mhbp_home target/mhbp.jar
 ```
 
 1. Access MHBP at https://amhbp8080.metaheuristic.ai \
