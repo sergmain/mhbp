@@ -155,10 +155,7 @@ public class ProviderQueryService {
                 r.s = status;
 
                 r.r = qaa.answer.raw();
-                if (r.s==Enums.AnswerStatus.fail) {
-                    r.e = qaa.prompt.a();
-                }
-                else if (r.s==Enums.AnswerStatus.error) {
+                if (r.s==Enums.AnswerStatus.error) {
                     r.r = qaa.answer.error();
                 }
                 ap.results.add(r);
@@ -206,8 +203,8 @@ public class ProviderQueryService {
     private QueryResult processInternal(Api api, ProviderData.QueriedData queriedData,
                                                 Function<ProviderData.QueriedData, QueriedInfoWithError> getQueriedInfoWithErrorFunc) {
         QueryResult queryResult;
-        if (queriedData.queryText().length()>globals.maxPromptLength) {
-            return QueryResult.asError("Text of prompt is too long, max "+globals.maxPromptLength+" chars. actual length is " + queriedData.queryText().length(),
+        if (queriedData.queryText().length()>globals.max.promptLength) {
+            return QueryResult.asError("Text of prompt is too long, max "+globals.max.promptLength+" chars. actual length is " + queriedData.queryText().length(),
                     Enums.QueryResultErrorType.query_too_long);
         }
         try {

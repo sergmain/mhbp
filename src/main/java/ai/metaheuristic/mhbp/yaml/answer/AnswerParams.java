@@ -43,8 +43,10 @@ public class AnswerParams implements BaseParams {
     @AllArgsConstructor
     public static class Result {
         // prompt
+        @Nullable
         public String p;
         // answer, can be the same as a raw
+        @Nullable
         public String a;
         // expected
         public String e;

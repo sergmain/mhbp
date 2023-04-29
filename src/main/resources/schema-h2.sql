@@ -32,7 +32,7 @@ create table mh_gen_ids
 );
 
 CREATE UNIQUE INDEX mh_gen_ids_sequence_name_unq_idx
-    ON MH_GEN_IDS (SEQUENCE_NAME);
+    ON mh_gen_ids (SEQUENCE_NAME);
 
 CREATE TABLE mh_company
 (
@@ -44,18 +44,18 @@ CREATE TABLE mh_company
 );
 
 CREATE UNIQUE INDEX mh_company_unique_id_unq_idx
-    ON MH_COMPANY (UNIQUE_ID);
+    ON mh_company (UNIQUE_ID);
 
-insert into MH_COMPANY
+insert into mh_company
 (id, version, UNIQUE_ID, NAME, params)
 VALUES
 (1, 0, 1, 'Main company', '');
 
 -- !!! this insert must be executed after creating 'main company' immediately;
 
-insert into MH_GEN_IDS
+insert into mh_gen_ids
 (SEQUENCE_NAME, SEQUENCE_NEXT_VALUE)
-select 'mh_ids', max(UNIQUE_ID) from MH_COMPANY;
+select 'mh_ids', max(UNIQUE_ID) from mh_company;
 
 create table mh_account
 (
@@ -83,10 +83,10 @@ create table mh_account
 );
 
 CREATE INDEX mh_account_company_id_idx
-    ON MH_ACCOUNT (COMPANY_ID);
+    ON mh_account (COMPANY_ID);
 
 CREATE UNIQUE INDEX mh_account_username_unq_idx
-    ON MH_ACCOUNT (USERNAME);
+    ON mh_account (USERNAME);
 
 -- Specific for MHPB DDLs
 
@@ -145,7 +145,7 @@ CREATE table mhbp_chapter
     ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
     KB_ID           NUMERIC(10, 0)  NOT NULL,
     CREATED_ON      bigint          NOT NULL,
-    CODE            VARCHAR(100)     NOT NULL,
+    CODE            VARCHAR(100)    NOT NULL,
     DISABLED        BOOLEAN         not null default false,
     PARAMS          TEXT            not null,
     STATUS          tinyint         NOT NULL default 0
@@ -195,7 +195,7 @@ CREATE table mhbp_evaluation
     COMPANY_ID      NUMERIC(10, 0)  NOT NULL,
     ACCOUNT_ID      NUMERIC(10, 0)  NOT NULL,
     API_ID          NUMERIC(10, 0)  NOT NULL,
-    CHAPTERS_IDS    VARCHAR(2048)   NOT NULL,
+    CHAPTER_IDS     VARCHAR(2048)   NOT NULL,
     CREATED_ON      bigint          NOT NULL,
     CODE            VARCHAR(50)     NOT NULL
 );

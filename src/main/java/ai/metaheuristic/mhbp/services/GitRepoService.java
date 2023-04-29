@@ -52,7 +52,7 @@ public class GitRepoService {
     }
 
     public SystemProcessLauncher.ExecResult initGitRepo(KbData.KbGit git) {
-        return initGitRepo(git, gitPath, new GitContext(60L, globals.consoleOutputMaxLines));
+        return initGitRepo(git, gitPath, new GitContext(60L, globals.max.consoleOutputLines));
     }
 
     @SneakyThrows

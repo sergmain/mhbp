@@ -22,6 +22,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import javax.annotation.PostConstruct;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,18 +89,26 @@ public class Globals {
         public File file;
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Max {
+        public int consoleOutputLines = 1000;
+        public int promptLength = 4096;
+        public int errorsPerChapter = 5;
+    }
+
     public final Threads threads = new Threads();
-    public RowsLimit rowsLimit = new RowsLimit();
+    public final RowsLimit rowsLimit = new RowsLimit();
+    public final Max max = new Max();
 
     public final List<String> corsAllowedOrigins = new ArrayList<>(List.of("*"));
 
     public String mainUsername;
     public String mainPassword;
-    public int consoleOutputMaxLines = 1000;
 
     public boolean sslRequired = true;
     public boolean testing = false;
-    public int maxPromptLength = 4096;
     public Path home;
 
     public Path getHome() {
@@ -117,5 +126,10 @@ public class Globals {
         }
         this.corsAllowedOrigins.clear();
         this.corsAllowedOrigins.addAll(corsAllowedOrigins);
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        int i=0;
     }
 }

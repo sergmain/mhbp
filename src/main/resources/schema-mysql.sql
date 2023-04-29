@@ -62,24 +62,24 @@ create table mh_account
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
     VERSION         INT UNSIGNED    NOT NULL,
     COMPANY_ID      INT UNSIGNED    NOT NULL,
-    USERNAME varchar(30) NOT NULL,
-    PASSWORD varchar(100) NOT NULL,
-    ROLES varchar(100),
-    PUBLIC_NAME varchar(100) NOT NULL,
+    USERNAME        varchar(30) NOT NULL,
+    PASSWORD        varchar(100) NOT NULL,
+    ROLES           varchar(100),
+    PUBLIC_NAME     varchar(100) NOT NULL,
 
     is_acc_not_expired BOOLEAN not null default true,
-    is_not_locked BOOLEAN not null default false,
+    is_not_locked   BOOLEAN not null default false,
     is_cred_not_expired BOOLEAN not null default false,
-    is_enabled BOOLEAN not null default false,
+    is_enabled      BOOLEAN not null default false,
 
-    mail_address varchar(100) ,
-    PHONE varchar(100) ,
-    PHONE_AS_STR varchar(100) ,
+    mail_address    varchar(100) ,
+    PHONE           varchar(100) ,
+    PHONE_AS_STR    varchar(100) ,
 
-    CREATED_ON  bigint not null,
-    UPDATED_ON  bigint not null,
-    SECRET_KEY  varchar(25),
-    TWO_FA      BOOLEAN not null default false
+    CREATED_ON      bigint not null,
+    UPDATED_ON      bigint not null,
+    SECRET_KEY      varchar(25),
+    TWO_FA          BOOLEAN not null default false
 );
 
 CREATE INDEX mh_account_company_id_idx
@@ -195,7 +195,7 @@ CREATE table mhbp_evaluation
     COMPANY_ID      INT UNSIGNED    NOT NULL,
     ACCOUNT_ID      INT UNSIGNED    NOT NULL,
     API_ID          INT UNSIGNED    NOT NULL,
-    CHAPTERS_IDS    VARCHAR(2048)   NOT NULL,
+    CHAPTER_IDS     VARCHAR(2048)   NOT NULL,
     CREATED_ON      bigint          NOT NULL,
     CODE            VARCHAR(50)     NOT NULL
 );

@@ -83,7 +83,7 @@ public class GitSourcingService {
     }
 
     public GitStatusInfo getGitStatus() {
-        return getGitStatus(new GitContext(30L, globals.consoleOutputMaxLines));
+        return getGitStatus(new GitContext(30L, globals.max.consoleOutputLines));
     }
 
     public static GitStatusInfo getGitStatus(GitContext gitContext) {
