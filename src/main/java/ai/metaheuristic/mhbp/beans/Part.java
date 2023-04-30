@@ -17,10 +17,8 @@
 
 package ai.metaheuristic.mhbp.beans;
 
-import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
-import ai.metaheuristic.mhbp.yaml.chapter.ChapterParamsUtils;
-import ai.metaheuristic.mhbp.yaml.kb.KbParams;
-import ai.metaheuristic.mhbp.yaml.kb.KbParamsUtils;
+import ai.metaheuristic.mhbp.yaml.part.PartParams;
+import ai.metaheuristic.mhbp.yaml.part.PartParamsUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,23 +28,21 @@ import org.springframework.lang.Nullable;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Sergio Lissner
- * Date: 4/26/2023
- * Time: 11:44 PM
+ * Date: 4/30/2023
+ * Time: 2:04 AM
  */
 @Entity
-@Table(name = "MHBP_CHAPTER")
+@Table(name = "MHBP_PART")
 @Data
 @NoArgsConstructor
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Chapter implements Serializable {
+public class Part implements Serializable {
     @Serial
-    private static final long serialVersionUID = -7617920402229837826L;
+    private static final long serialVersionUID = 6818687364953026295L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,40 +51,16 @@ public class Chapter implements Serializable {
     @Version
     public Integer version;
 
-    @Column(name = "COMPANY_ID")
-    public long companyId;
-
-    @Column(name = "ACCOUNT_ID")
-    public long accountId;
-
-    @Column(name = "KB_ID")
-    public long kbId;
-
-    @Column(name="CREATED_ON")
-    public long createdOn;
-
-    @Column(name = "CODE")
-    public String code;
-
-    @Column(name="DISABLED")
-    public boolean disabled;
+    @Column(name = "CHAPTER_ID")
+    public long chapterId;
 
     @Column(name = "PARAMS")
     private String params;
 
-    public int status;
-
-    @Column(name = "PROMPT_COUNT")
-    public int promptCount;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name="CHAPTER_ID")
-    private List<Part> parts = new ArrayList<>();
-
     public void setParams(String params) {
         synchronized (this) {
             this.params = params;
-            this.chapterParams = null;
+            this.partParams = null;
         }
     }
 
@@ -99,29 +71,29 @@ public class Chapter implements Serializable {
     @Transient
     @JsonIgnore
     @Nullable
-    private ChapterParams chapterParams = null;
+    private PartParams partParams = null;
 
     @Transient
     @JsonIgnore
     private final Object syncParamsObj = new Object();
 
     @JsonIgnore
-    public ChapterParams getChapterParams() {
-        if (chapterParams==null) {
+    public PartParams getPartParams() {
+        if (partParams==null) {
             synchronized (syncParamsObj) {
-                if (chapterParams==null) {
+                if (partParams==null) {
                     //noinspection UnnecessaryLocalVariable
-                    ChapterParams temp = ChapterParamsUtils.UTILS.to(params);
-                    chapterParams = temp;
+                    PartParams temp = PartParamsUtils.UTILS.to(params);
+                    partParams = temp;
                 }
             }
         }
-        return chapterParams;
+        return partParams;
     }
 
     @JsonIgnore
-    public void updateParams(ChapterParams apy) {
-        setParams(ChapterParamsUtils.UTILS.toString(apy));
+    public void updateParams(PartParams apy) {
+        setParams(PartParamsUtils.UTILS.toString(apy));
     }
 
 }

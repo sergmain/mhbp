@@ -131,7 +131,7 @@ public class ProviderQueryService {
                 if (withResults==null) {
                     return;
                 }
-                if (withResults.currErrors.get() >= globals.max.errorsPerChapter) {
+                if (withResults.currErrors.get() >= globals.max.errorsPerPart) {
                     return;
                 }
 

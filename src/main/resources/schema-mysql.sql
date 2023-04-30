@@ -155,6 +155,17 @@ CREATE table mhbp_chapter
 CREATE UNIQUE INDEX mhbp_chapter_kb_id_code_idx
     ON mhbp_chapter (KB_ID, CODE);
 
+CREATE table mhbp_part
+(
+    ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
+    VERSION         INT UNSIGNED    NOT NULL,
+    CHAPTER_ID      INT UNSIGNED    NOT NULL,
+    PARAMS          MEDIUMTEXT      not null
+);
+
+CREATE INDEX mhbp_part_chapter_id_idx
+    ON mhbp_part (CHAPTER_ID);
+
 CREATE table mhbp_answer
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,

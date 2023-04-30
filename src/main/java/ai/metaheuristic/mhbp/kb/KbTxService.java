@@ -22,6 +22,7 @@ import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
 import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Kb;
+import ai.metaheuristic.mhbp.beans.Part;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.questions.QuestionData;
@@ -29,6 +30,7 @@ import ai.metaheuristic.mhbp.repositories.ChapterRepository;
 import ai.metaheuristic.mhbp.repositories.KbRepository;
 import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
+import ai.metaheuristic.mhbp.yaml.part.PartParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -137,7 +139,7 @@ public class KbTxService {
     }
 
     @Transactional
-    public void storePrompts(QuestionData.ChapterWithPrompts chapter, ChapterParams params, long kbId, long companyId, long accountId) {
+    public Chapter storePrompts(QuestionData.ChapterWithPrompts chapter, List<PartParams> partParams, long kbId, long companyId, long accountId) {
         Chapter c = chapterRepository.findByKbIdAndCode(kbId, chapter.chapterCode());
         if (c==null) {
             c = new Chapter();
@@ -150,10 +152,20 @@ public class KbTxService {
             // for what is this status?
             c.status = 0;
         }
-        c.promptCount = params.prompts.size();
-        c.updateParams(params);
+        c.promptCount = partParams.stream().mapToInt(o->o.prompts.size()).sum();
+        c.updateParams(new ChapterParams());
 
-        chapterRepository.save(c);
+        if (c.getParts().size() > partParams.size()) {
+            c.getParts().subList(partParams.size(), c.getParts().size()).clear();
+        }
+        for (int i = c.getParts().size(); i < partParams.size(); i++) {
+            c.getParts().add(new Part());
+        }
+        for (int i = 0; i < partParams.size(); i++) {
+            c.getParts().get(i).updateParams(partParams.get(i));
+        }
+
+        return chapterRepository.save(c);
     }
 
 }

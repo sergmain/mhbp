@@ -20,6 +20,7 @@ package ai.metaheuristic.mhbp.kb;
 import ai.metaheuristic.mhbp.Consts;
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
+import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Kb;
 import ai.metaheuristic.mhbp.data.KbData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
@@ -35,6 +36,8 @@ import ai.metaheuristic.mhbp.utils.SystemProcessLauncher;
 import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
 import ai.metaheuristic.mhbp.yaml.chapter.ChapterParamsUtils;
 import ai.metaheuristic.mhbp.yaml.kb.KbParams;
+import ai.metaheuristic.mhbp.yaml.part.PartParams;
+import ai.metaheuristic.mhbp.yaml.part.PartParamsUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -210,17 +213,34 @@ public class KbService {
 
         long mills = System.currentTimeMillis();
         log.info("Start saving chapters");
+
+        int total = 0;
         for (QuestionData.ChapterWithPrompts chapter : chapters.chapters) {
-            ChapterParams params = new ChapterParams();
-            chapter.list().stream().map(QuestionData.QuestionWithAnswerToAsk::toPrompt).collect(Collectors.toCollection(()->params.prompts));
-            if (log.isInfoEnabled()) {
-                String s = ChapterParamsUtils.UTILS.toString(params);
-                log.info("chapter {}, prompts:{}, len: {}", chapter.chapterCode(), chapter.list().size(), s.length());
+            List<PartParams> partParams = new ArrayList<>();
+            PartParams curr = null;
+            for (QuestionData.QuestionWithAnswerToAsk questionWithAnswerToAsk : chapter.list()) {
+                if (curr==null) {
+                    curr = new PartParams();
+                    partParams.add(curr);
+                }
+                curr.prompts.add(questionWithAnswerToAsk.toPrompt());
+                if (curr.prompts.size()>=globals.max.promptsPerPart) {
+                    curr = null;
+                }
             }
-            kbTxService.storePrompts(chapter, params, chapters.kbId, companyId, accountId);
-            log.info("'\tchapter {} is stored", chapter.chapterCode());
+
+            if (log.isInfoEnabled()) {
+                log.info("chapter {}", chapter.chapterCode());
+                for (PartParams partParam : partParams) {
+                    String s = PartParamsUtils.UTILS.toString(partParam);
+                    log.info("'\tprompts:{}, len: {}", partParam.prompts.size(), s.length());
+                }
+            }
+            Chapter c = kbTxService.storePrompts(chapter, partParams, chapters.kbId, companyId, accountId);
+            log.info("'\tchapter {} is stored, prompts: {}", chapter.chapterCode(), c.promptCount);
+            total += c.promptCount;
         }
-        log.info("All chapters are saved in {} seconds.", (System.currentTimeMillis()-mills)/1000);
+        log.info("All chapters are saved in {} seconds. Total prompts: {}", (System.currentTimeMillis()-mills)/1000, total);
     }
 
 

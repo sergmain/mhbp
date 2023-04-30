@@ -95,8 +95,10 @@ public class Globals {
     public static class Max {
         public int consoleOutputLines = 1000;
         public int promptLength = 4096;
-        public int errorsPerChapter = 1;
+        public int errorsPerPart = 1;
+        // has effect only with a local executor of requests
         public int errorsPerEvaluation = 5;
+        public int promptsPerPart = 10000;
     }
 
     public final Threads threads = new Threads();

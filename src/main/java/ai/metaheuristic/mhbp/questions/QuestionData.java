@@ -19,6 +19,7 @@ package ai.metaheuristic.mhbp.questions;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
+import ai.metaheuristic.mhbp.yaml.part.PartParams;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -39,8 +40,8 @@ public class QuestionData {
     }
 
     public record QuestionWithAnswerToAsk(String q, String a) {
-        public ChapterParams.Prompt toPrompt() {
-            return new ChapterParams.Prompt(q, a);
+        public PartParams.Prompt toPrompt() {
+            return new PartParams.Prompt(q, a);
         }
     }
 
