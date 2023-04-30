@@ -14,7 +14,7 @@ Metaheuristic behavior platform (MHBP) is an application for continuous evaluati
 
 ##### Quick start
 
-1. Create a temporary dir for MHBP, i.e. /mhbp-home
+1. Create a temporary dir for MHBP, i.e. /mhbp-home \
    It'll be /mhbp-home in following text.
 
 ```text
