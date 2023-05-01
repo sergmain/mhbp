@@ -27,6 +27,12 @@ If java was already installed, you can check the current version with command:
 java --version
 ```  
 
+#### Git
+Right now, installed git is required. You can check git with
+```text
+git --version
+```  
+
 ## Steps
 
 1. Create a temporary dir for MHBP, i.e. /mhbp-home \
