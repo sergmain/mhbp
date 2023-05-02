@@ -202,63 +202,6 @@
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
         </dependency>
-
-<!--
-        &lt;!&ndash; https://mvnrepository.com/artifact/org.jgrapht/jgrapht-core &ndash;&gt;
-        <dependency>
-            &lt;!&ndash; EPL 2.0, LGPL 2.1&ndash;&gt;
-            <groupId>org.jgrapht</groupId>
-            <artifactId>jgrapht-core</artifactId>
-            <version>1.5.1</version>
-        </dependency>
-
-        &lt;!&ndash; https://mvnrepository.com/artifact/org.jgrapht/jgrapht-io &ndash;&gt;
-        <dependency>
-            &lt;!&ndash; EPL 2.0, LGPL 2.1&ndash;&gt;
-            <groupId>org.jgrapht</groupId>
-            <artifactId>jgrapht-io</artifactId>
-            <version>1.5.1</version>
-        </dependency>
--->
-
-<!--
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>jquery-ui</artifactId>
-            <version>1.12.1</version>
-        </dependency>
-
-        <dependency>
-            &lt;!&ndash;License	MIT&ndash;&gt;
-            <groupId>org.webjars</groupId>
-            <artifactId>jquery</artifactId>
-            &lt;!&ndash;suppress MavenPackageUpdate &ndash;&gt;
-            <version>3.2.1</version>
-        </dependency>
-
-        <dependency>
-            &lt;!&ndash;License	MIT&ndash;&gt;
-            <groupId>org.webjars.bower</groupId>
-            <artifactId>plotly.js</artifactId>
-            <version>1.54.1</version>
-&lt;!&ndash;            <version>1.48.3</version>&ndash;&gt;
-        </dependency>
-
-        <dependency>
-            &lt;!&ndash;License	Apache 2.0&ndash;&gt;
-            <groupId>org.webjars</groupId>
-            <artifactId>bootstrap</artifactId>
-            &lt;!&ndash;suppress MavenPackageUpdate &ndash;&gt;
-            <version>3.3.7</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.webjars</groupId>
-                    <artifactId>jquery</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
--->
-
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
