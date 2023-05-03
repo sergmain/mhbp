@@ -33,9 +33,9 @@ import java.util.List;
  */
 public class QuestionData {
 
-    public record PromptWithAnswerWithChapterId(long chapterId, QuestionWithAnswerToAsk prompt) {
-        public static PromptWithAnswerWithChapterId fromPrompt(long chapterId, ChapterParams.Prompt prompt) {
-            return new PromptWithAnswerWithChapterId(chapterId, new QuestionWithAnswerToAsk(prompt.p, prompt.a));
+    public record PromptWithAnswerWithChapterId(long chapterId, long partId, QuestionWithAnswerToAsk prompt) {
+        public static PromptWithAnswerWithChapterId fromPrompt(long chapterId, long partId, PartParams.Prompt prompt) {
+            return new PromptWithAnswerWithChapterId(chapterId, partId, new QuestionWithAnswerToAsk(prompt.p, prompt.a));
         }
     }
 

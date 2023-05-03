@@ -19,14 +19,13 @@ package ai.metaheuristic.mhbp.questions;
 
 import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Session;
-import ai.metaheuristic.mhbp.repositories.ChapterRepository;
 import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -40,15 +39,12 @@ import java.util.stream.Stream;
 public class QuestionAndAnswerService {
 
     private final QuestionAndAnswerTxService questionAndAnswerTxService;
-    private final ChapterRepository chapterRepository;
 
     public Stream<QuestionData.PromptWithAnswerWithChapterId> getQuestionToAsk(List<String> chapterIds, int limit) {
 
-        Stream<QuestionData.PromptWithAnswerWithChapterId> stream = chapterIds.stream().map(Long::valueOf)
-                .map(id->chapterRepository.findById(id).orElse(null))
-                .filter(Objects::nonNull)
-                .flatMap(chapter -> chapter.getChapterParams().prompts.stream().map(p -> QuestionData.PromptWithAnswerWithChapterId.fromPrompt(chapter.id, p)));
-
+        Stream<QuestionData.PromptWithAnswerWithChapterId> stream = chapterIds.stream()
+                .map(questionAndAnswerTxService::getQuestionToAsk)
+                .flatMap(Collection::stream);
         if (limit!=0) {
             stream = stream.limit(limit);
         }

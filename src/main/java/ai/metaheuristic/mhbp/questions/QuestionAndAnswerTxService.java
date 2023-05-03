@@ -21,11 +21,16 @@ import ai.metaheuristic.mhbp.beans.Answer;
 import ai.metaheuristic.mhbp.beans.Chapter;
 import ai.metaheuristic.mhbp.beans.Session;
 import ai.metaheuristic.mhbp.repositories.AnswerRepository;
+import ai.metaheuristic.mhbp.repositories.ChapterRepository;
 import ai.metaheuristic.mhbp.yaml.answer.AnswerParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static ai.metaheuristic.mhbp.Enums.AnswerStatus;
 
@@ -40,6 +45,20 @@ import static ai.metaheuristic.mhbp.Enums.AnswerStatus;
 public class QuestionAndAnswerTxService {
 
     public final AnswerRepository answerRepository;
+    private final ChapterRepository chapterRepository;
+
+    @Transactional(readOnly = true)
+    public List<QuestionData.PromptWithAnswerWithChapterId> getQuestionToAsk(String chapterId) {
+
+        Stream<QuestionData.PromptWithAnswerWithChapterId> stream = Stream.of(chapterId).map(Long::valueOf)
+                .map(id->chapterRepository.findById(id).orElse(null))
+                .filter(Objects::nonNull)
+                .flatMap(chapter -> chapter.getParts().stream())
+                .flatMap(part -> part.getPartParams().prompts.stream().map(p -> QuestionData.PromptWithAnswerWithChapterId.fromPrompt(part.chapterId, part.id, p)));
+
+
+        return stream.toList();
+    }
 
     @Transactional
     public void process(Session session, Chapter chapter, AnswerParams ap) {
