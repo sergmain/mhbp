@@ -29,8 +29,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.Column;
-
 /**
  * @author Sergio Lissner
  * Date: 5/4/2023
@@ -80,4 +78,12 @@ public class ScenarioRestController {
         RequestContext context = userContextService.getContext(authentication);
         return scenarioTxService.createScenario(name, description, apiId, context);
     }
+
+    @PostMapping("/scenario-delete-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest deleteCommit(Long scenarioId, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return scenarioTxService.deleteScenarioById(scenarioId, context);
+    }
+
 }

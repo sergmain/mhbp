@@ -17,15 +17,12 @@
 
 package ai.metaheuristic.mhbp.scenario;
 
-import ai.metaheuristic.mhbp.Enums;
-import ai.metaheuristic.mhbp.beans.Evaluation;
-import ai.metaheuristic.mhbp.beans.Scenario;
 import ai.metaheuristic.mhbp.beans.ScenarioGroup;
-import ai.metaheuristic.mhbp.beans.Session;
-import ai.metaheuristic.mhbp.data.*;
-import ai.metaheuristic.mhbp.repositories.*;
-import ai.metaheuristic.mhbp.session.SessionService;
-import ai.metaheuristic.mhbp.session.SessionTxService;
+import ai.metaheuristic.mhbp.data.RequestContext;
+import ai.metaheuristic.mhbp.data.ScenarioData;
+import ai.metaheuristic.mhbp.data.SimpleScenario;
+import ai.metaheuristic.mhbp.repositories.ScenarioGroupRepository;
+import ai.metaheuristic.mhbp.repositories.ScenarioRepository;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +31,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +51,9 @@ public class ScenarioService {
         pageable = ControllerUtils.fixPageSize(10, pageable);
 
         Page<ScenarioGroup> scenarioGroups = scenarioGroupRepository.findAllByAccountId(pageable, context.getAccountId());
-        return new ScenarioData.ScenarioGroupsResult(scenarioGroups);
+        List<ScenarioData.SimpleScenarioGroup> list = scenarioGroups.stream().map(ScenarioData.SimpleScenarioGroup::new).toList();
+        var sorted = list.stream().sorted((o1, o2)->Long.compare(o2.scenarioGroupId, o1.scenarioGroupId)).collect(Collectors.toList());
+        return new ScenarioData.ScenarioGroupsResult(new PageImpl<>(sorted, pageable, list.size()));
     }
 
     public ScenarioData.ScenariosResult getScenarios(Pageable pageable, Long scenarioGroupId, RequestContext context) {

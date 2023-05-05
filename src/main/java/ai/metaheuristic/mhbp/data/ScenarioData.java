@@ -31,7 +31,7 @@ public class ScenarioData {
 
     @RequiredArgsConstructor
     public static class ScenarioGroupsResult extends BaseDataClass {
-        public final Slice<ScenarioGroup> scenarios;
+        public final Slice<SimpleScenarioGroup> scenarios;
     }
 
     @Data
@@ -42,6 +42,21 @@ public class ScenarioData {
         public Page<SimpleScenario> scenarios;
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SimpleScenarioGroup {
+        public long scenarioGroupId;
+        public long createdOn;
+        public String name;
+        public String description;
 
+        public SimpleScenarioGroup(ScenarioGroup sg) {
+            this.scenarioGroupId = sg.id;
+            this.createdOn = sg.createdOn;
+            this.name = sg.name;
+            this.description = sg.description;
+        }
+    }
 }
 

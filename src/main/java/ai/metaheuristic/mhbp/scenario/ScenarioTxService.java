@@ -17,11 +17,14 @@
 
 package ai.metaheuristic.mhbp.scenario;
 
+import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.Globals;
+import ai.metaheuristic.mhbp.beans.Scenario;
 import ai.metaheuristic.mhbp.beans.ScenarioGroup;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.repositories.ScenarioGroupRepository;
+import ai.metaheuristic.mhbp.repositories.ScenarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,7 @@ public class ScenarioTxService {
 
     public final Globals globals;
     public final ScenarioGroupRepository scenarioGroupRepository;
+    public final ScenarioRepository scenarioRepository;
 
     @Transactional
     public OperationStatusRest createScenarioGroup(String name, String description, RequestContext context) {
@@ -65,6 +69,24 @@ public class ScenarioTxService {
 
         scenarioGroupRepository.save(s);
 
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
+
+    @Transactional
+    public OperationStatusRest deleteScenarioById(Long scenarioId, RequestContext context) {
+        if (scenarioId==null) {
+            return OperationStatusRest.OPERATION_STATUS_OK;
+        }
+        Scenario scenario = scenarioRepository.findById(scenarioId).orElse(null);
+        if (scenario == null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "229.040 Scenario wasn't found, scenarioId: " + scenarioId, null);
+        }
+        if (scenario.accountId!=context.getAccountId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "229.080 scenarioId: " + scenarioId);
+        }
+
+        scenarioRepository.delete(scenario);
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 }

@@ -53,7 +53,7 @@ public class SessionTxService {
         s.companyId = evaluation.companyId;
         s.accountId = accountId;
         s.startedOn = System.currentTimeMillis();
-        s.providerCode = ""+api.id+":"+api.code;
+        s.providerCode = api.id+":"+api.code;
         s.status = Enums.SessionStatus.created.code;
 
         sessionRepository.save(s);
