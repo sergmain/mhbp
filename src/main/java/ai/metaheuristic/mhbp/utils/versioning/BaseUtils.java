@@ -56,12 +56,12 @@ public class BaseUtils<T extends BaseParams> {
         return FACTORY.getDefault();
     }
 
-    public @NonNull String toString(@NonNull BaseParams baseParams) {
+    public @NonNull String toString(@NonNull T baseParams) {
         baseParams.checkIntegrity();
         return Objects.requireNonNull(getDefault().getYaml().dumpAsMap(baseParams));
     }
 
-    public @NonNull String toStringAsVersion(@NonNull BaseParams baseParamsYaml, int version) {
+    public @NonNull String toStringAsVersion(@NonNull T baseParamsYaml, int version) {
         if (baseParamsYaml.getVersion()==version) {
             return toString(baseParamsYaml);
         }

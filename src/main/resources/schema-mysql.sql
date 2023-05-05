@@ -155,6 +155,17 @@ CREATE table mhbp_chapter
 CREATE UNIQUE INDEX mhbp_chapter_kb_id_code_idx
     ON mhbp_chapter (KB_ID, CODE);
 
+CREATE table mhbp_part
+(
+    ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
+    VERSION         INT UNSIGNED    NOT NULL,
+    CHAPTER_ID      INT UNSIGNED    NOT NULL,
+    PARAMS          MEDIUMTEXT      not null
+);
+
+CREATE INDEX mhbp_part_chapter_id_idx
+    ON mhbp_part (CHAPTER_ID);
+
 CREATE table mhbp_answer
 (
     ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
@@ -205,4 +216,32 @@ CREATE INDEX mhbp_evaluation_company_id_idx
     ON mhbp_evaluation (COMPANY_ID);
 
 
+CREATE table mhbp_scenario_group
+(
+    ID              INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
+    VERSION         INT UNSIGNED    NOT NULL,
+    COMPANY_ID      INT UNSIGNED    NOT NULL,
+    ACCOUNT_ID      INT UNSIGNED    NOT NULL,
+    CREATED_ON      bigint          NOT NULL,
+    NAME            VARCHAR(50)     NOT NULL,
+    DESCRIPTION     VARCHAR(250)    NOT NULL
+);
+
+CREATE INDEX mhbp_scenario_group_account_id_idx
+    ON mhbp_scenario_group (ACCOUNT_ID);
+
+CREATE table mhbp_scenario
+(
+    ID                  INT UNSIGNED    NOT NULL AUTO_INCREMENT  PRIMARY KEY,
+    VERSION             INT UNSIGNED    NOT NULL,
+    ACCOUNT_ID          INT UNSIGNED    NOT NULL,
+    API_ID              INT UNSIGNED    NOT NULL,
+    SCENARIO_GROUP_ID   INT UNSIGNED    NOT NULL,
+    CREATED_ON          bigint          NOT NULL,
+    NAME                VARCHAR(50)     NOT NULL,
+    DESCRIPTION         VARCHAR(250)    NOT NULL
+);
+
+CREATE INDEX mhbp_scenario_account_id_scenario_group_id_idx
+    ON mhbp_scenario (ACCOUNT_ID, SCENARIO_GROUP_ID);
 

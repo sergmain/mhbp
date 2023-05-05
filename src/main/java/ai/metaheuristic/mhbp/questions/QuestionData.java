@@ -19,6 +19,7 @@ package ai.metaheuristic.mhbp.questions;
 
 import ai.metaheuristic.mhbp.Enums;
 import ai.metaheuristic.mhbp.yaml.chapter.ChapterParams;
+import ai.metaheuristic.mhbp.yaml.part.PartParams;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -32,15 +33,15 @@ import java.util.List;
  */
 public class QuestionData {
 
-    public record PromptWithAnswerWithChapterId(long chapterId, QuestionWithAnswerToAsk prompt) {
-        public static PromptWithAnswerWithChapterId fromPrompt(long chapterId, ChapterParams.Prompt prompt) {
-            return new PromptWithAnswerWithChapterId(chapterId, new QuestionWithAnswerToAsk(prompt.p, prompt.a));
+    public record PromptWithAnswerWithChapterId(long chapterId, long partId, QuestionWithAnswerToAsk prompt) {
+        public static PromptWithAnswerWithChapterId fromPrompt(long chapterId, long partId, PartParams.Prompt prompt) {
+            return new PromptWithAnswerWithChapterId(chapterId, partId, new QuestionWithAnswerToAsk(prompt.p, prompt.a));
         }
     }
 
     public record QuestionWithAnswerToAsk(String q, String a) {
-        public ChapterParams.Prompt toPrompt() {
-            return new ChapterParams.Prompt(q, a);
+        public PartParams.Prompt toPrompt() {
+            return new PartParams.Prompt(q, a);
         }
     }
 
