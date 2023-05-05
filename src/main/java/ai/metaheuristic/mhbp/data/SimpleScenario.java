@@ -31,6 +31,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SimpleScenario {
     public Long scenarioId;
+    public Long scenarioGroupId;
     public Long apiId;
     public String apiCode;
     public long createdOn;
