@@ -79,9 +79,16 @@ public class ScenarioRestController {
         return scenarioTxService.createScenario(name, description, apiId, context);
     }
 
+    @PostMapping("/scenario-group-delete-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest scenarioGroupDeleteCommit(Long scenarioGroupId, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return scenarioTxService.deleteScenarioGroupById(scenarioGroupId, context);
+    }
+
     @PostMapping("/scenario-delete-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
-    public OperationStatusRest deleteCommit(Long scenarioId, Authentication authentication) {
+    public OperationStatusRest scenarioDeleteCommit(Long scenarioId, Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
         return scenarioTxService.deleteScenarioById(scenarioId, context);
     }

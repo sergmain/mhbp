@@ -75,18 +75,38 @@ public class ScenarioTxService {
     @Transactional
     public OperationStatusRest deleteScenarioById(Long scenarioId, RequestContext context) {
         if (scenarioId==null) {
-            return OperationStatusRest.OPERATION_STATUS_OK;
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "229.040 scenarioId is null");
         }
         Scenario scenario = scenarioRepository.findById(scenarioId).orElse(null);
         if (scenario == null) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR,
-                    "229.040 Scenario wasn't found, scenarioId: " + scenarioId, null);
+                    "229.080 Scenario wasn't found, scenarioId: " + scenarioId);
         }
         if (scenario.accountId!=context.getAccountId()) {
             return new OperationStatusRest(Enums.OperationStatus.ERROR, "229.080 scenarioId: " + scenarioId);
         }
 
         scenarioRepository.delete(scenario);
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
+
+    @Transactional
+    public OperationStatusRest deleteScenarioGroupById(Long scenarioGroupId, RequestContext context) {
+        if (scenarioGroupId==null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "229.120 scenarioGroupId is null");
+        }
+        ScenarioGroup scenarioGroup = scenarioGroupRepository.findById(scenarioGroupId).orElse(null);
+        if (scenarioGroup == null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "229.160 Scenario wasn't scenarioGroupId, scenarioId: " + scenarioGroupId);
+        }
+        if (scenarioGroup.accountId!=context.getAccountId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "239.080 scenarioGroupId: " + scenarioGroupId);
+        }
+
+        scenarioGroupRepository.delete(scenarioGroup);
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
 }
