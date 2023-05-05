@@ -31,7 +31,7 @@ public class ScenarioData {
 
     @RequiredArgsConstructor
     public static class ScenarioGroupsResult extends BaseDataClass {
-        public final Slice<SimpleScenarioGroup> scenarios;
+        public final Slice<SimpleScenarioGroup> scenarioGroups;
     }
 
     @Data
