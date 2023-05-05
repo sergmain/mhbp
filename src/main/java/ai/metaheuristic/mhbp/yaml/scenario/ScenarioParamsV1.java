@@ -41,10 +41,13 @@ public class ScenarioParamsV1 implements BaseParams  {
     @AllArgsConstructor
     public static class StepV1 {
         public String uuid;
+        public String name;
         // prompt
         public String p;
         // answer
         public String a;
+        public long apiId;
+        public String apiCode;
     }
 
     public List<StepV1> steps = new ArrayList<>();

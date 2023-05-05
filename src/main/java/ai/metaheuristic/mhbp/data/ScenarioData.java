@@ -18,6 +18,7 @@
 package ai.metaheuristic.mhbp.data;
 
 import ai.metaheuristic.mhbp.beans.ScenarioGroup;
+import ai.metaheuristic.mhbp.yaml.scenario.ScenarioParams;
 import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
@@ -76,5 +77,37 @@ public class ScenarioData {
             this.description = sg.description;
         }
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SimpleScenarioStep {
+        public long scenarioGroupId;
+        public String uuid;
+        public long apiId;
+        public String apiCode;
+        public String name;
+        public String prompt;
+        public String answer;
+
+        public SimpleScenarioStep(Long scenarioGroupId, ScenarioData.ApiUid apiUid, ScenarioParams.Step step) {
+            this.scenarioGroupId = scenarioGroupId;
+            this.uuid = step.uuid;
+            this.apiId = apiUid.id;
+            this.apiCode = apiUid.uid;
+            this.name = step.name;
+            this.prompt = step.p;
+            this.answer = step.a;
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(callSuper = false)
+    public static class SimpleScenarioSteps extends BaseDataClass {
+        public List<SimpleScenarioStep> steps;
+    }
+
 }
 

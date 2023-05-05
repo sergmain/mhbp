@@ -59,6 +59,15 @@ public class ScenarioRestController {
         return result;
     }
 
+    // /dispatcher/scenario/scenarios/3/scenario/1/steps:
+    @GetMapping("/scenarios/{scenarioGroupId}/scenario/{scenarioId}/steps")
+    public ScenarioData.SimpleScenarioSteps scenarios(@PathVariable Long scenarioGroupId, @PathVariable Long scenarioId, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        final ScenarioData.SimpleScenarioSteps result = scenarioService.getScenarioSteps(scenarioGroupId, scenarioId, context);
+        return result;
+    }
+
+
 
     @GetMapping(value = "/scenario-add")
     public ScenarioData.ScenarioUidsForAccount batchAdd(Authentication authentication) {
@@ -88,6 +97,19 @@ public class ScenarioRestController {
             Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
         return scenarioTxService.createScenario(scenarioGroupId, name, description, apiId, context);
+    }
+
+    @PostMapping("/scenario-step-add-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest addScenarioStepFormCommit(
+            @RequestParam(name = "scenarioGroupId") String scenarioGroupId,
+            @RequestParam(name = "scenarioId") String scenarioId,
+            @RequestParam(name = "name") String name,
+            @RequestParam(name = "prompt") String prompt,
+            @RequestParam(name = "apiId") String apiId,
+            Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return scenarioTxService.createScenarioStep(scenarioGroupId, scenarioId, name, prompt, apiId, context);
     }
 
     @PostMapping("/scenario-group-delete-commit")

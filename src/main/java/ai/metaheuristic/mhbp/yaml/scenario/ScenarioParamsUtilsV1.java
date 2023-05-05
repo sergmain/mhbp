@@ -52,7 +52,7 @@ public class ScenarioParamsUtilsV1 extends
 
     @Nullable
     private static ScenarioParams.Step toPrompt(ScenarioParamsV1.StepV1 v1) {
-        ScenarioParams.Step f = new ScenarioParams.Step(v1.uuid, v1.p, v1.a);
+        ScenarioParams.Step f = new ScenarioParams.Step(v1.uuid, v1.name, v1.p, v1.a, v1.apiId, v1.apiCode);
         return f;
     }
 

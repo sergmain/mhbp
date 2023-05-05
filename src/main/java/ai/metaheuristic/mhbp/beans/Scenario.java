@@ -105,7 +105,7 @@ CREATE table mhbp_scenario
     private final Object syncParamsObj = new Object();
 
     @JsonIgnore
-    public ScenarioParams getPartParams() {
+    public ScenarioParams getScenarioParams() {
         if (partParams==null) {
             synchronized (syncParamsObj) {
                 if (partParams==null) {

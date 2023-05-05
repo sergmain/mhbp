@@ -18,13 +18,16 @@
 package ai.metaheuristic.mhbp.scenario;
 
 import ai.metaheuristic.mhbp.api.ApiService;
+import ai.metaheuristic.mhbp.beans.Scenario;
 import ai.metaheuristic.mhbp.beans.ScenarioGroup;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.data.ScenarioData;
 import ai.metaheuristic.mhbp.data.SimpleScenario;
+import ai.metaheuristic.mhbp.repositories.ApiRepository;
 import ai.metaheuristic.mhbp.repositories.ScenarioGroupRepository;
 import ai.metaheuristic.mhbp.repositories.ScenarioRepository;
 import ai.metaheuristic.mhbp.utils.ControllerUtils;
+import ai.metaheuristic.mhbp.yaml.scenario.ScenarioParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,7 +35,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +51,7 @@ import java.util.stream.Collectors;
 public class ScenarioService {
 
     private final ApiService apiService;
+    private final ApiRepository apiRepository;
     private final ScenarioGroupRepository scenarioGroupRepository;
     private final ScenarioRepository scenarioRepository;
 
@@ -74,5 +80,29 @@ public class ScenarioService {
                 .map(o->new ScenarioData.ApiUid(o.id, o.code))
                 .toList();
         return r;
+    }
+
+    public ScenarioData.SimpleScenarioSteps getScenarioSteps(Long scenarioGroupId, Long scenarioId, RequestContext context) {
+        if (scenarioGroupId==null || scenarioId==null) {
+            return new ScenarioData.SimpleScenarioSteps(List.of());
+        }
+        Scenario s = scenarioRepository.findById(scenarioId).orElse(null);
+        if (s==null || s.scenarioGroupId!=scenarioGroupId || s.accountId!=context.getAccountId()) {
+            return new ScenarioData.SimpleScenarioSteps(List.of());
+        }
+        ScenarioParams scenarioParams = s.getScenarioParams();
+
+        Map<Long, ScenarioData.ApiUid> apis = new HashMap<>();
+        List<ScenarioData.SimpleScenarioStep> steps = scenarioParams.steps.stream()
+                .map(o-> {
+                    ScenarioData.ApiUid apiUid = apis.computeIfAbsent(o.apiId,
+                            (apiId)-> apiRepository.findById(apiId)
+                                    .map(api->new ScenarioData.ApiUid(api.id, api.code))
+                                    .orElse(new ScenarioData.ApiUid(0L, "<broken API Id>")));
+                    return new ScenarioData.SimpleScenarioStep(scenarioGroupId, apiUid, o);
+                })
+                .toList();
+
+        return new ScenarioData.SimpleScenarioSteps(steps);
     }
 }
