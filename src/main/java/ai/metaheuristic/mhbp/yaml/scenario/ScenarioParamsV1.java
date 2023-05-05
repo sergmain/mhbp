@@ -47,5 +47,5 @@ public class ScenarioParamsV1 implements BaseParams  {
         public String a;
     }
 
-    public List<StepV1> prompts = new ArrayList<>();
+    public List<StepV1> steps = new ArrayList<>();
 }

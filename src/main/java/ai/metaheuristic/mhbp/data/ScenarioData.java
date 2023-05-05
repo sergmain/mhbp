@@ -22,12 +22,30 @@ import lombok.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Slice;
 
+import java.util.List;
+
 /**
  * @author Sergio Lissner
  * Date: 5/4/2023
  * Time: 7:08 PM
  */
 public class ScenarioData {
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ApiUid {
+        public Long id;
+        public String uid;
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = false)
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ScenarioUidsForAccount extends BaseDataClass {
+        public List<ApiUid> apis;
+    }
 
     @RequiredArgsConstructor
     public static class ScenarioGroupsResult extends BaseDataClass {

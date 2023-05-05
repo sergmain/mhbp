@@ -238,7 +238,8 @@ CREATE table mhbp_scenario
     SCENARIO_GROUP_ID   NUMERIC(10, 0)  NOT NULL,
     CREATED_ON          bigint          NOT NULL,
     NAME                VARCHAR(50)     NOT NULL,
-    DESCRIPTION         VARCHAR(250)    NOT NULL
+    DESCRIPTION         VARCHAR(250)    NOT NULL,
+    PARAMS              VARCHAR(100000) not null
 );
 
 CREATE INDEX mhbp_scenario_account_id_scenario_group_id_idx

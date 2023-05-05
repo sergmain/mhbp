@@ -25,6 +25,8 @@ import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.repositories.ScenarioGroupRepository;
 import ai.metaheuristic.mhbp.repositories.ScenarioRepository;
+import ai.metaheuristic.mhbp.utils.S;
+import ai.metaheuristic.mhbp.yaml.scenario.ScenarioParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -59,15 +61,23 @@ public class ScenarioTxService {
     }
 
     @Transactional
-    public OperationStatusRest createScenario(String name, String description, String apiId, RequestContext context) {
-        ScenarioGroup s = new ScenarioGroup();
+    public OperationStatusRest createScenario(String scenarioGroupId, String name, String description, String apiId, RequestContext context) {
+        if (S.b(scenarioGroupId)) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,"229.015 scenarioGroupId is null");
+        }
+        if (S.b(apiId)) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,"229.020 apiId is null");
+        }
+        Scenario s = new Scenario();
+        s.scenarioGroupId = Long.parseLong(scenarioGroupId);
+        s.apiId = Long.parseLong(apiId);
         s.name = name;
         s.description = description;
-        s.companyId = context.getCompanyId();
         s.accountId = context.getAccountId();
         s.createdOn = System.currentTimeMillis();
+        s.updateParams( new ScenarioParams());
 
-        scenarioGroupRepository.save(s);
+        scenarioRepository.save(s);
 
         return OperationStatusRest.OPERATION_STATUS_OK;
     }

@@ -47,5 +47,5 @@ public class ScenarioParams implements BaseParams {
         public String a;
     }
 
-    public List<Step> prompts = new ArrayList<>();
+    public List<Step> steps = new ArrayList<>();
 }

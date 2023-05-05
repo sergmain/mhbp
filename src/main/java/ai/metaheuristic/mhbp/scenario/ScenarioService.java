@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.scenario;
 
+import ai.metaheuristic.mhbp.api.ApiService;
 import ai.metaheuristic.mhbp.beans.ScenarioGroup;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.data.ScenarioData;
@@ -44,6 +45,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ScenarioService {
 
+    private final ApiService apiService;
     private final ScenarioGroupRepository scenarioGroupRepository;
     private final ScenarioRepository scenarioRepository;
 
@@ -66,4 +68,11 @@ public class ScenarioService {
         return new ScenarioData.ScenariosResult(scenarios);
     }
 
+    public ScenarioData.ScenarioUidsForAccount getScenarioUidsForAccount(RequestContext context) {
+        ScenarioData.ScenarioUidsForAccount r = new ScenarioData.ScenarioUidsForAccount();
+        r.apis = apiService.getApisAllowedForCompany(context).stream()
+                .map(o->new ScenarioData.ApiUid(o.id, o.code))
+                .toList();
+        return r;
+    }
 }

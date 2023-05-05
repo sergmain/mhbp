@@ -17,6 +17,7 @@
 
 package ai.metaheuristic.mhbp.rest;
 
+import ai.metaheuristic.mhbp.data.EvaluationData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.data.ScenarioData;
@@ -58,6 +59,15 @@ public class ScenarioRestController {
         return result;
     }
 
+
+    @GetMapping(value = "/scenario-add")
+    public ScenarioData.ScenarioUidsForAccount batchAdd(Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        ScenarioData.ScenarioUidsForAccount result = scenarioService.getScenarioUidsForAccount(context);
+        return result;
+    }
+
+
     @PostMapping("/scenario-group-add-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
     public OperationStatusRest addScenarioGroupFormCommit(
@@ -71,12 +81,13 @@ public class ScenarioRestController {
     @PostMapping("/scenario-add-commit")
 //    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
     public OperationStatusRest addScenarioFormCommit(
+            @RequestParam(name = "scenarioGroupId") String scenarioGroupId,
             @RequestParam(name = "name") String name,
             @RequestParam(name = "description") String description,
             @RequestParam(name = "apiId") String apiId,
             Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
-        return scenarioTxService.createScenario(name, description, apiId, context);
+        return scenarioTxService.createScenario(scenarioGroupId, name, description, apiId, context);
     }
 
     @PostMapping("/scenario-group-delete-commit")

@@ -45,7 +45,7 @@ public class ScenarioParamsUtilsV1 extends
         v1.checkIntegrity();
 
         ScenarioParams t = new ScenarioParams();
-        t.prompts = v1.prompts.stream().map(ScenarioParamsUtilsV1::toPrompt).collect(Collectors.toList());
+        t.steps = v1.steps.stream().map(ScenarioParamsUtilsV1::toPrompt).collect(Collectors.toList());
         t.checkIntegrity();
         return t;
     }
