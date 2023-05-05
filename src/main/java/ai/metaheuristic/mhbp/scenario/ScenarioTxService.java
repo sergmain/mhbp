@@ -115,7 +115,7 @@ public class ScenarioTxService {
 
         ScenarioParams sp = s.getScenarioParams();
         sp.steps.add(new ScenarioParams.Step(UUID.randomUUID().toString(), name, prompt, null, api.id, api.code));
-        s.updateParams( new ScenarioParams());
+        s.updateParams(sp);
 
         scenarioRepository.save(s);
 

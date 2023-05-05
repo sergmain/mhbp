@@ -67,10 +67,15 @@ public class ScenarioRestController {
         return result;
     }
 
-
-
     @GetMapping(value = "/scenario-add")
-    public ScenarioData.ScenarioUidsForAccount batchAdd(Authentication authentication) {
+    public ScenarioData.ScenarioUidsForAccount scenarioAdd(Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        ScenarioData.ScenarioUidsForAccount result = scenarioService.getScenarioUidsForAccount(context);
+        return result;
+    }
+
+    @GetMapping(value = "/scenario-step-add")
+    public ScenarioData.ScenarioUidsForAccount scenarioStepAdd(Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
         ScenarioData.ScenarioUidsForAccount result = scenarioService.getScenarioUidsForAccount(context);
         return result;
