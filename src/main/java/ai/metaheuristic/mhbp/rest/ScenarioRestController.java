@@ -17,7 +17,6 @@
 
 package ai.metaheuristic.mhbp.rest;
 
-import ai.metaheuristic.mhbp.data.EvaluationData;
 import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.data.ScenarioData;
@@ -29,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 /**
  * @author Sergio Lissner
@@ -78,6 +79,20 @@ public class ScenarioRestController {
     public ScenarioData.ScenarioUidsForAccount scenarioStepAdd(Authentication authentication) {
         RequestContext context = userContextService.getContext(authentication);
         ScenarioData.ScenarioUidsForAccount result = scenarioService.getScenarioUidsForAccount(context);
+        return result;
+    }
+
+    @PostMapping(value = "/scenario-step-rearrange")
+    public OperationStatusRest scenarioStepRearrange(
+            @RequestParam(name = "scenarioId") Long scenarioId,
+            @RequestParam(name = "prev") String previousIndex,
+            @RequestParam(name = "curr") String currentIndex,
+            Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        if (Objects.equals(previousIndex, currentIndex)) {
+            return OperationStatusRest.OPERATION_STATUS_OK;
+        }
+        OperationStatusRest result = scenarioTxService.scenarioStepRearrange(scenarioId, previousIndex, currentIndex, context);
         return result;
     }
 

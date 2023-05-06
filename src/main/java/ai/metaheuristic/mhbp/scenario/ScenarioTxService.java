@@ -182,4 +182,40 @@ public class ScenarioTxService {
         scenarioRepository.save(s);
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
+
+    @Transactional
+    public OperationStatusRest scenarioStepRearrange(Long scenarioId, String previousIndexStr, String currentIndexStr, RequestContext context) {
+        if (scenarioId==null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "229.480 scenarioGroupId is null");
+        }
+        Scenario s = scenarioRepository.findById(scenarioId).orElse(null);
+        if (s == null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "229.520 Scenario wasn't scenarioGroupId, scenarioId: " + scenarioId);
+        }
+        if (s.accountId!=context.getAccountId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "239.560 scenarioId: " + scenarioId);
+        }
+
+        if (S.b(previousIndexStr) || S.b(currentIndexStr)) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "239.565 indexes");
+        }
+
+        int previousIndex = Integer.parseInt(previousIndexStr);
+        int currentIndex = Integer.parseInt(currentIndexStr);
+
+        ScenarioParams sp = s.getScenarioParams();
+
+        if (sp.steps.size()<=previousIndex || sp.steps.size()<= currentIndex) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "239.570 indexes >" + sp.steps.size());
+        }
+
+        ScenarioParams.Step step = sp.steps.remove(previousIndex);
+        sp.steps.add(currentIndex, step);
+        s.updateParams(sp);
+
+        scenarioRepository.save(s);
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
 }
