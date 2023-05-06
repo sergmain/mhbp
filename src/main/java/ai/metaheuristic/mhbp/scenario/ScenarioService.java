@@ -99,7 +99,7 @@ public class ScenarioService {
                             (apiId)-> apiRepository.findById(apiId)
                                     .map(api->new ScenarioData.ApiUid(api.id, api.code))
                                     .orElse(new ScenarioData.ApiUid(0L, "<broken API Id>")));
-                    return new ScenarioData.SimpleScenarioStep(scenarioGroupId, apiUid, o);
+                    return new ScenarioData.SimpleScenarioStep(s.id, apiUid, o);
                 })
                 .toList();
 

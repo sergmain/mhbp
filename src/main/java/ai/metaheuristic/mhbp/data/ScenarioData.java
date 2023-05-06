@@ -82,7 +82,7 @@ public class ScenarioData {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SimpleScenarioStep {
-        public long scenarioGroupId;
+        public long scenarioId;
         public String uuid;
         public long apiId;
         public String apiCode;
@@ -90,8 +90,8 @@ public class ScenarioData {
         public String prompt;
         public String answer;
 
-        public SimpleScenarioStep(Long scenarioGroupId, ScenarioData.ApiUid apiUid, ScenarioParams.Step step) {
-            this.scenarioGroupId = scenarioGroupId;
+        public SimpleScenarioStep(Long scenarioId, ScenarioData.ApiUid apiUid, ScenarioParams.Step step) {
+            this.scenarioId = scenarioId;
             this.uuid = step.uuid;
             this.apiId = apiUid.id;
             this.apiCode = apiUid.uid;
