@@ -131,4 +131,12 @@ public class ScenarioRestController {
         return scenarioTxService.deleteScenarioById(scenarioId, context);
     }
 
+    // /dispatcher/scenario/scenario-step-delete-commit: 404 OK
+    @PostMapping("/scenario-step-delete-commit")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest scenarioDeleteCommit(Long scenarioId, String uuid, Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return scenarioTxService.deleteScenarioStep(scenarioId, uuid, context);
+    }
+
 }

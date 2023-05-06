@@ -159,4 +159,27 @@ public class ScenarioTxService {
         scenarioGroupRepository.delete(scenarioGroup);
         return OperationStatusRest.OPERATION_STATUS_OK;
     }
+
+    @Transactional
+    public OperationStatusRest deleteScenarioStep(Long scenarioId, String uuid, RequestContext context) {
+        if (scenarioId==null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "229.440 scenarioGroupId is null");
+        }
+        Scenario s = scenarioRepository.findById(scenarioId).orElse(null);
+        if (s == null) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR,
+                    "229.480 Scenario wasn't scenarioGroupId, scenarioId: " + scenarioId);
+        }
+        if (s.accountId!=context.getAccountId()) {
+            return new OperationStatusRest(Enums.OperationStatus.ERROR, "239.440 scenarioId: " + scenarioId);
+        }
+
+        ScenarioParams sp = s.getScenarioParams();
+        sp.steps = sp.steps.stream().filter(o->!o.uuid.equals(uuid)).toList();
+        s.updateParams(sp);
+
+        scenarioRepository.save(s);
+        return OperationStatusRest.OPERATION_STATUS_OK;
+    }
 }
