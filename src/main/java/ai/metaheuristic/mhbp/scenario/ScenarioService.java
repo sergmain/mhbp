@@ -20,6 +20,7 @@ package ai.metaheuristic.mhbp.scenario;
 import ai.metaheuristic.mhbp.api.ApiService;
 import ai.metaheuristic.mhbp.beans.Scenario;
 import ai.metaheuristic.mhbp.beans.ScenarioGroup;
+import ai.metaheuristic.mhbp.data.OperationStatusRest;
 import ai.metaheuristic.mhbp.data.RequestContext;
 import ai.metaheuristic.mhbp.data.ScenarioData;
 import ai.metaheuristic.mhbp.data.SimpleScenario;
@@ -104,5 +105,13 @@ public class ScenarioService {
                 .toList();
 
         return new ScenarioData.SimpleScenarioSteps(steps);
+    }
+
+    public OperationStatusRest runScenario(String scenarioGroupId, String scenarioId, String name, String prompt, String apiId, RequestContext context) {
+        return null;
+    }
+
+    public OperationStatusRest duplicateScenario(String scenarioGroupId, String scenarioId, String name, String prompt, String apiId, RequestContext context) {
+        return null;
     }
 }

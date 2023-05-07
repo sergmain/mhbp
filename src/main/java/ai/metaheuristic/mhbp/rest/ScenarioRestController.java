@@ -154,4 +154,30 @@ public class ScenarioRestController {
         return scenarioTxService.deleteScenarioStep(scenarioId, uuid, context);
     }
 
+    @PostMapping("/scenario-duplicate")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest duplicateScenario(
+            @RequestParam(name = "scenarioGroupId") String scenarioGroupId,
+            @RequestParam(name = "scenarioId") String scenarioId,
+            @RequestParam(name = "name") String name,
+            @RequestParam(name = "prompt") String prompt,
+            @RequestParam(name = "apiId") String apiId,
+            Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return scenarioService.duplicateScenario(scenarioGroupId, scenarioId, name, prompt, apiId, context);
+    }
+
+    @PostMapping("/scenario-run")
+//    @PreAuthorize("hasAnyRole('MASTER_ASSET_MANAGER', 'ADMIN', 'DATA')")
+    public OperationStatusRest runScenario(
+            @RequestParam(name = "scenarioGroupId") String scenarioGroupId,
+            @RequestParam(name = "scenarioId") String scenarioId,
+            @RequestParam(name = "name") String name,
+            @RequestParam(name = "prompt") String prompt,
+            @RequestParam(name = "apiId") String apiId,
+            Authentication authentication) {
+        RequestContext context = userContextService.getContext(authentication);
+        return scenarioService.runScenario(scenarioGroupId, scenarioId, name, prompt, apiId, context);
+    }
+
 }
