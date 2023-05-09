@@ -2,6 +2,7 @@
 
 Metaheuristic behavior platform (MHBP) is an application for continuous evaluation and assessing LLM-base APIs.  
 
+# Everything in this repository was moved to the main repository of Metaheuristic - https://github.com/sergmain/metaheuristic
 
 ## Table of contents
 
